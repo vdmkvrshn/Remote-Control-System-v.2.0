@@ -1,6 +1,6 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
-#include <p18F2620.h>
+//#include <p18F2620.h>
 
 
 // CONFIG1H
