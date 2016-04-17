@@ -1,6 +1,7 @@
-//#include <stdio.h>
-#include <stdlib.h>
-//#include <p18F2620.h>
+
+#include <xc.h>
+#include <stdio.h>
+#include <pic18f2620.h>
 
 
 // CONFIG1H
@@ -132,6 +133,7 @@ typedef struct {
 #define EMPTY_SYMBOL_VALUE ' '
 #define UNDERSCORE_SYMBOL_VALUE '_' //_
 #define EMPTY_STRING_16 "                "
+#define BELL_SYMBOL '•'
 
 void main2(void);
 void lcd_init(void);
@@ -150,6 +152,7 @@ unsigned long int ReadFourBytesEE(unsigned int adress);
 unsigned char *GetDayOfWeek(unsigned char day);
 unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord);
 unsigned int FindNextTimeStart(unsigned long int *TimeFrom);
+unsigned char getNumChar(unsigned char num);
 void I2CInit(void);
 void I2CStart(void);
 void I2CStop(void);
@@ -158,6 +161,7 @@ void I2CAck(void);
 void I2CNak(void);
 void I2CWait(void);
 void I2CSend(unsigned char dat);
+void outputString(unsigned char * stringData, unsigned char line, unsigned char position);
 unsigned char I2CRead(void);
 void ReadTime();
 void WriteTime(unsigned char Minutes, unsigned char Hours, unsigned char DayOfWeek);
@@ -235,7 +239,7 @@ unsigned char getLcdCodeOfChar(unsigned char dig) {
 	case '^': return 0x5E;
 	case '_': return 0x5F;
 	case '`': return 0x60;
-	case 'Т'	: return 0x27;
+	case 'Т': return 0x27;
 	case '+': return 0x2B;
 	case '<': return 0x3C;
 	case '=': return 0x3D;
@@ -364,6 +368,7 @@ unsigned char getLcdCodeOfChar(unsigned char dig) {
 	case 'ю': return 0xC6;
 	case 'я': return 0xB1;
 	case '€': return 0xC7;
+    case '•': return 0xED; //bell
 
 	default: return 0x3F; // '?'
 	}
@@ -383,46 +388,50 @@ void NumericToIndicator(unsigned long int n, unsigned char displacement) {
 	clrInd();
 	displacement++;
 	do {
-		setDigit(0, displacement, n % 10);
+		setDigit(0, displacement, getNumChar(n % 10));
 		n /= 10;
 		displacement++;
 	} while ((displacement < 10)&(n > 0));
 }
 
+void NumericToString(unsigned long int n, unsigned char * mySring, unsigned char size) {
+	unsigned char displacement = 1;
+	do {
+		mySring[size - displacement] = getNumChar(n % 10);
+		n /= 10;
+		displacement++;
+	} while ((size - displacement > 0) && (n > 0));
+}
+
 unsigned char *GetDayOfWeek(unsigned char day) {
-	static unsigned char array[3] = {0, 0, 255};
+	static unsigned char array[3] = "  ";
 	if (day == 1) {
-		array[1] = 57;
-		array[0] = 55;
-		//	array = "пн";
-	}// пн
+		array[0] = 'п';
+		array[1] = 'н';
+	}
 	else if (day == 2) {
-		array[1] = 43;
-		array[0] = 60;
-	}// вт
+		array[0] = 'в';
+		array[1] = 'т';
+	}
 	else if (day == 3) {
-		array[1] = 59;
-		array[0] = 58;
-	}// ср
+		array[0] = 'с';
+		array[1] = 'р';
+	}
 	else if (day == 4) {
-		array[1] = 65;
-		array[0] = 60;
-	}// чт
+		array[0] = 'ч';
+		array[1] = 'т';
+	}
 	else if (day == 5) {
-		array[1] = 57;
-		array[0] = 60;
-	}// пт
+		array[0] = 'п';
+		array[1] = 'т';
+	}
 	else if (day == 6) {
-		array[1] = 59;
-		array[0] = 42;
-	}// сб
+		array[0] = 'с';
+		array[1] = 'б';
+	}
 	else if (day == 7) {
-		array[1] = 43;
-		array[0] = 59;
-	}// вс
-	else {
-		array[1] = 34;
-		array[0] = 34;
+		array[0] = 'в';
+		array[1] = 'с';
 	}
 	return array;
 }
@@ -447,50 +456,45 @@ void TimeToInd() {
 		flags.RelevanceOfNextStartCell = 1;
 	}
 	if (AdressOfNextStartCell == 240 || !flags.DetailModeOfViewSheduler) {
-		char line = 0;
-		char symbol = 3;
 		unsigned char SignalsFinal = CurrentSignals | SignalsForInd;
 		if (flags.ModeOfFirstLine != (SignalsFinal > 0)) {
 			clrInd();
 			flags.ModeOfFirstLine = SignalsFinal > 0;
 		}
 		if (SignalsFinal > 0) {
-			symbol = 4;
 
-			unsigned char D[4] = {34, 34, 34, 255};
+			unsigned char D [] = "   ";
 			for (unsigned char i = 1; i < 4; i++) {
 				unsigned char SignalOn = SignalsFinal % 2;
 				SignalsFinal /= 2;
 				if (SignalOn == 1) {
-					D[2] = D[1];
-					D[1] = D[0];
-					D[0] = getNumChar(i);
+					D[0] = D[1];
+					D[1] = D[2];
+					D[2] = getNumChar(i);
 				}
 			}
-			outputString(D, line, 13);
+			outputString(D, 0, 13);
 		}
 
-		setDigit(line, symbol + 3, 35);
-		setDigit(line, symbol + 6, 35);
+        unsigned char TimeData [] = "  :  :  "; // чч:мм:сс
 		long int temp = Clock / 100;
-		setDigit(line, symbol + 1, getNumChar(temp % 10));
+        TimeData[7] = getNumChar(temp % 10);
 		temp /= 10;
-		setDigit(line, symbol + 2, getNumChar(temp % 6));
+        TimeData[6] = getNumChar(temp % 6);
 		temp /= 6;
-		setDigit(line, symbol + 4, getNumChar(temp % 10));
+        TimeData[4] = getNumChar(temp % 10);
 		temp /= 10;
-		setDigit(line, symbol + 5, getNumChar(temp % 6));
+        TimeData[3] = getNumChar(temp % 6);
 		temp /= 6;
 		unsigned char day = temp / 24 + 1;
 		temp %= 24;
-		setDigit(line, symbol + 7, getNumChar(temp % 10));
-		setDigit(line, symbol + 8, getNumChar(temp / 10));
-
-		SendArrayToLCD(GetDayOfWeek(day), line, symbol + 10);
+        TimeData[1] = getNumChar(temp % 10);
+        TimeData[0] = getNumChar(temp / 10);
+        
+        outputString(TimeData, 0, (SignalsFinal > 0) ? 4 : 5);
+        outputString(GetDayOfWeek(day), 0, (SignalsFinal > 0) ? 1 : 2);
 	}
-
-	unsigned char DataArray[17] = EMPTY_STRING_16;
-
+    
 	if (flags.LockSignals && !flags.DetailModeOfViewSheduler) {
 		outputString("–асписание откл.", 1, 0);
 		return;
@@ -498,77 +502,77 @@ void TimeToInd() {
 
 	if (AdressOfNextStartCell != 240) {
 
-		DataArray[15] = 90;
+    	unsigned char DataArray[] = EMPTY_STRING_16;
+        
+		DataArray[0] = BELL_SYMBOL;
 
 		char line = 1;
+        
 		unsigned int TimeStart;
 		unsigned int TimeStop;
 		unsigned char Days;
 		unsigned char Signals;
 		ParseDataRecord(ReadFourBytesEE(AdressOfNextStartCell), &TimeStart, &TimeStop, &Days, &Signals);
-
+        
 		unsigned int Time;
 		unsigned char Day;
 		ParseTime(NearTimeStart, &Time, &Day);
 
-		char nSymb = 0;
 		if (flags.DetailModeOfViewSheduler) {
 			line = 0;
-			nSymb = 2;
-			DataArray[14] = 34;
-			DataArray[10] = 59; // c
 		}
-		DataArray[8 - nSymb] = 35; //:
-		DataArray[6 - nSymb] = Time % 10;
+        
+		DataArray[11] = getNumChar(Time % 10);
 		Time /= 10;
-		DataArray[7 - nSymb] = Time % 6;
+		DataArray[10] = getNumChar(Time % 6);
 		Time /= 6;
-		DataArray[9 - nSymb] = Time % 10;
-		Time /= 10;
-		DataArray[10 - nSymb] = Time % 10;
+		DataArray[9] = ":";
+		DataArray[8] = getNumChar(Time % 10);
+		DataArray[7] = getNumChar(Time / 10);
 
-		for (unsigned char i = 1; i < 4; i++) {
+	/*	for (unsigned char i = 1; i < 4; i++) {
 			unsigned char SignalOn = Signals % 2;
 			Signals /= 2;
 			if (SignalOn == 1) {
 				char j = nSymb / 2;
 				DataArray[3 - j] = DataArray[2 - j];
 				DataArray[2 - j] = DataArray[1 - j];
-				DataArray[1 - j] = i;
+				DataArray[1 - j] = getNumChar(i);
 			}
 		}
+     */
 		unsigned char *DataArray2 = GetDayOfWeek(Day);
-		DataArray[12] = DataArray2[0];
-		DataArray[13] = DataArray2[1];
+		DataArray[2] = DataArray2[0];
+		DataArray[3] = DataArray2[1];
 
-		SendArrayToLCD(DataArray, line, 1);
+        outputString(DataArray, line, 1);
 
 		if (flags.DetailModeOfViewSheduler) {
-			unsigned char DataArrayOfLine2[13] = {34, 34, 35, 34, 34, 34, 56, 57, 34, 34, 34, 76, 255};
-			DataArrayOfLine2[0] = TimeStop % 10;
+			unsigned char DataArrayOfLine2[] = "є      по   :  "; // є12    по 12:30
+			DataArrayOfLine2[14] = TimeStop % 10;
 			TimeStop /= 10;
-			DataArrayOfLine2[1] = TimeStop % 6;
+			DataArrayOfLine2[13] = TimeStop % 6;
 			TimeStop /= 6;
-			DataArrayOfLine2[3] = TimeStop % 10;
+			DataArrayOfLine2[11] = TimeStop % 10;
 			TimeStop /= 10;
-			DataArrayOfLine2[4] = TimeStop % 10;
+			DataArrayOfLine2[10] = TimeStop % 10;
 
 			unsigned char CellsNumber = AdressOfNextStartCell / 4 + 1;
 			do {
 				char d = CellsNumber % 10;
-				DataArrayOfLine2[9] = DataArrayOfLine2[10];
-				DataArrayOfLine2[10] = d;
+				DataArrayOfLine2[2] = DataArrayOfLine2[1];
+				DataArrayOfLine2[1] = d;
 				CellsNumber /= 10;
 			} while (CellsNumber > 0);
 
-			SendArrayToLCD(DataArrayOfLine2, 1, 5);
+			outputString(DataArrayOfLine2, 1, 0);
 		}
 	} else {
 		if (flags.DetailModeOfViewSheduler) {
 			clrInd();
 			flags.DetailModeOfViewSheduler = 0;
 		}
-		SendArrayToLCD(DataArray, 1, 1);
+        outputString(EMPTY_STRING_16, 1, 1);
 	}
 }
 
@@ -576,7 +580,7 @@ void EEWR(unsigned int adress, unsigned char data) {
 	volatile unsigned char INTCON_BUP = INTCON;
 	INTCONbits.GIEH = 0;
 	INTCONbits.GIEL = 0;
-	ClrWdt();
+	CLRWDT();
 	EEADRH = adress >> 8;
 	EEADR = adress % 255;
 	EEDATA = data;
@@ -611,36 +615,36 @@ unsigned char EERD(unsigned int adress) {
 
 void ReIndTimeEdit(long int n) {
 	long int temp = n;
-	setDigit(0, 2, temp % 10);
+	setDigit(0, 14, getNumChar(temp % 10));
 	temp /= 10;
-	setDigit(0, 3, temp % 6);
+	setDigit(0, 13, getNumChar(temp % 6));
 	temp /= 6;
 	temp %= 24;
-	setDigit(0, 4, 35);
-	setDigit(0, 5, temp % 10);
-	setDigit(0, 6, temp / 10);
-	setDigit(0, 8, 1 + n / 1440);
+	setDigit(0, 12, ':');
+	setDigit(0, 11, getNumChar(temp % 10));
+	setDigit(0, 10, getNumChar(temp / 10));
+	setDigit(0, 8, getNumChar(1 + n / 1440));
 
 
-	setDigit(1, 1, cYears % 16);
-	setDigit(1, 2, cYears / 16);
-	setDigit(1, 3, 0);
-	setDigit(1, 4, 2);
-	setDigit(1, 5, 86);
-	setDigit(1, 6, cMonths % 16);
-	setDigit(1, 7, cMonths / 16);
-	setDigit(1, 8, 86);
-	setDigit(1, 9, cDays % 16);
-	setDigit(1, 10, cDays / 16);
+	setDigit(1, 15, getNumChar(cYears % 16));
+	setDigit(1, 14, getNumChar(cYears / 16));
+	setDigit(1, 13, getNumChar(0));
+	setDigit(1, 12, getNumChar(2));
+	setDigit(1, 11, '/');
+	setDigit(1, 10, getNumChar(cMonths % 16));
+	setDigit(1, 9, getNumChar(cMonths / 16));
+	setDigit(1, 8, '/');
+	setDigit(1, 7, getNumChar(cDays % 16));
+	setDigit(1, 6, getNumChar(cDays / 16));
 }
 
 void TimeEdit() {
 	long int t;
 	unsigned char c;
-	flags.isTimeSetting = 1;
+	flags.isTimeSetting = 1;0
 	clrInd();
 	t = Clock / 6000;
-	setBlink(0, 6, 1);
+	setBlink(0, 10, 1);
 	char j;
 	c = 2;
 	unsigned char borders[] = {0, 2};
@@ -653,49 +657,49 @@ void TimeEdit() {
 			borders[1] = 2;
 			c++;
 			setBlink(0, 8, 0);
-			setBlink(0, 6, 1);
+			setBlink(0, 10, 1);
 		} else if (j != 255 && c == 2) {
-			t = t + (j - getDigit(0, 6))*600;
+			t = t + (j - getDigit(0, 10))*600;
 			if (j > 1) {
 				borders[0] = 0;
 				borders[1] = 3;
-				if (getDigit(0, 5) > 3) {
-					t = t + (3 - getDigit(0, 5))*60;
+				if (getDigit(0, 11) > 3) {
+					t = t + (3 - getDigit(0, 11))*60;
 				}
 			} else {
 				borders[0] = 0;
 				borders[1] = 9;
 			}
 			c++;
-			setBlink(0, 6, 0);
-			setBlink(0, 5, 1);
+			setBlink(0, 10, 0);
+			setBlink(0, 11, 1);
 		} else if (j != 255 && c == 3) {
-			t = t + (j - getDigit(0, 5))*60;
+			t = t + (j - getDigit(0, 11))*60;
 			borders[0] = 0;
 			borders[1] = 5;
 			c++;
-			setBlink(0, 5, 0);
-			setBlink(0, 3, 1);
+			setBlink(0, 11, 0);
+			setBlink(0, 13, 1);
 		} else if (j != 255 && c == 4) {
-			t = t + (j - getDigit(0, 3))*10;
+			t = t + (j - getDigit(0, 13))*10;
 			borders[0] = 0;
 			borders[1] = 9;
 			c++;
-			setBlink(0, 3, 0);
-			setBlink(0, 2, 1);
+			setBlink(0, 13, 0);
+			setBlink(0, 14, 1);
 		} else if (j != 255 & c == 5) {
-			t = t + j - getDigit(0, 2);
+			t = t + j - getDigit(0, 14);
 			borders[0] = 0;
 			borders[1] = 2;
 			c++;
-			setBlink(0, 2, 0);
-			setBlink(1, 10, 1);
+			setBlink(0, 14, 0);
+			setBlink(1, 6, 1);
 		} else if (j != 255 && c == 6) {
-			cDays = (j * 16) + getDigit(1, 9);
+			cDays = (j * 16) + getDigit(1, 7);
 			if (j == 0) {
 				borders[0] = 1;
 				borders[1] = 9;
-				if (getDigit(1, 9) == 0) setDigit(1, 9, 1);
+				if (getDigit(1, 9) == 0) setDigit(1, 7, 1);
 			} else if (j < 3) {
 				borders[0] = 0;
 				borders[1] = 9;
@@ -704,49 +708,49 @@ void TimeEdit() {
 				borders[1] = 1;
 			}
 			c++;
-			setBlink(1, 10, 0);
-			setBlink(1, 9, 1);
+			setBlink(1, 6, 0);
+			setBlink(1, 7, 1);
 		} else if (j != 255 && c == 7) {
-			cDays = (getDigit(1, 10)*16) + j;
+			cDays = (getDigit(1, 6)*16) + j;
 			borders[0] = 0;
 			borders[1] = 1;
 			c++;
-			setBlink(1, 9, 0);
-			setBlink(1, 7, 1);
+			setBlink(1, 7, 0);
+			setBlink(1, 9, 1);
 		} else if (j != 255 && c == 8) {
-			cMonths = (j * 16) + getDigit(1, 6);
+			cMonths = (j * 16) + getDigit(1, 10);
 			if (j == 0) {
 				borders[0] = 1;
 				borders[1] = 9;
-				if (getDigit(1, 7) == 0) setDigit(1, 6, 1);
+				if (getDigit(1, 9) == 0) setDigit(1, 10, 1);
 			} else if (j == 1) {
 				borders[0] = 0;
 				borders[1] = 2;
 			}
 			c++;
-			setBlink(1, 7, 0);
-			setBlink(1, 6, 1);
+			setBlink(1, 9, 0);
+			setBlink(1, 10, 1);
 		} else if (j != 255 && c == 9) {
-			cMonths = (getDigit(1, 7)*16) + j;
+			cMonths = (getDigit(1, 9)*16) + j;
 			borders[0] = 0;
 			borders[1] = 9;
 			c = 10;
-			setBlink(1, 6, 0);
-			setBlink(1, 2, 1);
+			setBlink(1, 10, 0);
+			setBlink(1, 14, 1);
 		} else if (j != 255 && c == 10) {
-			cYears = (j * 16) + getDigit(1, 1);
+			cYears = (j * 16) + getDigit(1, 15);
 			borders[0] = 0;
 			borders[1] = 9;
 			c++;
-			setBlink(1, 2, 0);
-			setBlink(1, 1, 1);
+			setBlink(1, 14, 0);
+			setBlink(1, 15, 1);
 		} else if (j != 255 && c == 11) {
-			cYears = (getDigit(1, 2)*16) + j;
+			cYears = (getDigit(1, 14)*16) + j;
 			borders[0] = 0;
 			borders[1] = 2;
 			c = 2;
-			setBlink(1, 1, 0);
-			setBlink(0, 6, 1);
+			setBlink(1, 15, 0);
+			setBlink(0, 10, 1);
 		}
 
 		if (KeyCode == 44) {
@@ -757,12 +761,12 @@ void TimeEdit() {
 				borders[0] = 0;
 				borders[1] = 2;
 				setBlink(0, 8, 0);
-				setBlink(0, 6, 1);
+				setBlink(0, 10, 1);
 			} else if (c > 1 && c < 6) {
 				c = 6;
 				borders[0] = 0;
 				borders[1] = 3;
-				setBlink(1, 10, 1);
+				setBlink(1, 6, 1);
 			} else if (c > 5) {
 				c = 1;
 				borders[0] = 1;
@@ -775,7 +779,7 @@ void TimeEdit() {
 			return;
 		} else if (KeyCode == 42) {
 			KeyCode = 0;
-			WriteTime(getDigit(0, 3) * 16 + getDigit(0, 2), getDigit(0, 6) * 16 + getDigit(0, 5), getDigit(0, 8));
+			WriteTime(getDigit(0, 13) * 16 + getDigit(0, 14), getDigit(0, 10) * 16 + getDigit(0, 11), getDigit(0, 8));
 			clrInd();
 			return;
 		}
@@ -955,72 +959,65 @@ unsigned char FindCell(unsigned int adressStart, char New, unsigned char previou
 }
 
 unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned int CopyFrom) {
+    
+    unsigned char cell = 0;
+    
 	if (adress != 240 && (New != 1 ? EERD(adress + 2) != 0xFF : EERD(adress + 2) == 0xFF)) {
-		NumericToIndicator(adress / 4 + 1, 1);
+		cell = adress / 4 + 1, 1;
 	} else {
 		adress = FindCell(adress, New, 0);
 		if (adress != 240) {
-			NumericToIndicator(adress / 4 + 1, 1);
-		} else {
-			setDigit(0, 3, 32);
-			setDigit(0, 2, 32);
+        	cell = adress / 4 + 1, 1;
 		}
 	}
+    
+    if(cell != 0){
+        unsigned char num [] = "  ";
+        NumericToString(cell, num, sizeof(num));
+        outputString(num, 0, 12);
+    }else{
+        setDigit(0, 13, '-');
+        setDigit(0, 14, '-');
+    }
+    
 	if (New == 1) {
 		if (CopyFrom != 240) {
-			setDigit(0, 15, 26); //t
-			setDigit(0, 14, 22); //o
-
-			setDigit(1, 15, 12); //c
-			setDigit(1, 14, 22); //o
-			setDigit(1, 13, 23); //p
-			setDigit(1, 12, 29); //y
-			setDigit(1, 11, 34); // 
-			setDigit(1, 10, 15); //f
-			setDigit(1, 9, 24); //r
-			setDigit(1, 8, 22); //o
-			setDigit(1, 7, 37); //m
-
-			setDigit(1, 2, 91); //^
-			unsigned char NumberFrom = CopyFrom / 4 + 1;
+            outputString("to ", 0, 1);
+            outputString("copy from ", 1, 1);
+			
+            unsigned char NumberFrom = CopyFrom / 4 + 1;
 			if (NumberFrom > 9) {
-				setDigit(1, 5, NumberFrom / 10);
+				setDigit(1, 11, getNumChar(NumberFrom / 10));
 			}
-			setDigit(1, 4, NumberFrom % 10);
+			setDigit(1, 12, getNumChar(NumberFrom % 10));
 		}
-		setDigit(0, 12, 21);
-		setDigit(0, 11, 14);
-		setDigit(0, 10, 36);
+        outputString("new ", 0, 4);
 	}
-	setDigit(0, 8, 12);
-	setDigit(0, 7, 14);
-	setDigit(0, 6, 20);
-	setDigit(0, 5, 20);
+    outputString("cell ", 0, 8);
+    
 	return adress;
 }
 
-void TimesToIndicator(unsigned int Times[]) {
+void TimesToIndicator(unsigned int * Times) {
 	unsigned int temp;
 	for (char j = 0; j < 7; j += 6) {
 		temp = Times[j / 5];
-		setDigit(0, 1 + j, temp % 10);
+		setDigit(0, 15 - j, getNumChar(temp % 10));
 		temp /= 10;
-		setDigit(0, 2 + j, temp % 6);
-		setDigit(0, 3 + j, 35);
+		setDigit(0, 14 - j, getNumChar(temp % 6));
+		setDigit(0, 13 - j, ':');
 		temp = temp / 6;
-		setDigit(0, 4 + j, temp % 10);
-		setDigit(0, 5 + j, temp / 10);
+		setDigit(0, 12 - j, getNumChar(temp % 10));
+		setDigit(0, 11 - j, getNumChar(temp / 10));
 	}
-	setDigit(0, 6, 32);
+	setDigit(0, 11, '-');
 }
 
 void ItemsToIndicator(unsigned char items, unsigned char max_i, unsigned char firstDigit) {
 	for (char i = 1; i < max_i; i++) {
-		items % 2 == 1 ? setDigit(0, firstDigit - i, i) : setDigit(0, firstDigit - i, 32);
+		items % 2 == 1 ? setDigit(0, 16 -(firstDigit - i), getNumChar(i)) : setDigit(0, 16 - (firstDigit - i), '-');
 		items /= 2;
 	}
-	//	ItemsToIndicator(Days, 8, 9)
-	//	ItemsToIndicator(Signals, 4, 8)
 }
 
 unsigned char getBorderUp(char n) {
@@ -1583,7 +1580,7 @@ void drowText(unsigned char * stringData, int startNum, int direction){
 	
 	flags.IsLCDModified = 1;
 	
-	unsigned char cutedString[17] = 
+	unsigned char cutedString[17] = EMPTY_STRING_16;
 	for(unsigned char symbol = 0; symbol < 16; symbol++) {
 		unsigned char a = stringData[symbol + startNum];
 		if(a == '\0'){
@@ -1601,37 +1598,9 @@ void main2() {
 
 	NearTimeStart = Clock;
 	AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
-	
-//	outputString(" ириллица ЄЄЄЄ ~!@#$^%# AbCd()#є", 0, 0);
-//	outputString("!@#$%^&*()_+=-/", 0, 0);
-//	unsigned char data[] = "“екст (от лат. textus Ч Ђткань; сплетение, св€зь, паутина, сочетаниеї) - зафиксированна€ на каком-либо материальном носителе человеческа€ мысль; в общем плане св€зна€ и полна€ последовательность символов.";
-//	outputString(data, 0, 0);
-//	drowText(data, 0, 0);
-//	drowText(data, 16, 0);
-//	
-//	int position = 0;
-//	int maxPosition = sizeof(data) - 2;
-	
+		
 	while (1) {
 		
-//		if (KeyCode == 40) {
-//			KeyCode = 0;
-//			if(position < maxPosition){
-//				drowText(data, position, 0);
-//				position += 16;
-//			}
-//		}else if (KeyCode == 41) {
-//			KeyCode = 0;
-//			if (position - 16 >= 0) {
-//				position -= 16;
-//				if (position < 0){
-//					position = 0;
-//				}
-//				drowText(data, position, -1);
-//			}
-//			
-//		}
-
 		if (flags.LCD_Power_On == 1 && LCD_ON_TIMEOUT == 0 && CurrentSignals == 0) {
 			lcd_off();
 		} else if (flags.LCD_Power_On == 0 && KeyCode != 0) {
