@@ -65,6 +65,7 @@ typedef struct {
 	unsigned blink: 1;
 	unsigned modifided: 1;
 } digits_atributes;
+
 volatile digits_atributes digitsAtrib[2][16];
 long int Clock;
 long int Minutes = 0;
@@ -92,12 +93,13 @@ struct {
 	unsigned GlobalBlink: 1;
 } flags;
 
+
 unsigned char cMinutes = 0;
 unsigned char cHours = 0;
 unsigned char cWeekDay = 1;
 unsigned char cDays = 1;
 unsigned char cMonths = 1;
-unsigned char cYears = 0x01; //BCD
+unsigned char cYears = 1;
 
 unsigned char const cMinutesAdress = 240;
 unsigned char const cHoursAdress = 241;
@@ -108,6 +110,25 @@ unsigned char const cYearsAdress = 245;
 
 unsigned char CurrentSignals = 0;
 unsigned char GlobalBlinkCycleTime = 70;
+
+typedef struct {
+	unsigned blink: 1;
+//	unsigned modifided: 1;
+	unsigned const_symbol: 1;
+} symbol_properties;
+
+typedef struct {
+    symbol_properties props;
+    unsigned char number;
+    unsigned char symbol;
+    unsigned char index;
+} SymbolData;
+
+typedef struct {
+    SymbolData Time [5];
+    SymbolData WeekDay [1];
+    SymbolData Date [10];
+} TimeEditData;
 
 typedef struct {
 	unsigned char fio[16];
@@ -126,8 +147,8 @@ typedef struct {
 
 #define _XTAL_FREQ 39400000
 
-#define E					RC0
-#define RS					RC2
+#define E	RC0
+#define RS	RC2
 //char LCD_Power_On_PIN = 0;
 //#define LCD_Power_On_PIN	RC2
 #define EMPTY_SYMBOL_VALUE ' '
@@ -164,7 +185,7 @@ void I2CSend(unsigned char dat);
 void outputString(unsigned char * stringData, unsigned char line, unsigned char position);
 unsigned char I2CRead(void);
 void ReadTime();
-void WriteTime(unsigned char Minutes, unsigned char Hours, unsigned char DayOfWeek);
+void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years);
 unsigned char BCD_to_DEC(unsigned char BCD);
 unsigned char DEC_to_BCD(unsigned char DEC);
 
@@ -384,56 +405,38 @@ unsigned char entNum(char borderDown, char borderUp) { //0-9
 	} else return 255;
 }
 
-void NumericToIndicator(unsigned long int n, unsigned char displacement) {
-	clrInd();
-	displacement++;
-	do {
-		setDigit(0, displacement, getNumChar(n % 10));
-		n /= 10;
-		displacement++;
-	} while ((displacement < 10)&(n > 0));
-}
-
 void NumericToString(unsigned long int n, unsigned char * mySring, unsigned char size) {
 	unsigned char displacement = 1;
 	do {
 		mySring[size - displacement] = getNumChar(n % 10);
 		n /= 10;
 		displacement++;
-	} while ((size - displacement > 0) && (n > 0));
+	} while ((size - (displacement - 1) > 0) && (n > 0));
 }
 
 unsigned char *GetDayOfWeek(unsigned char day) {
-	static unsigned char array[3] = "  ";
 	if (day == 1) {
-		array[0] = 'ï';
-		array[1] = 'í';
+        return "ïí";
 	}
 	else if (day == 2) {
-		array[0] = 'â';
-		array[1] = 'ò';
+        return "âò";
 	}
 	else if (day == 3) {
-		array[0] = 'ñ';
-		array[1] = 'ð';
+        return "ñð";
 	}
 	else if (day == 4) {
-		array[0] = '÷';
-		array[1] = 'ò';
+        return "÷ò";
 	}
 	else if (day == 5) {
-		array[0] = 'ï';
-		array[1] = 'ò';
+        return "ïò";
 	}
 	else if (day == 6) {
-		array[0] = 'ñ';
-		array[1] = 'á';
+        return "ñá";
 	}
 	else if (day == 7) {
-		array[0] = 'â';
-		array[1] = 'ñ';
+        return "âñ";
 	}
-	return array;
+	return "??";
 }
 
 void TimeToInd() {
@@ -475,8 +478,8 @@ void TimeToInd() {
 			}
 			outputString(D, 0, 13);
 		}
-
-        unsigned char TimeData [] = "  :  :  "; // ÷÷:ìì:ññ
+        
+        unsigned char TimeData [] = "--:--:--"; // ÷÷:ìì:ññ
 		long int temp = Clock / 100;
         TimeData[7] = getNumChar(temp % 10);
 		temp /= 10;
@@ -491,8 +494,9 @@ void TimeToInd() {
         TimeData[1] = getNumChar(temp % 10);
         TimeData[0] = getNumChar(temp / 10);
         
-        outputString(TimeData, 0, (SignalsFinal > 0) ? 4 : 5);
-        outputString(GetDayOfWeek(day), 0, (SignalsFinal > 0) ? 1 : 2);
+        SignalsFinal = CurrentSignals | SignalsForInd;
+        outputString(TimeData, 0, (SignalsFinal == 7) ? 4 : 5);
+        outputString(GetDayOfWeek(day), 0, (SignalsFinal == 7) ? 1 : 2);
 	}
     
 	if (flags.LockSignals && !flags.DetailModeOfViewSheduler) {
@@ -503,10 +507,13 @@ void TimeToInd() {
 	if (AdressOfNextStartCell != 240) {
 
     	unsigned char DataArray[] = EMPTY_STRING_16;
-        
 		DataArray[0] = BELL_SYMBOL;
 
 		char line = 1;
+		if (flags.DetailModeOfViewSheduler) {
+			line = 0;
+            DataArray[5] = 'ñ';
+		}
         
 		unsigned int TimeStart;
 		unsigned int TimeStop;
@@ -518,48 +525,44 @@ void TimeToInd() {
 		unsigned char Day;
 		ParseTime(NearTimeStart, &Time, &Day);
 
-		if (flags.DetailModeOfViewSheduler) {
-			line = 0;
-		}
-        
 		DataArray[11] = getNumChar(Time % 10);
 		Time /= 10;
 		DataArray[10] = getNumChar(Time % 6);
 		Time /= 6;
-		DataArray[9] = ":";
+		DataArray[9] = ':';
 		DataArray[8] = getNumChar(Time % 10);
 		DataArray[7] = getNumChar(Time / 10);
-
-	/*	for (unsigned char i = 1; i < 4; i++) {
+        
+		for (unsigned char i = 1; i < 4; i++) {
 			unsigned char SignalOn = Signals % 2;
 			Signals /= 2;
 			if (SignalOn == 1) {
-				char j = nSymb / 2;
-				DataArray[3 - j] = DataArray[2 - j];
-				DataArray[2 - j] = DataArray[1 - j];
-				DataArray[1 - j] = getNumChar(i);
+				DataArray[13] = DataArray[14];
+				DataArray[14] = DataArray[15];
+				DataArray[15] = getNumChar(i);
 			}
 		}
-     */
+        
 		unsigned char *DataArray2 = GetDayOfWeek(Day);
 		DataArray[2] = DataArray2[0];
 		DataArray[3] = DataArray2[1];
 
-        outputString(DataArray, line, 1);
+        outputString(DataArray, line, 0);
 
 		if (flags.DetailModeOfViewSheduler) {
-			unsigned char DataArrayOfLine2[] = "¹      ïî   :  "; // ¹12    ïî 12:30
-			DataArrayOfLine2[14] = TimeStop % 10;
+			unsigned char DataArrayOfLine2[] = "¹   ïî --:--"; // ¹12   ïî 12:30
+            int j2 = sizeof(DataArrayOfLine2)-1;
+			DataArrayOfLine2[--j2] = getNumChar(TimeStop % 10);
 			TimeStop /= 10;
-			DataArrayOfLine2[13] = TimeStop % 6;
+			DataArrayOfLine2[--j2] = getNumChar(TimeStop % 6);
 			TimeStop /= 6;
-			DataArrayOfLine2[11] = TimeStop % 10;
-			TimeStop /= 10;
-			DataArrayOfLine2[10] = TimeStop % 10;
+            j2--;
+			DataArrayOfLine2[--j2] = getNumChar(TimeStop % 10);
+			DataArrayOfLine2[--j2] = getNumChar(TimeStop / 10);
 
 			unsigned char CellsNumber = AdressOfNextStartCell / 4 + 1;
 			do {
-				char d = CellsNumber % 10;
+				char d = getNumChar(CellsNumber % 10);
 				DataArrayOfLine2[2] = DataArrayOfLine2[1];
 				DataArrayOfLine2[1] = d;
 				CellsNumber /= 10;
@@ -572,7 +575,7 @@ void TimeToInd() {
 			clrInd();
 			flags.DetailModeOfViewSheduler = 0;
 		}
-        outputString(EMPTY_STRING_16, 1, 1);
+        outputString(EMPTY_STRING_16, 1, 0);
 	}
 }
 
@@ -613,177 +616,217 @@ unsigned char EERD(unsigned int adress) {
 	return EEDATA_BUP;
 }
 
-void ReIndTimeEdit(long int n) {
-	long int temp = n;
-	setDigit(0, 14, getNumChar(temp % 10));
-	temp /= 10;
-	setDigit(0, 13, getNumChar(temp % 6));
-	temp /= 6;
-	temp %= 24;
-	setDigit(0, 12, ':');
-	setDigit(0, 11, getNumChar(temp % 10));
-	setDigit(0, 10, getNumChar(temp / 10));
-	setDigit(0, 8, getNumChar(1 + n / 1440));
+void outputDateData(SymbolData *data, unsigned char length, unsigned char line, unsigned char start_symbol){
+	for(unsigned char i = 0; i < length; i++){
+		setDigit(line, start_symbol + data[i].index, data[i].symbol);
+		setBlink(line, start_symbol + data[i].index, data[i].props.blink);
+	}
+}
 
+void ReIndTimeEdit(TimeEditData *TimeData) {
+	for(char i = 0; i < 10; i++){
+		if((*TimeData).Date[i].props.const_symbol == 0){
+			(*TimeData).Date[i].symbol = getNumChar((*TimeData).Date[i].number);
+		}
+		(*TimeData).Date[i].index = i;
+	}
+	for(char i = 0; i < 5; i++){
+		if((*TimeData).Time[i].props.const_symbol == 0){
+			(*TimeData).Time[i].symbol = getNumChar((*TimeData).Time[i].number);
+		}
+		(*TimeData).Time[i].index = i;
+	}
+	(*TimeData).WeekDay[0].symbol = getNumChar((*TimeData).WeekDay[0].number);
+	(*TimeData).WeekDay[0].index = 0;
+	
+	char n = 1;
+	outputDateData((*TimeData).Date, 10, 0, n);
+	outputDateData((*TimeData).Time, 5, 1, n+4);
+	outputDateData((*TimeData).WeekDay, 1, 1, n+1);
+	
+}
 
-	setDigit(1, 15, getNumChar(cYears % 16));
-	setDigit(1, 14, getNumChar(cYears / 16));
-	setDigit(1, 13, getNumChar(0));
-	setDigit(1, 12, getNumChar(2));
-	setDigit(1, 11, '/');
-	setDigit(1, 10, getNumChar(cMonths % 16));
-	setDigit(1, 9, getNumChar(cMonths / 16));
-	setDigit(1, 8, '/');
-	setDigit(1, 7, getNumChar(cDays % 16));
-	setDigit(1, 6, getNumChar(cDays / 16));
+void TimeData_BlinkOFF(TimeEditData * TimeData){
+	for(char i = 0; i < 10; i++){
+		(*TimeData).Date[i].props.blink = 0;
+	}
+	for(char i = 0; i < 5; i++){
+		(*TimeData).Time[i].props.blink = 0;
+	}
+	(*TimeData).WeekDay[0].props.blink = 0;
+}
+
+void TimeData_INIT(TimeEditData * TimeData){
+	for(char i = 0; i < 10; i++){
+		(*TimeData).Date[i].props.blink = 0;
+		(*TimeData).Date[i].props.const_symbol = 0;
+	}
+	for(char i = 0; i < 5; i++){
+		(*TimeData).Time[i].props.blink = 0;
+		(*TimeData).Time[i].props.const_symbol = 0;
+	}
+	(*TimeData).WeekDay[0].props.blink = 0;
+	(*TimeData).WeekDay[0].props.const_symbol = 0;
+
+	(*TimeData).Time[2].symbol = ':';
+	(*TimeData).Time[2].props.const_symbol = 1;
+	(*TimeData).Date[5].symbol = '/';
+	(*TimeData).Date[5].props.const_symbol = 1;
+	(*TimeData).Date[2].symbol = '/';
+	(*TimeData).Date[2].props.const_symbol = 1;
 }
 
 void TimeEdit() {
-	long int t;
-	unsigned char c;
-	flags.isTimeSetting = 1;0
+	
 	clrInd();
-	t = Clock / 6000;
-	setBlink(0, 10, 1);
-	char j;
-	c = 2;
-	unsigned char borders[] = {0, 2};
+	flags.isTimeSetting = 1;
+    
+	long int temp = Clock / 6000;
+	long int n = temp;
+    
+    TimeEditData TimeData;
+	
+	TimeData_INIT(&TimeData);
+	
+	
+    TimeData.Time[4].number = temp % 10;
+	temp /= 10;
+	TimeData.Time[3].number = temp % 6;
+	
+	temp /= 6;
+	temp %= 24;
+	
+	TimeData.Time[1].number = temp % 10;
+	TimeData.Time[0].number = temp / 10;
+	
+	TimeData.WeekDay[0].number = 1 + n / 1440;
 
-	while (1) {
-		j = entNum(borders[0], borders[1]);
-		if (j != 255 && c == 1) {
-			t = t + (j - getDigit(0, 8))*1440;
-			borders[0] = 0;
-			borders[1] = 2;
-			c++;
-			setBlink(0, 8, 0);
-			setBlink(0, 10, 1);
-		} else if (j != 255 && c == 2) {
-			t = t + (j - getDigit(0, 10))*600;
-			if (j > 1) {
-				borders[0] = 0;
-				borders[1] = 3;
-				if (getDigit(0, 11) > 3) {
-					t = t + (3 - getDigit(0, 11))*60;
+	TimeData.Date[9].number = cYears % 10;
+	TimeData.Date[8].number = cYears / 10;
+	TimeData.Date[7].symbol = '0';
+	TimeData.Date[7].props.const_symbol = 1;
+	TimeData.Date[6].symbol = '2';
+	TimeData.Date[6].props.const_symbol = 1;
+	
+	TimeData.Date[4].number = cMonths % 10;
+	TimeData.Date[3].number = cMonths / 10;
+	
+	TimeData.Date[1].number = cDays % 10;
+	TimeData.Date[0].number = cDays / 10;
+	
+	
+	SymbolData *symb_array [11];
+	
+	symb_array[0] = &TimeData.Date[0];	// day_H
+	symb_array[1] = &TimeData.Date[1];	// day_L
+	symb_array[2] = &TimeData.Date[3];	// month_H
+	symb_array[3] = &TimeData.Date[4];	// month_L
+	symb_array[4] = &TimeData.Date[8];	// year_H
+	symb_array[5] = &TimeData.Date[9];	// year_L
+	
+	symb_array[6] = &TimeData.WeekDay[0];// day_of_week
+	
+	symb_array[7] = &TimeData.Time[0];	// hour_H
+	symb_array[8] = &TimeData.Time[1];	// hour_L
+	symb_array[9] = &TimeData.Time[3];	// minute_H
+	symb_array[10] = &TimeData.Time[4];	// minute_L	
+	
+	
+	char blinking = 7;
+	char input = 255;
+	while(1){
+		(*symb_array[blinking]).props.blink = 1;
+		
+		ReIndTimeEdit(&TimeData);
+		
+		input = entNum(0, 9);
+		
+		if(input != 255){
+			(*symb_array[blinking]).number = input;
+			TimeData_BlinkOFF(&TimeData);
+			blinking == 10 ? blinking = 0 : blinking++;
+		}
+		
+		if(KeyCode == 40){
+			KeyCode = 0;
+			TimeData_BlinkOFF(&TimeData);
+			blinking == 10 ? blinking = 0 : blinking++;
+		}else if(KeyCode == 41){
+			KeyCode = 0;
+			TimeData_BlinkOFF(&TimeData);
+			blinking == 0 ? blinking = 10 : blinking--;
+		}else if(KeyCode == 42){
+			KeyCode = 0;
+			unsigned char t;
+			do{
+				t = (*symb_array[2]).number * 10 + (*symb_array[3]).number;
+				if(t > 12){
+					TimeData_BlinkOFF(&TimeData);
+					blinking = 2;
+					break;
 				}
-			} else {
-				borders[0] = 0;
-				borders[1] = 9;
-			}
-			c++;
-			setBlink(0, 10, 0);
-			setBlink(0, 11, 1);
-		} else if (j != 255 && c == 3) {
-			t = t + (j - getDigit(0, 11))*60;
-			borders[0] = 0;
-			borders[1] = 5;
-			c++;
-			setBlink(0, 11, 0);
-			setBlink(0, 13, 1);
-		} else if (j != 255 && c == 4) {
-			t = t + (j - getDigit(0, 13))*10;
-			borders[0] = 0;
-			borders[1] = 9;
-			c++;
-			setBlink(0, 13, 0);
-			setBlink(0, 14, 1);
-		} else if (j != 255 & c == 5) {
-			t = t + j - getDigit(0, 14);
-			borders[0] = 0;
-			borders[1] = 2;
-			c++;
-			setBlink(0, 14, 0);
-			setBlink(1, 6, 1);
-		} else if (j != 255 && c == 6) {
-			cDays = (j * 16) + getDigit(1, 7);
-			if (j == 0) {
-				borders[0] = 1;
-				borders[1] = 9;
-				if (getDigit(1, 9) == 0) setDigit(1, 7, 1);
-			} else if (j < 3) {
-				borders[0] = 0;
-				borders[1] = 9;
-			} else if (j == 3) {
-				borders[0] = 0;
-				borders[1] = 1;
-			}
-			c++;
-			setBlink(1, 6, 0);
-			setBlink(1, 7, 1);
-		} else if (j != 255 && c == 7) {
-			cDays = (getDigit(1, 6)*16) + j;
-			borders[0] = 0;
-			borders[1] = 1;
-			c++;
-			setBlink(1, 7, 0);
-			setBlink(1, 9, 1);
-		} else if (j != 255 && c == 8) {
-			cMonths = (j * 16) + getDigit(1, 10);
-			if (j == 0) {
-				borders[0] = 1;
-				borders[1] = 9;
-				if (getDigit(1, 9) == 0) setDigit(1, 10, 1);
-			} else if (j == 1) {
-				borders[0] = 0;
-				borders[1] = 2;
-			}
-			c++;
-			setBlink(1, 9, 0);
-			setBlink(1, 10, 1);
-		} else if (j != 255 && c == 9) {
-			cMonths = (getDigit(1, 9)*16) + j;
-			borders[0] = 0;
-			borders[1] = 9;
-			c = 10;
-			setBlink(1, 10, 0);
-			setBlink(1, 14, 1);
-		} else if (j != 255 && c == 10) {
-			cYears = (j * 16) + getDigit(1, 15);
-			borders[0] = 0;
-			borders[1] = 9;
-			c++;
-			setBlink(1, 14, 0);
-			setBlink(1, 15, 1);
-		} else if (j != 255 && c == 11) {
-			cYears = (getDigit(1, 14)*16) + j;
-			borders[0] = 0;
-			borders[1] = 2;
-			c = 2;
-			setBlink(1, 15, 0);
-			setBlink(0, 10, 1);
-		}
+				
+				unsigned char month = t;
+				
+				unsigned char MonthDays [] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+				t = (*symb_array[4]).number * 10 + (*symb_array[5]).number;
+				if(t % 4 == 0){
+					MonthDays[1] = 29;
+				}
+				t = (*symb_array[0]).number * 10 + (*symb_array[1]).number;
+				if(MonthDays[month-1] < t){
+					(*symb_array[0]).number = MonthDays[month-1] / 10;
+					(*symb_array[1]).number = MonthDays[month-1] % 10;
+					TimeData_BlinkOFF(&TimeData);
+					blinking = 0;
+					break;
+				}
+				
+				t = (*symb_array[6]).number;
+				if(t > 7){
+					TimeData_BlinkOFF(&TimeData);
+					blinking = 6;
+					break;
+				}
+				
+				t = (*symb_array[7]).number * 10 + (*symb_array[8]).number;
+				if(t > 23){
+					TimeData_BlinkOFF(&TimeData);
+					blinking = 7;
+					break;
+				}
+				
+				t = (*symb_array[9]).number * 10 + (*symb_array[10]).number;
+				if(t > 59){
+					TimeData_BlinkOFF(&TimeData);
+					blinking = 9;
+					break;
+				}
+				
+				t = 0;
+				
+				Clock = ((long int)((*symb_array[6]).number - 1) * 86400
+						+ (long int)((*symb_array[7]).number * 10 + (*symb_array[8]).number) * 3600
+						+ (long int)((*symb_array[9]).number * 10 + (*symb_array[10]).number) * 60) * 100;
 
-		if (KeyCode == 44) {
-			KeyCode = 0;
-			clrInd();
-			if (c == 1) {
-				c = 2;
-				borders[0] = 0;
-				borders[1] = 2;
-				setBlink(0, 8, 0);
-				setBlink(0, 10, 1);
-			} else if (c > 1 && c < 6) {
-				c = 6;
-				borders[0] = 0;
-				borders[1] = 3;
-				setBlink(1, 6, 1);
-			} else if (c > 5) {
-				c = 1;
-				borders[0] = 1;
-				borders[1] = 7;
-				setBlink(0, 8, 1);
+				cDays = (*symb_array[0]).number * 10 + (*symb_array[1]).number;
+				cMonths = (*symb_array[2]).number * 10 + (*symb_array[3]).number;
+				cYears = (*symb_array[4]).number * 10 + (*symb_array[5]).number;
+				/*
+				WriteTime(Clock, cDays, cMonths, cYears);
+				*/
+				
+			}while(0);
+			
+			if(t == 0){
+				clrInd();
+				break;
 			}
-		} else if (KeyCode == 43) {
+		}else if(KeyCode == 43){
 			KeyCode = 0;
 			clrInd();
-			return;
-		} else if (KeyCode == 42) {
-			KeyCode = 0;
-			WriteTime(getDigit(0, 13) * 16 + getDigit(0, 14), getDigit(0, 10) * 16 + getDigit(0, 11), getDigit(0, 8));
-			clrInd();
-			return;
+			break;
 		}
-		ReIndTimeEdit(t);
 	}
 }
 
@@ -957,7 +1000,7 @@ unsigned char FindCell(unsigned int adressStart, char New, unsigned char previou
 	} while (adress != adressStart);
 	return adressNew;
 }
-
+ 
 unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned int CopyFrom) {
     
     unsigned char cell = 0;
@@ -973,8 +1016,8 @@ unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned 
     
     if(cell != 0){
         unsigned char num [] = "  ";
-        NumericToString(cell, num, sizeof(num));
-        outputString(num, 0, 12);
+        NumericToString(cell, num, sizeof(num)-1);
+        outputString(num, 0, 13);
     }else{
         setDigit(0, 13, '-');
         setDigit(0, 14, '-');
@@ -987,9 +1030,9 @@ unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned 
 			
             unsigned char NumberFrom = CopyFrom / 4 + 1;
 			if (NumberFrom > 9) {
-				setDigit(1, 11, getNumChar(NumberFrom / 10));
+				setDigit(1, 13, getNumChar(NumberFrom / 10));
 			}
-			setDigit(1, 12, getNumChar(NumberFrom % 10));
+			setDigit(1, 14, getNumChar(NumberFrom % 10));
 		}
         outputString("new ", 0, 4);
 	}
@@ -998,19 +1041,28 @@ unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned 
 	return adress;
 }
 
-void TimesToIndicator(unsigned int * Times) {
+void TimesToTimeData(unsigned int * Times, unsigned char * TimeData) {
 	unsigned int temp;
-	for (char j = 0; j < 7; j += 6) {
-		temp = Times[j / 5];
-		setDigit(0, 15 - j, getNumChar(temp % 10));
+	for (char j = 0; j < 2; j++) {
+		temp = Times[j];
+        char d = 4 * j;
+		TimeData[3 + d] = temp % 10;
 		temp /= 10;
-		setDigit(0, 14 - j, getNumChar(temp % 6));
-		setDigit(0, 13 - j, ':');
+		TimeData[2 + d] = temp % 6;
 		temp = temp / 6;
-		setDigit(0, 12 - j, getNumChar(temp % 10));
-		setDigit(0, 11 - j, getNumChar(temp / 10));
+		TimeData[1 + d] = temp % 10;
+		TimeData[0 + d] = temp / 10;
 	}
-	setDigit(0, 11, '-');
+}
+
+void TimeDataToString(unsigned char * TimeData, unsigned char * string) {
+    unsigned char j = 0;
+	for (unsigned char i = 0; i < 12; i++) {
+        if(string[i] == '*'){
+            string[i] = getNumChar(TimeData[j]);
+            j++;
+        }
+	}
 }
 
 void ItemsToIndicator(unsigned char items, unsigned char max_i, unsigned char firstDigit) {
@@ -1049,6 +1101,7 @@ unsigned char ConvertDayToBit(unsigned char DayNumber) {
 }
 
 unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
+	
 	unsigned char TargetAdress;
 	if (SourceOfRecord == 240) {
 		TargetAdress = adress;
@@ -1070,147 +1123,170 @@ unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
 	ParseDataRecord(Data, &TimeStart, &TimeStop, &Days, &Signals);
 
 	unsigned int Times[2];
-	Times[1] = TimeStart;
-	Times[0] = TimeStop;
-
+	Times[0] = TimeStart;
+	Times[1] = TimeStop;
+    
+    unsigned char TimeData[8];
+    TimesToTimeData(Times, TimeData);
+    
 	clrInd();
+    
 	char mode = 1;
 	unsigned char key;
-	while (1) {
-		if (KeyCode == 43) { // Cancel
-			KeyCode = 0;
-			clrInd();
-			return 0;
-		} else if (KeyCode == 42) { // Enter
-			KeyCode = 0;
-			Data = (unsigned long int) Signals * 0x20000000 + (unsigned long int) Days * 0x400000 + (unsigned long int) Times[0]*0x800 + (unsigned long int) Times[1];
-			WriteFourBytesEE(adress, Data);
-			clrInd();
-			return 1;
-		}
-		switch (mode) {
-		case 1:
-		{
-			TimesToIndicator(Times);
-			if (KeyCode == 45 || BeginEditTimes == 1) {
-				KeyCode = 0;
-				BeginEditTimes = 0;
-				setBlink(0, 11, 1);
-				char n = 11;
-				unsigned char BorderUp = 2;
-				while (1) {
-					if (KeyCode == 43) { // Cancel
-						KeyCode = 0;
-						clrInd();
-						break;
-					} else if (KeyCode == 42) { // Enter
-						KeyCode = 0;
-						unsigned int T[2];
-						for (char j = 0; j < 7; j += 6) {
-							T[j / 6] = ((unsigned int) getDigit(0, j + 5))*600 + getDigit(0, j + 4)*60 + getDigit(0, j + 2)*10 + getDigit(0, j + 1);
-						}
-						if (T[0] > T[1]) {
-							Times[0] = T[0];
-							Times[1] = T[1];
-							clrInd();
-							break;
-						} else {
-							setBlink(0, n, 0);
-							n = 5;
-							BorderUp = getBorderUp(n);
-							setBlink(0, n, 1);
-							setDigit(0, 5, getDigit(0, 11));
-							setDigit(0, 4, getDigit(0, 10));
-							setDigit(0, 2, getDigit(0, 8));
-							setDigit(0, 1, getDigit(0, 7));
-						}
-					} else if (KeyCode == 40) { // NextDig
-						KeyCode = 0;
-						if (n > 1) {
-							setBlink(0, n, 0);
-							n == 10 || n == 7 || n == 4 ? n -= 2 : n--;
-							BorderUp = getBorderUp(n);
-							setBlink(0, n, 1);
-						}
-					} else if (KeyCode == 41) { //PrevDig
-						KeyCode = 0;
-						if (n < 11) {
-							setBlink(0, n, 0);
-							n == 8 || n == 5 || n == 2 ? n += 2 : n++;
-							BorderUp = getBorderUp(n);
-							setBlink(0, n, 1);
-						}
-					}
-					key = entNum(0, BorderUp);
-					if (key != 255) {
-						setDigit(0, n, key);
-						if ((n == 11 || n == 5) && key == 2 && (getDigit(0, n - 1) > 3))setDigit(0, n - 1, 3);
-						if (n > 1) {
-							KeyCode = 40;
-						} else {
-							KeyCode = 42;
-						}
-					}
-				}
-			} else if (KeyCode == 40) {
-				KeyCode = 0;
-				clrInd();
-				mode = 2;
-			} else if (KeyCode == 41) {
-				KeyCode = 0;
-				clrInd();
-				mode = 3;
-			}
-		}
-			break;
-		case 2:
-		{
-			ItemsToIndicator(Days, 8, 9);
-			key = entNum(1, 7);
-			if (key != 255) {
-				Days ^= ConvertDayToBit(key);
-			} else if (KeyCode == 30) {
-				KeyCode = 0;
-				Days = 0;
-			} else if (KeyCode == 45) {
-				KeyCode = 0;
-				Days = 0b01111111;
-			} else if (KeyCode == 40) {
-				KeyCode = 0;
-				clrInd();
-				mode = 3;
-			} else if (KeyCode == 41) {
-				KeyCode = 0;
-				clrInd();
-				mode = 1;
-			}
-		}
-			break;
-		case 3:
-		{
-			ItemsToIndicator(Signals, 4, 8);
-			key = entNum(1, 3);
-			if (key != 255) {
-				Signals ^= ConvertDayToBit(key);
-			} else if (KeyCode == 30) {
-				KeyCode = 0;
-				Signals = 0;
-			} else if (KeyCode == 45) {
-				KeyCode = 0;
-				Signals = 0b00000111;
-			} else if (KeyCode == 40) {
-				KeyCode = 0;
-				clrInd();
-				mode = 1;
-			} else if (KeyCode == 41) {
-				KeyCode = 0;
-				clrInd();
-				mode = 2;
-			}
-		}
-		}
-	}
-	return 0;
+    
+    while (1) {
+        if (KeyCode == 43) { // Cancel
+            KeyCode = 0;
+            clrInd();
+            return 0;
+        } else if (KeyCode == 42) { // Enter
+            KeyCode = 0;
+            Data = (unsigned long int) Signals * 0x20000000 + (unsigned long int) Days * 0x400000 + (unsigned long int) Times[1]*0x800 + (unsigned long int) Times[0];
+            WriteFourBytesEE(adress, Data);
+            clrInd();
+            return 1;
+        }    
+        
+        switch (mode) {
+            case 1:
+            {
+                unsigned char string [] = "**:**-**:**";
+                TimeDataToString(TimeData, string);
+                outputString(string, 0, 5);
+                
+                if (KeyCode == 45 || BeginEditTimes == 1) {
+                    KeyCode = 0;
+                    BeginEditTimes = 0;
+                    char n = 5;
+                    setBlink(0, n, 1);
+                    unsigned char BorderUp = 2;
+                    while (1) {
+                        if (KeyCode == 43) { // Cancel
+                            KeyCode = 0;
+                            clrInd();
+                            break;
+                        } else if (KeyCode == 42) { // Enter
+                            KeyCode = 0;
+                            unsigned int T[2];
+                            for (char j = 0; j < 2; j++) {
+                                char f = j * 4;
+                                T[j] = TimeData[f + 0] * 600
+                                        + TimeData[f + 1] * 60
+                                        + TimeData[f + 2] * 10
+                                        + TimeData[f + 3];
+                            }
+                            Times[0] = T[0];
+                            if (T[0] < T[1]) {
+                                Times[1] = T[1];
+                                clrInd();
+                                break;
+                            } else {
+                                setBlink(0, n, 0);
+                                n = 11;
+                                BorderUp = getBorderUp(n);
+                                Times[1] = T[0];
+                                TimesToTimeData(Times, TimeData);
+                                setBlink(0, n, 1);
+                            }
+                        } else if (KeyCode == 41) { // NextDig
+                            KeyCode = 0;
+                            if (n > 5) {
+                                setBlink(0, n, 0);
+                                (n == 8 || n == 11 || n == 14) ? n -= 2 : n--;
+                                BorderUp = getBorderUp(n);
+                                setBlink(0, n, 1);
+                            }
+                        } else if (KeyCode == 40) { //PrevDig
+                            KeyCode = 0;
+                            if (n < 15) {
+                                setBlink(0, n, 0);
+                                n == 6 || n == 9 || n == 12 ? n += 2 : n++;
+                                BorderUp = getBorderUp(n);
+                                setBlink(0, n, 1);
+                            }
+                        }
+                        
+                        unsigned char string2 [] = "**:**-**:**";
+                        TimeDataToString(TimeData, string2);
+                        outputString(string2, 0, 5);
+                        
+                        char d = 0;
+                        switch(n){
+                            case 5: d = 0; break;
+                            case 6: d = 1; break;
+                            case 8: d = 2; break;
+                            case 9: d = 3; break;
+                            case 11: d = 4; break;
+                            case 12: d = 5; break;
+                            case 14: d = 6; break;
+                            case 15: d = 7; break;
+                        }
+                        
+                        key = entNum(0, BorderUp);
+                        if (key != 255) {
+                            TimeData[d] = key;
+                            if ((d == 0 || d == 4) && key == 2 && (TimeData[d+1] > 3)){
+                                TimeData[d+1] = 3;
+                            }
+                            if (n > 1) {
+                                KeyCode = 40;
+                            } else {
+                                KeyCode = 42;
+                            }
+                        }
+                    }
+                }
+            }
+                break;
+            case 2:
+            {
+                ItemsToIndicator(Days, 8, 9);
+                key = entNum(1, 7);
+                if (key != 255) {
+                    Days ^= ConvertDayToBit(key);
+                } else if (KeyCode == 30) {
+                    KeyCode = 0;
+                    Days = 0;
+                } else if (KeyCode == 45) {
+                    KeyCode = 0;
+                    Days = 0b01111111;
+                }
+            }
+                break;
+            case 3:
+            {
+                ItemsToIndicator(Signals, 4, 8);
+                key = entNum(1, 3);
+                if (key != 255) {
+                    Signals ^= ConvertDayToBit(key);
+                } else if (KeyCode == 30) {
+                    KeyCode = 0;
+                    Signals = 0;
+                } else if (KeyCode == 45) {
+                    KeyCode = 0;
+                    Signals = 0b00000111;
+                }
+            }
+        }       
+        if (KeyCode == 40) {
+            KeyCode = 0;
+            clrInd();
+            if(mode == 3){
+                mode = 1;
+            }else{
+                mode++;
+            }
+        } else if (KeyCode == 41) {
+            KeyCode = 0;
+            clrInd();
+            if(mode == 1){
+                mode = 3;
+            }else{
+                mode--;
+            }
+        }
+    }
+    return 0;
 }
 
 void Scheduler(unsigned int StartFrom) {
@@ -1528,6 +1604,10 @@ void main() {
 
 	flags.LockSignals = EERD(251);
 
+	Clock = ((long int) cMinutes * 60
+		+ (long int) cHours * 3600
+		+ ((long int) cWeekDay - 1) * 86400) * 100;
+
 	lcd_on();
 	main2();
 }
@@ -1544,7 +1624,13 @@ unsigned char getNumChar(unsigned char num) {
 		case 7: return '7';
 		case 8: return '8';
 		case 9: return '9';
-		default: return ' ';
+		case 10: return 'A';
+		case 11: return 'B';
+		case 12: return 'C';
+		case 13: return 'D';
+		case 14: return 'E';
+		case 15: return 'F';
+		default: return '?';
 	}
 }
 
@@ -1593,7 +1679,9 @@ void drowText(unsigned char * stringData, int startNum, int direction){
 }
 
 void main2() {
-
+	
+    flags.LCD_Light_On = 1;
+    
 	flags.isTimeSetting = 0;
 
 	NearTimeStart = Clock;
@@ -1683,7 +1771,7 @@ unsigned char DEC_to_BCD(unsigned char DEC) {
 void ReadTime() {
 
 	unsigned char Seconds = 0x00;
-
+	
 	I2CInit();
 	I2CStart();
 	I2CSend(0xD0);
@@ -1691,24 +1779,25 @@ void ReadTime() {
 	I2CRestart();
 	I2CSend(0xD1);
 
+
 	unsigned char I = I2CRead();
 
 	if ((I & 0b10000000) == 0) {
 		flags.TimeIsRead = 1;
 		I2CAck();
-		Seconds = I;
-		cMinutes = I2CRead();
+		Seconds = BCD_to_DEC(I);
+		cMinutes = BCD_to_DEC(I2CRead());
 		I2CAck();
-		cHours = I2CRead();
+		cHours = BCD_to_DEC(I2CRead());
 		I2CAck();
-		cWeekDay = I2CRead();
+		cWeekDay = BCD_to_DEC(I2CRead());
 		if (!flags.isTimeSetting) {
 			I2CAck();
-			cDays = I2CRead();
+			cDays = BCD_to_DEC(I2CRead());
 			I2CAck();
-			cMonths = I2CRead();
+			cMonths = BCD_to_DEC(I2CRead());
 			I2CAck();
-			cYears = I2CRead();
+			cYears = BCD_to_DEC(I2CRead());
 		}
 	} else {
 		flags.TimeIsRead = 0;
@@ -1717,52 +1806,56 @@ void ReadTime() {
 		cDays = EERD(cDaysAdress);
 		cMonths = EERD(cMonthsAdress);
 		cYears = EERD(cYearsAdress);
-		WriteTime(
-			EERD(cMinutesAdress),
-			EERD(cHoursAdress),
-			EERD(cWeekDayAdress)
-			);
+		
 		return;
 	}
 	I2CNak();
 
 	I2CStop();
 
-	Clock = ((long int) BCD_to_DEC(Seconds)
-		+ (long int) BCD_to_DEC(cMinutes) * 60
-		+ (long int) BCD_to_DEC(cHours) * 3600
+	Clock = ((long int) Seconds
+		+ (long int) cMinutes * 60
+		+ (long int) cHours * 3600
 		+ ((long int) cWeekDay - 1) * 86400) * 100;
 
 }
 
-void WriteTime(unsigned char Minutes, unsigned char Hours, unsigned char DayOfWeek) {
+void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years) {
 
 	volatile unsigned char INTCON_BUP = INTCON;
 	INTCONbits.GIEH = 0;
 	INTCONbits.GIEL = 0;
 	ClrWdt();
 
+	unsigned char week_day;
+	unsigned char hours;
+	unsigned char minutes;
+	
+	lClock/=6000;
+	minutes = DEC_to_BCD(lClock % 60);
+	lClock /= 60;
+	hours = DEC_to_BCD(lClock % 24);
+	lClock /= 24;
+	week_day = DEC_to_BCD(lClock + 1);
+	
 	I2CInit();
 	I2CStart();
 	I2CSend(0xD0);
 	I2CSend(0x00);
 
 	I2CSend(0x00); // Seconds
-	I2CSend(Minutes); // Minutes
-	I2CSend(Hours); // Hours
-	I2CSend(DayOfWeek); // DayOfWeek
-	I2CSend(cDays); // Days
-	I2CSend(cMonths); // Mouths
-	I2CSend(cYears); // Years
+	I2CSend(minutes); // Minutes
+	I2CSend(hours); // Hours
+	I2CSend(week_day); // DayOfWeek
+	I2CSend(DEC_to_BCD(days)); // Days
+	I2CSend(DEC_to_BCD(months)); // Mouths
+	I2CSend(DEC_to_BCD(years)); // Years
 	I2CSend(0b00010000); // Settings
 
 	I2CStop();
 
-	Clock = ((long int) BCD_to_DEC(Minutes) * 60
-		+ (long int) BCD_to_DEC(Hours) * 3600
-		+ ((long int) DayOfWeek - 1) * 86400) * 100;
-
 	INTCON = INTCON_BUP;
+	
 }
 
 void I2CInit(void) {
