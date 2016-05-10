@@ -66,13 +66,18 @@ typedef struct {
 	unsigned modifided: 1;
 } digits_atributes;
 
+#define CELL_CAPACITY 8
+#define END_OF_CELLS (CELL_CAPACITY * 48)
+#define LAST_CELL (END_OF_CELLS - CELL_CAPACITY)
+
+
 volatile digits_atributes digitsAtrib[2][16];
 long int Clock;
 long int Minutes = 0;
 unsigned int LCD_ON_TIMEOUT = 60000; // 3 min
 volatile unsigned char KeyCode;
 unsigned int CorrectTimeConst;
-unsigned int AdressOfNextStartCell = 240;
+unsigned int AdressOfNextStartCell = END_OF_CELLS;
 unsigned long int NearTimeStart;
 unsigned long int NearTimeStop;
 unsigned int CurrentReadingCell = 0;
@@ -93,7 +98,6 @@ struct {
 	unsigned GlobalBlink: 1;
 } flags;
 
-
 unsigned char cMinutes = 0;
 unsigned char cHours = 0;
 unsigned char cWeekDay = 1;
@@ -101,12 +105,14 @@ unsigned char cDays = 1;
 unsigned char cMonths = 1;
 unsigned char cYears = 1;
 
-unsigned char const cMinutesAdress = 240;
-unsigned char const cHoursAdress = 241;
-unsigned char const cWeekDayAdress = 242;
-unsigned char const cDaysAdress = 243;
-unsigned char const cMonthsAdress = 244;
-unsigned char const cYearsAdress = 245;
+unsigned char cMinutesAdress	= END_OF_CELLS;
+unsigned char cHoursAdress		= END_OF_CELLS + 1;
+unsigned char cWeekDayAdress	= END_OF_CELLS + 2;
+unsigned char cDaysAdress		= END_OF_CELLS + 3;
+unsigned char cMonthsAdress		= END_OF_CELLS + 4;
+unsigned char cYearsAdress		= END_OF_CELLS + 5;
+
+#define LOCK_SIGNALS_FLAG_CELL	(END_OF_CELLS + 6)
 
 unsigned char CurrentSignals = 0;
 unsigned char GlobalBlinkCycleTime = 70;
@@ -156,6 +162,7 @@ typedef struct {
 #define EMPTY_STRING_16 "                "
 #define BELL_SYMBOL '¥'
 
+
 void main2(void);
 void lcd_init(void);
 void lcd_on(void);
@@ -188,7 +195,9 @@ void ReadTime();
 void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years);
 unsigned char BCD_to_DEC(unsigned char BCD);
 unsigned char DEC_to_BCD(unsigned char DEC);
-
+void FillArrayFromEEPROM(unsigned char * container, unsigned int adress_start, unsigned int quantity);
+void WriteArrayToEEPROM(unsigned char * container, unsigned int adress_start, unsigned int quantity);
+void ReadDataOfCell(unsigned char *CellsData, unsigned long int *Data, unsigned int TargetAdress);
 
 
 unsigned char getDigit(char line, char symbol) {
@@ -440,12 +449,13 @@ unsigned char *GetDayOfWeek(unsigned char day) {
 }
 
 void TimeToInd() {
-	if (KeyCode == 38 && (AdressOfNextStartCell != 240 || flags.DetailModeOfViewSheduler)) {
+	
+	if (KeyCode == 38 && (AdressOfNextStartCell != END_OF_CELLS || flags.DetailModeOfViewSheduler)) {
 		KeyCode = 0;
 		clrInd();
 		flags.DetailModeOfViewSheduler = !flags.DetailModeOfViewSheduler;
 	}
-	if (KeyCode == 45 && AdressOfNextStartCell != 240 && flags.DetailModeOfViewSheduler) {
+	if (KeyCode == 45 && AdressOfNextStartCell != END_OF_CELLS && flags.DetailModeOfViewSheduler) {
 		KeyCode = 0;
 		Scheduler(AdressOfNextStartCell);
 	}
@@ -458,7 +468,8 @@ void TimeToInd() {
 		}
 		flags.RelevanceOfNextStartCell = 1;
 	}
-	if (AdressOfNextStartCell == 240 || !flags.DetailModeOfViewSheduler) {
+	
+	if (AdressOfNextStartCell == END_OF_CELLS || !flags.DetailModeOfViewSheduler) {
 		unsigned char SignalsFinal = CurrentSignals | SignalsForInd;
 		if (flags.ModeOfFirstLine != (SignalsFinal > 0)) {
 			clrInd();
@@ -504,7 +515,7 @@ void TimeToInd() {
 		return;
 	}
 
-	if (AdressOfNextStartCell != 240) {
+	if (AdressOfNextStartCell != END_OF_CELLS) {
 
     	unsigned char DataArray[] = EMPTY_STRING_16;
 		DataArray[0] = BELL_SYMBOL;
@@ -515,11 +526,15 @@ void TimeToInd() {
             DataArray[5] = 'ñ';
 		}
         
+		unsigned long int Data = 0;
+		unsigned char CellsData [CELL_CAPACITY];
+		ReadDataOfCell(&CellsData, &Data, AdressOfNextStartCell);
+
 		unsigned int TimeStart;
 		unsigned int TimeStop;
 		unsigned char Days;
 		unsigned char Signals;
-		ParseDataRecord(ReadFourBytesEE(AdressOfNextStartCell), &TimeStart, &TimeStop, &Days, &Signals);
+		ParseDataRecord(Data, &TimeStart, &TimeStop, &Days, &Signals);
         
 		unsigned int Time;
 		unsigned char Day;
@@ -560,7 +575,7 @@ void TimeToInd() {
 			DataArrayOfLine2[--j2] = getNumChar(TimeStop % 10);
 			DataArrayOfLine2[--j2] = getNumChar(TimeStop / 10);
 
-			unsigned char CellsNumber = AdressOfNextStartCell / 4 + 1;
+			unsigned char CellsNumber = AdressOfNextStartCell / CELL_CAPACITY + 1;
 			do {
 				char d = getNumChar(CellsNumber % 10);
 				DataArrayOfLine2[2] = DataArrayOfLine2[1];
@@ -585,7 +600,7 @@ void EEWR(unsigned int adress, unsigned char data) {
 	INTCONbits.GIEL = 0;
 	CLRWDT();
 	EEADRH = adress >> 8;
-	EEADR = adress % 255;
+	EEADR = adress % 256;
 	EEDATA = data;
 	EECON1bits.EEPGD = 0;
 	EECON1bits.CFGS = 0;
@@ -607,7 +622,7 @@ unsigned char EERD(unsigned int adress) {
 	INTCONbits.GIEL = 0;
 	ClrWdt();
 	EEADRH = adress >> 8;
-	EEADR = adress % 255;
+	EEADR = adress % 256;
 	EECON1bits.EEPGD = 0;
 	EECON1bits.CFGS = 0;
 	EECON1bits.RD = 1;
@@ -838,10 +853,28 @@ unsigned long int ReadFourBytesEE(unsigned int adress) {
 	return x;
 }
 
+void FillArrayFromEEPROM(unsigned char * container, unsigned int adress_start, unsigned int quantity) {
+	for (unsigned char i = 0; i < quantity; i++) {
+		container[i] = EERD(adress_start + i);
+	}
+}
+
+void FillArrayFromEEPROM_interr(unsigned char * container, unsigned int adress_start, unsigned int quantity) {
+	for (unsigned char i = 0; i < quantity; i++) {
+		container[i] = EERD(adress_start + i);
+	}
+}
+
 void WriteFourBytesEE(unsigned int adress, unsigned long int data) {
-	for (char i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		EEWR(adress + i, data % 256);
 		data /= 256;
+	}
+}
+
+void WriteArrayToEEPROM(unsigned char * container, unsigned int adress_start, unsigned int quantity) {
+	for (unsigned char i = 0; i < quantity; i++) {
+		EEWR(adress_start + i, container[i]);
 	}
 }
 
@@ -982,18 +1015,32 @@ unsigned char ConvKeyNum(unsigned char Num) {
 	}
 }
 
-unsigned char FindCell(unsigned int adressStart, char New, unsigned char previous) {
-	if (adressStart == 240)adressStart = 236;
-	unsigned char adress = adressStart;
-	unsigned char adressNew = 240;
+unsigned int FindCell(unsigned int adressStart, char New, unsigned int previous) {
+	
+	if (adressStart == END_OF_CELLS){
+		adressStart = LAST_CELL;
+	}
+	unsigned int adress = adressStart;
+	unsigned int adressNew = END_OF_CELLS;
 	do {
+
 		if (!previous) {
-			adress == 236 ? adress = 0 : adress += 4;
+			adress == LAST_CELL ? adress = 0 : adress += CELL_CAPACITY;
 		} else {
-			adress == 0 ? adress = 236 : adress -= 4;
+			adress == 0 ? adress = LAST_CELL : adress -= CELL_CAPACITY;
 		}
-		unsigned char D = EERD(adress + 2);
-		if (New != 1 ? D != 0xFF : D == 0xFF) {
+		
+		unsigned long int Data = 0;
+		unsigned char CellsData [CELL_CAPACITY];
+		ReadDataOfCell(&CellsData, &Data, adress);
+		unsigned char CellIsEmpty = 1;
+		for(unsigned char i = 0; i < CELL_CAPACITY; i++){
+			if(CellsData[i] != 0xFF) {
+				CellIsEmpty = 0;
+			}
+		}
+
+		if (New != 1 ? CellIsEmpty == 0 : CellIsEmpty == 1) {
 			adressNew = adress;
 			break;
 		}
@@ -1001,16 +1048,27 @@ unsigned char FindCell(unsigned int adressStart, char New, unsigned char previou
 	return adressNew;
 }
  
-unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned int CopyFrom) {
+unsigned int RefreshSchedulerIndicator(unsigned int adress, char New, unsigned int CopyFrom) {
     
-    unsigned char cell = 0;
+    unsigned int cell = 0;
     
-	if (adress != 240 && (New != 1 ? EERD(adress + 2) != 0xFF : EERD(adress + 2) == 0xFF)) {
-		cell = adress / 4 + 1, 1;
+	unsigned long int Data = 0;
+	unsigned char CellsData [CELL_CAPACITY];
+	ReadDataOfCell(&CellsData, &Data, adress);
+	unsigned char CellIsEmpty = 1;
+	for(unsigned char i = 0; i < CELL_CAPACITY; i++){
+		if(CellsData[i] != 0xFF) {
+			CellIsEmpty = 0;
+		}
+	}
+	
+//	if (adress != END_OF_CELLS && (New != 1 ? EERD(adress + 2) != 0xFF : EERD(adress + 2) == 0xFF)) {
+	if (adress != END_OF_CELLS && (New != 1 ? CellIsEmpty == 0 : CellIsEmpty == 1)) {
+		cell = adress / CELL_CAPACITY + 1;
 	} else {
 		adress = FindCell(adress, New, 0);
-		if (adress != 240) {
-        	cell = adress / 4 + 1, 1;
+		if (adress != END_OF_CELLS) {
+        	cell = adress / CELL_CAPACITY + 1;
 		}
 	}
     
@@ -1024,11 +1082,11 @@ unsigned char RefreshSchedulerIndicator(unsigned int adress, char New, unsigned 
     }
     
 	if (New == 1) {
-		if (CopyFrom != 240) {
+		if (CopyFrom != END_OF_CELLS) {
             outputString("to ", 0, 1);
             outputString("copy from ", 1, 1);
 			
-            unsigned char NumberFrom = CopyFrom / 4 + 1;
+            unsigned int NumberFrom = 1 + CopyFrom / CELL_CAPACITY;
 			if (NumberFrom > 9) {
 				setDigit(1, 13, getNumChar(NumberFrom / 10));
 			}
@@ -1100,22 +1158,55 @@ unsigned char ConvertDayToBit(unsigned char DayNumber) {
 	}
 }
 
+void ReadDataOfCell(unsigned char *CellsData, unsigned long int *Data, unsigned int TargetAdress){
+	FillArrayFromEEPROM(CellsData, TargetAdress, CELL_CAPACITY);
+	for(int i = 3; i >= 0; i--){
+		*Data = *Data * 256 + CellsData[i];
+	}
+}
+
+void ReadDataOfCell_interr(unsigned char *CellsData, unsigned long int *Data, unsigned int TargetAdress){
+	FillArrayFromEEPROM_interr(CellsData, TargetAdress, CELL_CAPACITY);
+	for(int i = 3; i >= 0; i--){
+		*Data = *Data * 256 + CellsData[i];
+	}
+}
+
+void WriteDataOfCell(unsigned char *CellsData, unsigned long int *Data, unsigned int TargetAdress){
+	for(unsigned char i = 0; i < 4; i++){
+		CellsData[i] = (unsigned char)(*Data % 256);
+		*Data /= 256;
+	}
+	WriteArrayToEEPROM(CellsData, TargetAdress, CELL_CAPACITY);
+}
+
+void DeleteDataOfCell(unsigned int TargetAdress){
+	unsigned char CellsData [CELL_CAPACITY];
+	for(unsigned char i = 0; i < CELL_CAPACITY; i++){
+		CellsData[i] = 0xFF;
+	}
+	WriteArrayToEEPROM(CellsData, TargetAdress, CELL_CAPACITY);
+}
+
 unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
 	
-	unsigned char TargetAdress;
-	if (SourceOfRecord == 240) {
+	unsigned int TargetAdress;
+	if (SourceOfRecord == END_OF_CELLS) {
 		TargetAdress = adress;
 	} else {
 		TargetAdress = SourceOfRecord;
 	}
-	unsigned long int Data = ReadFourBytesEE(TargetAdress);
-
+	
+	unsigned long int Data = 0;
+	unsigned char CellsData [CELL_CAPACITY];
+	ReadDataOfCell(&CellsData, &Data, TargetAdress);
+	
 	char BeginEditTimes = 0;
 	if (Data == 0xFFFFFFFF) {
 		Data = 0;
 		BeginEditTimes = 1;
 	}
-
+	
 	unsigned int TimeStart;
 	unsigned int TimeStop;
 	unsigned char Days;
@@ -1142,7 +1233,7 @@ unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
         } else if (KeyCode == 42) { // Enter
             KeyCode = 0;
             Data = (unsigned long int) Signals * 0x20000000 + (unsigned long int) Days * 0x400000 + (unsigned long int) Times[1]*0x800 + (unsigned long int) Times[0];
-            WriteFourBytesEE(adress, Data);
+			WriteDataOfCell(&CellsData, &Data, adress);
             clrInd();
             return 1;
         }    
@@ -1292,35 +1383,35 @@ unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
 void Scheduler(unsigned int StartFrom) {
 	clrInd();
 	volatile static unsigned int NumberOfCells = 0;
-	if (StartFrom != 240) {
+	if (StartFrom != END_OF_CELLS) {
 		NumberOfCells = StartFrom;
 	}
-	NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 0, 240);
+	NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
 	while (1) {
-		if (NumberOfCells != 240 && KeyCode == 44) { // Delete
+		if (NumberOfCells != END_OF_CELLS && KeyCode == 44) { // Delete
 			KeyCode = 0;
-			WriteFourBytesEE(NumberOfCells, 0xFFFFFFFF);
-			NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 0, 240);
+			DeleteDataOfCell(NumberOfCells);
+			NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
 		} else if (KeyCode == 35) { // New
 			KeyCode = 0;
-			SchedulerNew(240);
-			RefreshSchedulerIndicator(NumberOfCells, 0, 240);
-		} else if (NumberOfCells != 240 && KeyCode == 39) { // New copy
+			SchedulerNew(END_OF_CELLS);
+			RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
+		} else if (NumberOfCells != END_OF_CELLS && KeyCode == 39) { // New copy
 			KeyCode = 0;
 			SchedulerNew(NumberOfCells);
-			RefreshSchedulerIndicator(NumberOfCells, 0, 240);
-		} else if (NumberOfCells != 240 && KeyCode == 45) { // Edit
+			RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
+		} else if (NumberOfCells != END_OF_CELLS && KeyCode == 45) { // Edit
 			KeyCode = 0;
-			EditSchedule(NumberOfCells, 240);
-			RefreshSchedulerIndicator(NumberOfCells, 0, 240);
+			EditSchedule(NumberOfCells, END_OF_CELLS);
+			RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
 		} else if (KeyCode == 40) { // Next
 			KeyCode = 0;
 			NumberOfCells = FindCell(NumberOfCells, 0, 0);
-			RefreshSchedulerIndicator(NumberOfCells, 0, 240);
+			RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
 		} else if (KeyCode == 41) { // Prev
 			KeyCode = 0;
 			NumberOfCells = FindCell(NumberOfCells, 0, 1);
-			RefreshSchedulerIndicator(NumberOfCells, 0, 240);
+			RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
 		} else if (KeyCode == 43) { // Exit
 			KeyCode = 0;
 			clrInd();
@@ -1328,17 +1419,17 @@ void Scheduler(unsigned int StartFrom) {
 		} else if (KeyCode == 30) { // Adress = 0
 			KeyCode = 0;
 			NumberOfCells = 0;
-			NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 0, 240);
+			NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 0, END_OF_CELLS);
 		}
 	}
 }
 
 void SchedulerNew(unsigned int SourceOfRecord) {
 	clrInd();
-	volatile static unsigned char NumberOfCells = 0;
+	volatile static unsigned int NumberOfCells = 0;
 	NumberOfCells = RefreshSchedulerIndicator(NumberOfCells, 1, SourceOfRecord);
 	while (1) {
-		if (NumberOfCells != 240 && KeyCode == 45) { // Edit
+		if (NumberOfCells != END_OF_CELLS && KeyCode == 45) { // Edit
 			KeyCode = 0;
 			if (EditSchedule(NumberOfCells, SourceOfRecord) == 1) {
 				NumberOfCells = FindCell(NumberOfCells, 1, 0);
@@ -1383,16 +1474,18 @@ void ParseDataRecord(unsigned long int Data, unsigned int *TimeStart, unsigned i
 }
 
 unsigned int FindNextTimeStart(unsigned long int *TimeFrom) {
-
-	unsigned char adress = 0;
-	unsigned char adressStart = 240;
+	//return 0;
+	unsigned int adress = 0;
+	unsigned int adressStart = END_OF_CELLS;
 	unsigned char TimeIsFound = 0;
 	unsigned long int LastFoundTimeStart;
 
 	do {
-		unsigned long int Data = ReadFourBytesEE(adress);
+		unsigned long int Data = 0;
+		unsigned char CellsData [CELL_CAPACITY];
+		ReadDataOfCell(&CellsData, &Data, adress);
 
-		adress += 4;
+		adress += CELL_CAPACITY;
 		if (Data == 0xFFFFFFFF) {
 			continue;
 		}
@@ -1416,10 +1509,10 @@ unsigned int FindNextTimeStart(unsigned long int *TimeFrom) {
 			if ((TimeOfSignals < LastFoundTimeStart || TimeIsFound == 0) && TimeOfSignals > *TimeFrom) {
 				TimeIsFound = 1;
 				LastFoundTimeStart = TimeOfSignals;
-				adressStart = adress - 4;
+				adressStart = adress - CELL_CAPACITY;
 			}
 		}
-	} while (adress < 240);
+	} while (adress < END_OF_CELLS);
 
 	if (TimeIsFound == 1) {
 		*TimeFrom = LastFoundTimeStart;
@@ -1431,8 +1524,12 @@ unsigned int FindNextTimeStart(unsigned long int *TimeFrom) {
 
 void SignalsOnOff() {
 	if (!flags.TimeIsRead) return;
-	if (!flags.LockSignals && CurrentReadingCell < 240) {
-		unsigned long int Data = ReadFourBytesEE(CurrentReadingCell);
+	if (!flags.LockSignals && CurrentReadingCell < END_OF_CELLS) {
+		
+		unsigned long int Data = 0;
+		unsigned char CellsData [CELL_CAPACITY];
+		ReadDataOfCell_interr(&CellsData, &Data, CurrentReadingCell);
+
 		if (Data != 0xFFFFFFFF) {
 			unsigned int TimeStart;
 			unsigned int TimeStop;
@@ -1452,7 +1549,7 @@ void SignalsOnOff() {
 				ThisTime = DayTime % 1440;
 				ThisDay = DayTime / 1440 + 1;
 				ThisDay = ConvertDayToBit(ThisDay);
-				if (((ThisDay & Days) > 0) && (TimeStart <= ThisTime) && (TimeStop > ThisTime)) {
+				if (((ThisDay & Days) > 0) && (TimeStart <= ThisTime) && (TimeStop >= ThisTime)) {
 					SignalsOut = Signals | SignalsOut;
 				}
 			}
@@ -1489,7 +1586,7 @@ void interrupt low_priority F_l() {
 	if (TMR1IF) {
 		TMR1IF = 0;
 		TMR1 += 51200;
-		SignalsOnOff();
+	//	SignalsOnOff();
 		char MinuteAgo = (Clock - Minutes > 6000);
 		if (MinuteAgo > 0) {
 			FillMinutes();
@@ -1602,12 +1699,12 @@ void main() {
 	LATC = 0b00000000;
 	T2CON = 0b00100100;
 
-	flags.LockSignals = EERD(251);
+	flags.LockSignals = EERD(LOCK_SIGNALS_FLAG_CELL);
 
 	Clock = ((long int) cMinutes * 60
 		+ (long int) cHours * 3600
 		+ ((long int) cWeekDay - 1) * 86400) * 100;
-
+	
 	lcd_on();
 	main2();
 }
@@ -1701,13 +1798,14 @@ void main2() {
 		}
 
 		TimeToInd();
-
+		
+		
 		if (KeyCode == 45 && !flags.DetailModeOfViewSheduler) {
 			KeyCode = 0;
 			TimeEdit();
 		} else if (KeyCode == 40 || KeyCode == 41) {
 			KeyCode = 0;
-			Scheduler(240);
+			Scheduler(END_OF_CELLS);
 		} else if (KeyCode == 44) {
 			KeyCode = 0;
 			if (flags.LCD_Power_On) {
@@ -1717,7 +1815,7 @@ void main2() {
 			KeyCode = 0;
 			flags.LockSignals = 1;
 			CurrentSignals = 0;
-			EEWR(251, flags.LockSignals);
+			EEWR(LOCK_SIGNALS_FLAG_CELL, flags.LockSignals);
 		} else if (KeyCode == 31 && !flags.DetailModeOfViewSheduler) {
 			KeyCode = 0;
 			clrInd();
@@ -1737,7 +1835,7 @@ void main2() {
 		} else if (KeyCode == 35 && !flags.DetailModeOfViewSheduler) {
 			KeyCode = 0;
 			flags.LockSignals = 0;
-			EEWR(251, flags.LockSignals);
+			EEWR(LOCK_SIGNALS_FLAG_CELL, flags.LockSignals);
 			clrInd();
 		} else if (KeyCode == 37) {
 			KeyCode = 0;

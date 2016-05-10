@@ -123,7 +123,7 @@
         <property key="pk2settings.usetargetpower" value="false"/>
       </PICkit2PlatformTool>
       <PICkit3PlatformTool>
-        <property key="AutoSelectMemRanges" value="manual"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
         <property key="Freeze Peripherals" value="true"/>
         <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
         <property key="ToolFirmwareFilePath"
@@ -152,7 +152,7 @@
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmspeed" value="2"/>
         <property key="programoptions.preservedataflash" value="false"/>
-        <property key="programoptions.preserveeeprom" value="true"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>
         <property key="programoptions.preserveprogramrange.end" value="0xffff"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
