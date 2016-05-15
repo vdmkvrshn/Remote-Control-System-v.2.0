@@ -5747,7 +5747,7 @@ if(show){
 UserDelay(200);
 clrInd();
 outputString("GSM-модуль не   найден", 0, 0);
-UserDelay(200);
+UserDelay(300);
 }
 break;
 }else{
@@ -5766,8 +5766,7 @@ while(!FindIncommingData(StandardAnswer_OK, (0), (11 - 1)));
 outputString("OK", 1, 8);
 
 if(show){
-UserDelay(120);
-clrInd();
+UserDelay(200);
 }
 
 return 1;
@@ -5970,8 +5969,11 @@ void main2() {
 
 unsigned char container[50];
 
-# 2558
-Init_GSM(1);
+FillBuffer("+CLIP: \"+380957075762\",145,\"\",,\"\",0");
+
+FindIncommingData(StandardAnswer_INCCALL, container, (11 - 1));
+
+
 
 flags.isTimeSetting = 0;
 

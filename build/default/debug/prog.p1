@@ -12186,9 +12186,9 @@ Version 3.2 HI-TECH Software Intermediate Code
 [; ;prog.c: 2330: outputString("GSM-модуль не   найден", 0, 0);
 "2330
 [e ( _outputString (3 , , -> :s 18C `*uc -> -> 0 `i `uc -> -> 0 `i `uc ]
-[; ;prog.c: 2331: UserDelay(200);
+[; ;prog.c: 2331: UserDelay(300);
 "2331
-[e ( _UserDelay (1 -> -> 200 `i `ui ]
+[e ( _UserDelay (1 -> -> 300 `i `ui ]
 "2332
 }
 [e :U 1167 ]
@@ -12253,58 +12253,55 @@ Version 3.2 HI-TECH Software Intermediate Code
 "2349
 [e $ ! != -> _show `i -> -> -> 0 `i `uc `i 1176  ]
 {
-[; ;prog.c: 2350: UserDelay(120);
+[; ;prog.c: 2350: UserDelay(200);
 "2350
-[e ( _UserDelay (1 -> -> 120 `i `ui ]
-[; ;prog.c: 2351: clrInd();
+[e ( _UserDelay (1 -> -> 200 `i `ui ]
 "2351
-[e ( _clrInd ..  ]
-"2352
 }
 [e :U 1176 ]
-[; ;prog.c: 2352: }
-[; ;prog.c: 2354: return 1;
-"2354
+[; ;prog.c: 2351: }
+[; ;prog.c: 2353: return 1;
+"2353
 [e ) -> -> 1 `i `uc ]
 [e $UE 1161  ]
-"2356
+"2355
 }
 [e :U 1163 ]
-[; ;prog.c: 2356: }while(0);
-[; ;prog.c: 2358: if(show){
-"2358
+[; ;prog.c: 2355: }while(0);
+[; ;prog.c: 2357: if(show){
+"2357
 [e $ ! != -> _show `i -> -> -> 0 `i `uc `i 1177  ]
 {
-[; ;prog.c: 2359: clrInd();
-"2359
+[; ;prog.c: 2358: clrInd();
+"2358
 [e ( _clrInd ..  ]
-"2360
+"2359
 }
 [e :U 1177 ]
-[; ;prog.c: 2360: }
-[; ;prog.c: 2361: return 0;
-"2361
+[; ;prog.c: 2359: }
+[; ;prog.c: 2360: return 0;
+"2360
 [e ) -> -> 0 `i `uc ]
 [e $UE 1161  ]
-[; ;prog.c: 2362: }
-"2362
+[; ;prog.c: 2361: }
+"2361
 [e :UE 1161 ]
 }
-"2364
+"2363
 [v _TelephoneCall `(v ~T0 @X0 1 ef1`*uc ]
 {
-[; ;prog.c: 2364: void TelephoneCall(unsigned char *phone_number){
+[; ;prog.c: 2363: void TelephoneCall(unsigned char *phone_number){
 [e :U _TelephoneCall ]
 [v _phone_number `*uc ~T0 @X0 1 r1 ]
 [f ]
-[; ;prog.c: 2365: if(phone_number == (0)){
-"2365
+[; ;prog.c: 2364: if(phone_number == (0)){
+"2364
 [e $ ! == _phone_number -> -> 0 `i `*uc 1179  ]
 {
-[; ;prog.c: 2366: return;
-"2366
+[; ;prog.c: 2365: return;
+"2365
 [e $UE 1178  ]
-"2367
+"2366
 }
 [e :U 1179 ]
 [v F3409 `Vuc ~T0 @X0 -> 0 `x s ]
@@ -12330,171 +12327,171 @@ Version 3.2 HI-TECH Software Intermediate Code
 -> 0 `c
 ..
 ]
-"2369
+"2368
 [v _command `Vuc ~T0 @X0 18  a ]
-[; ;prog.c: 2367: }
-[; ;prog.c: 2369: volatile unsigned char command[] = "ATD              ";
+[; ;prog.c: 2366: }
+[; ;prog.c: 2368: volatile unsigned char command[] = "ATD              ";
 [e = _command F3409 ]
-"2370
+"2369
 [v _i `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2370: unsigned char i;
-[; ;prog.c: 2371: for(i = 0; *(phone_number + i) != '\0'; i++){
-"2371
+[; ;prog.c: 2369: unsigned char i;
+[; ;prog.c: 2370: for(i = 0; *(phone_number + i) != '\0'; i++){
+"2370
 {
 [e = _i -> -> 0 `i `uc ]
 [e $U 1183  ]
 [e :U 1180 ]
 {
-[; ;prog.c: 2372: command[i+3] = *(phone_number + i);
-"2372
-[e = *U + &U _command * -> -> + -> _i `i -> 3 `i `ui `ux -> -> # *U &U _command `ui `ux *U + _phone_number * -> _i `ux -> -> # *U _phone_number `ui `ux ]
-"2373
-}
+[; ;prog.c: 2371: command[i+3] = *(phone_number + i);
 "2371
+[e = *U + &U _command * -> -> + -> _i `i -> 3 `i `ui `ux -> -> # *U &U _command `ui `ux *U + _phone_number * -> _i `ux -> -> # *U _phone_number `ui `ux ]
+"2372
+}
+"2370
 [e ++ _i -> -> 1 `i `uc ]
 [e :U 1183 ]
 [e $ != -> *U + _phone_number * -> _i `ux -> -> # *U _phone_number `ui `ux `ui -> 0 `ui 1180  ]
 [e :U 1181 ]
-"2373
+"2372
 }
-[; ;prog.c: 2373: }
-[; ;prog.c: 2374: command[i+3] = ';';
-"2374
+[; ;prog.c: 2372: }
+[; ;prog.c: 2373: command[i+3] = ';';
+"2373
 [e = *U + &U _command * -> -> + -> _i `i -> 3 `i `ui `ux -> -> # *U &U _command `ui `ux -> -> 59 `ui `uc ]
-[; ;prog.c: 2375: command[i+4] = '\0';
-"2375
+[; ;prog.c: 2374: command[i+4] = '\0';
+"2374
 [e = *U + &U _command * -> -> + -> _i `i -> 4 `i `ui `ux -> -> # *U &U _command `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2376: SendCommandToUART(command, 1);
-"2376
+[; ;prog.c: 2375: SendCommandToUART(command, 1);
+"2375
 [e ( _SendCommandToUART (2 , -> &U _command `*uc -> -> 1 `i `uc ]
-[; ;prog.c: 2378: }
-"2378
+[; ;prog.c: 2377: }
+"2377
 [e :UE 1178 ]
 }
-"2380
+"2379
 [v _Select_OK_NO `(uc ~T0 @X0 1 ef1`*uc ]
 {
-[; ;prog.c: 2380: unsigned char Select_OK_NO(unsigned char *text){
+[; ;prog.c: 2379: unsigned char Select_OK_NO(unsigned char *text){
 [e :U _Select_OK_NO ]
 [v _text `*uc ~T0 @X0 1 r1 ]
 [f ]
-[; ;prog.c: 2382: clrInd();
-"2382
+[; ;prog.c: 2381: clrInd();
+"2381
 [e ( _clrInd ..  ]
-[; ;prog.c: 2384: while (1) {
-"2384
+[; ;prog.c: 2383: while (1) {
+"2383
 [e :U 1186 ]
 {
-[; ;prog.c: 2386: outputString(text, 0, 0);
-"2386
+[; ;prog.c: 2385: outputString(text, 0, 0);
+"2385
 [e ( _outputString (3 , , _text -> -> 0 `i `uc -> -> 0 `i `uc ]
-[; ;prog.c: 2388: if (KeyCode == 42) {
-"2388
+[; ;prog.c: 2387: if (KeyCode == 42) {
+"2387
 [e $ ! == -> _KeyCode `i -> 42 `i 1188  ]
 {
-[; ;prog.c: 2389: KeyCode = 0;
-"2389
+[; ;prog.c: 2388: KeyCode = 0;
+"2388
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2390: clrInd();
-"2390
+[; ;prog.c: 2389: clrInd();
+"2389
 [e ( _clrInd ..  ]
-[; ;prog.c: 2391: return 1;
-"2391
+[; ;prog.c: 2390: return 1;
+"2390
 [e ) -> -> 1 `i `uc ]
 [e $UE 1184  ]
-"2392
+"2391
 }
-[; ;prog.c: 2392: } else if (KeyCode == 43) {
+[; ;prog.c: 2391: } else if (KeyCode == 43) {
 [e $U 1189  ]
 [e :U 1188 ]
 [e $ ! == -> _KeyCode `i -> 43 `i 1190  ]
 {
-[; ;prog.c: 2393: KeyCode = 0;
-"2393
+[; ;prog.c: 2392: KeyCode = 0;
+"2392
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2394: clrInd();
-"2394
+[; ;prog.c: 2393: clrInd();
+"2393
 [e ( _clrInd ..  ]
-[; ;prog.c: 2395: return 0;
-"2395
+[; ;prog.c: 2394: return 0;
+"2394
 [e ) -> -> 0 `i `uc ]
 [e $UE 1184  ]
-"2396
+"2395
 }
 [e :U 1190 ]
-"2397
+"2396
 [e :U 1189 ]
 }
 [e :U 1185 ]
-"2384
+"2383
 [e $U 1186  ]
 [e :U 1187 ]
+[; ;prog.c: 2395: }
 [; ;prog.c: 2396: }
 [; ;prog.c: 2397: }
-[; ;prog.c: 2398: }
-"2398
+"2397
 [e :UE 1184 ]
 }
-"2400
+"2399
 [v _PhonebookEdit `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2400: void PhonebookEdit(){
+[; ;prog.c: 2399: void PhonebookEdit(){
 [e :U _PhonebookEdit ]
 [f ]
-[; ;prog.c: 2401: clrInd();
-"2401
+[; ;prog.c: 2400: clrInd();
+"2400
 [e ( _clrInd ..  ]
-"2403
+"2402
 [v _Contact `S303 ~T0 @X0 1 a ]
-"2405
+"2404
 [v _cell `ui ~T0 @X0 1 a ]
-[; ;prog.c: 2403: Phone Contact;
-[; ;prog.c: 2405: unsigned int cell = ((8 * 48) + 7);
+[; ;prog.c: 2402: Phone Contact;
+[; ;prog.c: 2404: unsigned int cell = ((8 * 48) + 7);
 [e = _cell -> + * -> 8 `i -> 48 `i -> 7 `i `ui ]
-"2407
+"2406
 [v _read `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2407: unsigned char read = 0;
+[; ;prog.c: 2406: unsigned char read = 0;
 [e = _read -> -> 0 `i `uc ]
-[; ;prog.c: 2409: while (1) {
-"2409
+[; ;prog.c: 2408: while (1) {
+"2408
 [e :U 1193 ]
 {
-[; ;prog.c: 2411: if(!read){
-"2411
+[; ;prog.c: 2410: if(!read){
+"2410
 [e $ ! ! != -> _read `i -> -> -> 0 `i `uc `i 1195  ]
 {
-[; ;prog.c: 2412: FillPhonebookCellFromEEPROM(&Contact, cell);
-"2412
+[; ;prog.c: 2411: FillPhonebookCellFromEEPROM(&Contact, cell);
+"2411
 [e ( _FillPhonebookCellFromEEPROM (2 , &U _Contact _cell ]
-[; ;prog.c: 2413: Contact.name[sizeof(Contact.name)-1] = '\0';
-"2413
+[; ;prog.c: 2412: Contact.name[sizeof(Contact.name)-1] = '\0';
+"2412
 [e = *U + &U . _Contact 0 * -> - * -> # *U &U . _Contact 0 `ui -> -> 17 `i `ui -> -> 1 `i `ui `ux -> -> # *U &U . _Contact 0 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2414: Contact.phone[sizeof(Contact.phone)-1] = '\0';
-"2414
+[; ;prog.c: 2413: Contact.phone[sizeof(Contact.phone)-1] = '\0';
+"2413
 [e = *U + &U . _Contact 1 * -> - * -> # *U &U . _Contact 1 `ui -> -> 14 `i `ui -> -> 1 `i `ui `ux -> -> # *U &U . _Contact 1 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2415: read = 1;
-"2415
+[; ;prog.c: 2414: read = 1;
+"2414
 [e = _read -> -> 1 `i `uc ]
-[; ;prog.c: 2416: if(Contact.filled[0] != 1){
-"2416
+[; ;prog.c: 2415: if(Contact.filled[0] != 1){
+"2415
 [e $ ! != -> *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux `i -> 1 `i 1196  ]
 {
-[; ;prog.c: 2417: Contact.name[0] = '\0';
-"2417
+[; ;prog.c: 2416: Contact.name[0] = '\0';
+"2416
 [e = *U + &U . _Contact 0 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 0 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2418: Contact.name[sizeof(Contact.name)-1] = '\0';
-"2418
+[; ;prog.c: 2417: Contact.name[sizeof(Contact.name)-1] = '\0';
+"2417
 [e = *U + &U . _Contact 0 * -> - * -> # *U &U . _Contact 0 `ui -> -> 17 `i `ui -> -> 1 `i `ui `ux -> -> # *U &U . _Contact 0 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2419: Contact.phone[0] = '\0';
-"2419
+[; ;prog.c: 2418: Contact.phone[0] = '\0';
+"2418
 [e = *U + &U . _Contact 1 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 1 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2420: Contact.phone[sizeof(Contact.phone)-1] = '\0';
-"2420
+[; ;prog.c: 2419: Contact.phone[sizeof(Contact.phone)-1] = '\0';
+"2419
 [e = *U + &U . _Contact 1 * -> - * -> # *U &U . _Contact 1 `ui -> -> 14 `i `ui -> -> 1 `i `ui `ux -> -> # *U &U . _Contact 1 `ui `ux -> -> 0 `ui `uc ]
-"2421
+"2420
 }
 [e :U 1196 ]
-"2422
+"2421
 }
 [e :U 1195 ]
 [v F3416 `uc ~T0 @X0 -> 0 `x s ]
@@ -12505,354 +12502,354 @@ Version 3.2 HI-TECH Software Intermediate Code
 -> 0 `c
 ..
 ]
-"2424
+"2423
 [v _num_cell `uc ~T0 @X0 3  a ]
+[; ;prog.c: 2420: }
 [; ;prog.c: 2421: }
-[; ;prog.c: 2422: }
-[; ;prog.c: 2424: unsigned char num_cell[] = "  ";
+[; ;prog.c: 2423: unsigned char num_cell[] = "  ";
 [e = _num_cell F3416 ]
-[; ;prog.c: 2425: NumericToString((cell - ((8 * 48) + 7))/ sizeof(Contact) + 1, num_cell, sizeof(num_cell));
-"2425
+[; ;prog.c: 2424: NumericToString((cell - ((8 * 48) + 7))/ sizeof(Contact) + 1, num_cell, sizeof(num_cell));
+"2424
 [e ( _NumericToString (3 , , -> + / - _cell -> + * -> 8 `i -> 48 `i -> 7 `i `ui -> # _Contact `ui -> -> 1 `i `ui `ul &U _num_cell -> -> # _num_cell `ui `uc ]
-[; ;prog.c: 2426: outputString(num_cell, 1, 14);
-"2426
+[; ;prog.c: 2425: outputString(num_cell, 1, 14);
+"2425
 [e ( _outputString (3 , , &U _num_cell -> -> 1 `i `uc -> -> 14 `i `uc ]
-[; ;prog.c: 2427: if(Contact.filled[0] == 1){
-"2427
+[; ;prog.c: 2426: if(Contact.filled[0] == 1){
+"2426
 [e $ ! == -> *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux `i -> 1 `i 1197  ]
 {
-[; ;prog.c: 2428: outputString(Contact.name, 0, 0);
-"2428
+[; ;prog.c: 2427: outputString(Contact.name, 0, 0);
+"2427
 [e ( _outputString (3 , , &U . _Contact 0 -> -> 0 `i `uc -> -> 0 `i `uc ]
-[; ;prog.c: 2429: outputString(Contact.phone, 1, 0);
-"2429
+[; ;prog.c: 2428: outputString(Contact.phone, 1, 0);
+"2428
 [e ( _outputString (3 , , &U . _Contact 1 -> -> 1 `i `uc -> -> 0 `i `uc ]
-"2430
+"2429
 }
-[; ;prog.c: 2430: }else{
+[; ;prog.c: 2429: }else{
 [e $U 1198  ]
 [e :U 1197 ]
 {
-[; ;prog.c: 2431: outputString("     <пусто>    ", 0, 0);
-"2431
+[; ;prog.c: 2430: outputString("     <пусто>    ", 0, 0);
+"2430
 [e ( _outputString (3 , , -> :s 24C `*uc -> -> 0 `i `uc -> -> 0 `i `uc ]
-[; ;prog.c: 2432: outputString("             ", 1, 0);
-"2432
+[; ;prog.c: 2431: outputString("             ", 1, 0);
+"2431
 [e ( _outputString (3 , , -> :s 25C `*uc -> -> 1 `i `uc -> -> 0 `i `uc ]
-"2433
+"2432
 }
 [e :U 1198 ]
-[; ;prog.c: 2433: }
-[; ;prog.c: 2435: if (KeyCode == 44) {
-"2435
+[; ;prog.c: 2432: }
+[; ;prog.c: 2434: if (KeyCode == 44) {
+"2434
 [e $ ! == -> _KeyCode `i -> 44 `i 1199  ]
 {
-[; ;prog.c: 2436: KeyCode = 0;
-"2436
+[; ;prog.c: 2435: KeyCode = 0;
+"2435
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2437: if(Contact.filled[0] == 1 && Select_OK_NO("Удалить номер?")){
-"2437
+[; ;prog.c: 2436: if(Contact.filled[0] == 1 && Select_OK_NO("Удалить номер?")){
+"2436
 [e $ ! && == -> *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux `i -> 1 `i != -> ( _Select_OK_NO (1 -> :s 26C `*uc `i -> -> -> 0 `i `uc `i 1200  ]
 {
-"2438
+"2437
 [v _aaa `S303 ~T0 @X0 1 a ]
-[; ;prog.c: 2438: Phone aaa;
-[; ;prog.c: 2439: WritePhonebookCellToEEPROM(&aaa, cell);
-"2439
+[; ;prog.c: 2437: Phone aaa;
+[; ;prog.c: 2438: WritePhonebookCellToEEPROM(&aaa, cell);
+"2438
 [e ( _WritePhonebookCellToEEPROM (2 , &U _aaa _cell ]
-[; ;prog.c: 2440: read = 0;
-"2440
+[; ;prog.c: 2439: read = 0;
+"2439
 [e = _read -> -> 0 `i `uc ]
-[; ;prog.c: 2441: clrInd();
-"2441
+[; ;prog.c: 2440: clrInd();
+"2440
 [e ( _clrInd ..  ]
-"2442
+"2441
 }
 [e :U 1200 ]
-"2444
+"2443
 }
-[; ;prog.c: 2442: }
-[; ;prog.c: 2444: } else if (KeyCode == 45) {
+[; ;prog.c: 2441: }
+[; ;prog.c: 2443: } else if (KeyCode == 45) {
 [e $U 1201  ]
 [e :U 1199 ]
 [e $ ! == -> _KeyCode `i -> 45 `i 1202  ]
 {
-[; ;prog.c: 2445: KeyCode = 0;
-"2445
+[; ;prog.c: 2444: KeyCode = 0;
+"2444
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2447: clrInd();
-"2447
+[; ;prog.c: 2446: clrInd();
+"2446
 [e ( _clrInd ..  ]
-"2449
+"2448
 [v _field `*uc ~T0 @X0 1 a ]
-"2450
+"2449
 [v _input_props `S300 ~T0 @X0 1 a ]
-[; ;prog.c: 2449: unsigned char *field;
-[; ;prog.c: 2450: input_text_props input_props;
-[; ;prog.c: 2451: input_props.Aa = Aa;
-"2451
+[; ;prog.c: 2448: unsigned char *field;
+[; ;prog.c: 2449: input_text_props input_props;
+[; ;prog.c: 2450: input_props.Aa = Aa;
+"2450
 [e = . _input_props 0 -> . `E2793 1 `uc ]
-[; ;prog.c: 2452: input_props.Language = Russian;
-"2452
+[; ;prog.c: 2451: input_props.Language = Russian;
+"2451
 [e = . _input_props 1 -> . `E2797 1 `uc ]
-[; ;prog.c: 2453: if((field = InputText(
-[; ;prog.c: 2454: (Contact.filled[0] == 1)
-[; ;prog.c: 2455: ?
-[; ;prog.c: 2456: Contact.name
-[; ;prog.c: 2457: :
-[; ;prog.c: 2458: (0),
-[; ;prog.c: 2459: &input_props, sizeof(Contact.name)-1)) != (0)){
-"2459
+[; ;prog.c: 2452: if((field = InputText(
+[; ;prog.c: 2453: (Contact.filled[0] == 1)
+[; ;prog.c: 2454: ?
+[; ;prog.c: 2455: Contact.name
+[; ;prog.c: 2456: :
+[; ;prog.c: 2457: (0),
+[; ;prog.c: 2458: &input_props, sizeof(Contact.name)-1)) != (0)){
+"2458
 [e $ ! != = _field ( _InputText (3 , , ? == -> *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux `i -> 1 `i : &U . _Contact 0 -> -> 0 `i `*uc &U _input_props -> - * -> # *U &U . _Contact 0 `ui -> -> 17 `i `ui -> -> 1 `i `ui `uc -> -> 0 `i `*uc 1203  ]
 {
-"2461
+"2460
 [v _i `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2461: unsigned char i;
-[; ;prog.c: 2462: for(i = 0; (*(field + i) != '\0'); i++){
-"2462
+[; ;prog.c: 2460: unsigned char i;
+[; ;prog.c: 2461: for(i = 0; (*(field + i) != '\0'); i++){
+"2461
 {
 [e = _i -> -> 0 `i `uc ]
 [e $U 1207  ]
 [e :U 1204 ]
 {
-[; ;prog.c: 2463: Contact.name[i] = *(field + i);
-"2463
-[e = *U + &U . _Contact 0 * -> _i `ux -> -> # *U &U . _Contact 0 `ui `ux *U + _field * -> _i `ux -> -> # *U _field `ui `ux ]
-"2464
-}
+[; ;prog.c: 2462: Contact.name[i] = *(field + i);
 "2462
+[e = *U + &U . _Contact 0 * -> _i `ux -> -> # *U &U . _Contact 0 `ui `ux *U + _field * -> _i `ux -> -> # *U _field `ui `ux ]
+"2463
+}
+"2461
 [e ++ _i -> -> 1 `i `uc ]
 [e :U 1207 ]
 [e $ != -> *U + _field * -> _i `ux -> -> # *U _field `ui `ux `ui -> 0 `ui 1204  ]
 [e :U 1205 ]
-"2464
+"2463
 }
-[; ;prog.c: 2464: }
-[; ;prog.c: 2465: Contact.name[i] = '\0';
-"2465
+[; ;prog.c: 2463: }
+[; ;prog.c: 2464: Contact.name[i] = '\0';
+"2464
 [e = *U + &U . _Contact 0 * -> _i `ux -> -> # *U &U . _Contact 0 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2466: input_props.Language = Numeric;
-"2466
+[; ;prog.c: 2465: input_props.Language = Numeric;
+"2465
 [e = . _input_props 1 -> . `E2797 2 `uc ]
-[; ;prog.c: 2468: if((field = InputText(
-[; ;prog.c: 2469: (Contact.filled[0] == 1)
-[; ;prog.c: 2470: ?
-[; ;prog.c: 2471: Contact.phone
-[; ;prog.c: 2472: :
-[; ;prog.c: 2473: (0),
-[; ;prog.c: 2474: &input_props, sizeof(Contact.phone)-1)) != (0)){
-"2474
+[; ;prog.c: 2467: if((field = InputText(
+[; ;prog.c: 2468: (Contact.filled[0] == 1)
+[; ;prog.c: 2469: ?
+[; ;prog.c: 2470: Contact.phone
+[; ;prog.c: 2471: :
+[; ;prog.c: 2472: (0),
+[; ;prog.c: 2473: &input_props, sizeof(Contact.phone)-1)) != (0)){
+"2473
 [e $ ! != = _field ( _InputText (3 , , ? == -> *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux `i -> 1 `i : &U . _Contact 1 -> -> 0 `i `*uc &U _input_props -> - * -> # *U &U . _Contact 1 `ui -> -> 14 `i `ui -> -> 1 `i `ui `uc -> -> 0 `i `*uc 1208  ]
 {
-[; ;prog.c: 2476: for(i = 0; (*(field + i) != '\0'); i++){
-"2476
+[; ;prog.c: 2475: for(i = 0; (*(field + i) != '\0'); i++){
+"2475
 {
 [e = _i -> -> 0 `i `uc ]
 [e $U 1212  ]
 [e :U 1209 ]
 {
-[; ;prog.c: 2477: Contact.phone[i] = *(field + i);
-"2477
-[e = *U + &U . _Contact 1 * -> _i `ux -> -> # *U &U . _Contact 1 `ui `ux *U + _field * -> _i `ux -> -> # *U _field `ui `ux ]
-"2478
-}
+[; ;prog.c: 2476: Contact.phone[i] = *(field + i);
 "2476
+[e = *U + &U . _Contact 1 * -> _i `ux -> -> # *U &U . _Contact 1 `ui `ux *U + _field * -> _i `ux -> -> # *U _field `ui `ux ]
+"2477
+}
+"2475
 [e ++ _i -> -> 1 `i `uc ]
 [e :U 1212 ]
 [e $ != -> *U + _field * -> _i `ux -> -> # *U _field `ui `ux `ui -> 0 `ui 1209  ]
 [e :U 1210 ]
+"2477
+}
+[; ;prog.c: 2477: }
+[; ;prog.c: 2478: Contact.phone[i] = '\0';
 "2478
-}
-[; ;prog.c: 2478: }
-[; ;prog.c: 2479: Contact.phone[i] = '\0';
-"2479
 [e = *U + &U . _Contact 1 * -> _i `ux -> -> # *U &U . _Contact 1 `ui `ux -> -> 0 `ui `uc ]
-[; ;prog.c: 2481: Contact.filled[0] = 1;
-"2481
+[; ;prog.c: 2480: Contact.filled[0] = 1;
+"2480
 [e = *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux -> -> 1 `i `uc ]
-[; ;prog.c: 2482: WritePhonebookCellToEEPROM(&Contact, cell);
-"2482
+[; ;prog.c: 2481: WritePhonebookCellToEEPROM(&Contact, cell);
+"2481
 [e ( _WritePhonebookCellToEEPROM (2 , &U _Contact _cell ]
-"2483
+"2482
 }
-[; ;prog.c: 2483: }else{
+[; ;prog.c: 2482: }else{
 [e $U 1213  ]
 [e :U 1208 ]
 {
-[; ;prog.c: 2484: read = 0;
-"2484
+[; ;prog.c: 2483: read = 0;
+"2483
 [e = _read -> -> 0 `i `uc ]
-"2485
+"2484
 }
 [e :U 1213 ]
-"2486
+"2485
 }
 [e :U 1203 ]
-"2488
+"2487
 }
+[; ;prog.c: 2484: }
 [; ;prog.c: 2485: }
-[; ;prog.c: 2486: }
-[; ;prog.c: 2488: } else if (KeyCode == 32) {
+[; ;prog.c: 2487: } else if (KeyCode == 32) {
 [e $U 1214  ]
 [e :U 1202 ]
 [e $ ! == -> _KeyCode `i -> 32 `i 1215  ]
 {
-[; ;prog.c: 2489: KeyCode = 0;
-"2489
+[; ;prog.c: 2488: KeyCode = 0;
+"2488
 [e = _KeyCode -> -> 0 `i `uc ]
-"2490
+"2489
 [v _input_props `S300 ~T0 @X0 1 a ]
-[; ;prog.c: 2490: input_text_props input_props;
-[; ;prog.c: 2491: input_props.Language = Numeric;
-"2491
+[; ;prog.c: 2489: input_text_props input_props;
+[; ;prog.c: 2490: input_props.Language = Numeric;
+"2490
 [e = . _input_props 1 -> . `E2797 2 `uc ]
-"2492
+"2491
 [v _number `*uc ~T0 @X0 1 a ]
-[; ;prog.c: 2492: unsigned char *number = InputText((0), &input_props, 13);
+[; ;prog.c: 2491: unsigned char *number = InputText((0), &input_props, 13);
 [e = _number ( _InputText (3 , , -> -> 0 `i `*uc &U _input_props -> -> 13 `i `uc ]
-[; ;prog.c: 2493: if(number != (0)){
-"2493
+[; ;prog.c: 2492: if(number != (0)){
+"2492
 [e $ ! != _number -> -> 0 `i `*uc 1216  ]
 {
-[; ;prog.c: 2494: TelephoneCall(number);
-"2494
+[; ;prog.c: 2493: TelephoneCall(number);
+"2493
 [e ( _TelephoneCall (1 _number ]
-"2495
+"2494
 }
 [e :U 1216 ]
-"2496
+"2495
 }
-[; ;prog.c: 2495: }
-[; ;prog.c: 2496: } else if (KeyCode == 33 && Select_OK_NO("Отправить вызов?")) {
+[; ;prog.c: 2494: }
+[; ;prog.c: 2495: } else if (KeyCode == 33 && Select_OK_NO("Отправить вызов?")) {
 [e $U 1217  ]
 [e :U 1215 ]
 [e $ ! && == -> _KeyCode `i -> 33 `i != -> ( _Select_OK_NO (1 -> :s 27C `*uc `i -> -> -> 0 `i `uc `i 1218  ]
 {
-[; ;prog.c: 2497: KeyCode = 0;
-"2497
+[; ;prog.c: 2496: KeyCode = 0;
+"2496
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2498: if(Contact.filled[0] == 1){
-"2498
+[; ;prog.c: 2497: if(Contact.filled[0] == 1){
+"2497
 [e $ ! == -> *U + &U . _Contact 3 * -> -> -> 0 `i `ui `ux -> -> # *U &U . _Contact 3 `ui `ux `i -> 1 `i 1219  ]
 {
-[; ;prog.c: 2499: TelephoneCall(Contact.phone);
-"2499
+[; ;prog.c: 2498: TelephoneCall(Contact.phone);
+"2498
 [e ( _TelephoneCall (1 &U . _Contact 1 ]
-"2500
+"2499
 }
 [e :U 1219 ]
-"2501
+"2500
 }
-[; ;prog.c: 2500: }
-[; ;prog.c: 2501: } else if (KeyCode == 40) {
+[; ;prog.c: 2499: }
+[; ;prog.c: 2500: } else if (KeyCode == 40) {
 [e $U 1220  ]
 [e :U 1218 ]
 [e $ ! == -> _KeyCode `i -> 40 `i 1221  ]
 {
-[; ;prog.c: 2502: KeyCode = 0;
-"2502
+[; ;prog.c: 2501: KeyCode = 0;
+"2501
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2503: if(cell < ((((8 * 48) + 7) + 16 * sizeof(Phone)) - sizeof(Phone))){
-"2503
+[; ;prog.c: 2502: if(cell < ((((8 * 48) + 7) + 16 * sizeof(Phone)) - sizeof(Phone))){
+"2502
 [e $ ! < _cell - + -> + * -> 8 `i -> 48 `i -> 7 `i `ui * -> -> 16 `i `ui -> # `S303 `ui -> # `S303 `ui 1222  ]
 {
-[; ;prog.c: 2504: cell = cell + sizeof(Contact);
-"2504
+[; ;prog.c: 2503: cell = cell + sizeof(Contact);
+"2503
 [e = _cell + _cell -> # _Contact `ui ]
-"2505
+"2504
 }
-[; ;prog.c: 2505: }else{
+[; ;prog.c: 2504: }else{
 [e $U 1223  ]
 [e :U 1222 ]
 {
-[; ;prog.c: 2506: cell = ((8 * 48) + 7);
-"2506
+[; ;prog.c: 2505: cell = ((8 * 48) + 7);
+"2505
 [e = _cell -> + * -> 8 `i -> 48 `i -> 7 `i `ui ]
-"2507
+"2506
 }
 [e :U 1223 ]
-[; ;prog.c: 2507: }
-[; ;prog.c: 2508: read = 0;
-"2508
+[; ;prog.c: 2506: }
+[; ;prog.c: 2507: read = 0;
+"2507
 [e = _read -> -> 0 `i `uc ]
-[; ;prog.c: 2509: clrInd();
-"2509
+[; ;prog.c: 2508: clrInd();
+"2508
 [e ( _clrInd ..  ]
-"2510
+"2509
 }
-[; ;prog.c: 2510: } else if (KeyCode == 41) {
+[; ;prog.c: 2509: } else if (KeyCode == 41) {
 [e $U 1224  ]
 [e :U 1221 ]
 [e $ ! == -> _KeyCode `i -> 41 `i 1225  ]
 {
-[; ;prog.c: 2511: KeyCode = 0;
-"2511
+[; ;prog.c: 2510: KeyCode = 0;
+"2510
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2512: if(cell > ((8 * 48) + 7)){
-"2512
+[; ;prog.c: 2511: if(cell > ((8 * 48) + 7)){
+"2511
 [e $ ! > _cell -> + * -> 8 `i -> 48 `i -> 7 `i `ui 1226  ]
 {
-[; ;prog.c: 2513: cell = cell - sizeof(Contact);
-"2513
+[; ;prog.c: 2512: cell = cell - sizeof(Contact);
+"2512
 [e = _cell - _cell -> # _Contact `ui ]
-"2514
+"2513
 }
-[; ;prog.c: 2514: }else{
+[; ;prog.c: 2513: }else{
 [e $U 1227  ]
 [e :U 1226 ]
 {
-[; ;prog.c: 2515: cell = ((((8 * 48) + 7) + 16 * sizeof(Phone)) - sizeof(Phone));
-"2515
+[; ;prog.c: 2514: cell = ((((8 * 48) + 7) + 16 * sizeof(Phone)) - sizeof(Phone));
+"2514
 [e = _cell - + -> + * -> 8 `i -> 48 `i -> 7 `i `ui * -> -> 16 `i `ui -> # `S303 `ui -> # `S303 `ui ]
-"2516
+"2515
 }
 [e :U 1227 ]
-[; ;prog.c: 2516: }
-[; ;prog.c: 2517: read = 0;
-"2517
+[; ;prog.c: 2515: }
+[; ;prog.c: 2516: read = 0;
+"2516
 [e = _read -> -> 0 `i `uc ]
-[; ;prog.c: 2518: clrInd();
-"2518
+[; ;prog.c: 2517: clrInd();
+"2517
 [e ( _clrInd ..  ]
-"2519
+"2518
 }
-[; ;prog.c: 2519: } else if (KeyCode == 43) {
+[; ;prog.c: 2518: } else if (KeyCode == 43) {
 [e $U 1228  ]
 [e :U 1225 ]
 [e $ ! == -> _KeyCode `i -> 43 `i 1229  ]
 {
-[; ;prog.c: 2520: KeyCode = 0;
-"2520
+[; ;prog.c: 2519: KeyCode = 0;
+"2519
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2521: clrInd();
-"2521
+[; ;prog.c: 2520: clrInd();
+"2520
 [e ( _clrInd ..  ]
-[; ;prog.c: 2522: return;
-"2522
+[; ;prog.c: 2521: return;
+"2521
 [e $UE 1191  ]
-"2523
+"2522
 }
-[; ;prog.c: 2523: } else if (KeyCode == 30) {
+[; ;prog.c: 2522: } else if (KeyCode == 30) {
 [e $U 1230  ]
 [e :U 1229 ]
 [e $ ! == -> _KeyCode `i -> 30 `i 1231  ]
 {
-[; ;prog.c: 2524: KeyCode = 0;
-"2524
+[; ;prog.c: 2523: KeyCode = 0;
+"2523
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2525: cell = ((8 * 48) + 7);
-"2525
+[; ;prog.c: 2524: cell = ((8 * 48) + 7);
+"2524
 [e = _cell -> + * -> 8 `i -> 48 `i -> 7 `i `ui ]
-[; ;prog.c: 2526: read = 0;
-"2526
+[; ;prog.c: 2525: read = 0;
+"2525
 [e = _read -> -> 0 `i `uc ]
-[; ;prog.c: 2527: clrInd();
-"2527
+[; ;prog.c: 2526: clrInd();
+"2526
 [e ( _clrInd ..  ]
-"2528
+"2527
 }
 [e :U 1231 ]
-"2529
+"2528
 [e :U 1230 ]
 [e :U 1228 ]
 [e :U 1224 ]
@@ -12862,372 +12859,375 @@ Version 3.2 HI-TECH Software Intermediate Code
 [e :U 1201 ]
 }
 [e :U 1192 ]
-"2409
+"2408
 [e $U 1193  ]
 [e :U 1194 ]
+[; ;prog.c: 2527: }
 [; ;prog.c: 2528: }
 [; ;prog.c: 2529: }
-[; ;prog.c: 2530: }
-"2530
+"2529
 [e :UE 1191 ]
 }
-"2532
+"2531
 [v _FillBuffer `(v ~T0 @X0 1 ef1`*uc ]
 {
-[; ;prog.c: 2532: void FillBuffer(unsigned char *string){
+[; ;prog.c: 2531: void FillBuffer(unsigned char *string){
 [e :U _FillBuffer ]
 [v _string `*uc ~T0 @X0 1 r1 ]
 [f ]
-"2534
+"2533
 [v _end_of_string `*uc ~T0 @X0 1 a ]
-[; ;prog.c: 2534: unsigned char *end_of_string = string;
+[; ;prog.c: 2533: unsigned char *end_of_string = string;
 [e = _end_of_string _string ]
-[; ;prog.c: 2535: while(*(end_of_string+1) != '\0'){
-"2535
+[; ;prog.c: 2534: while(*(end_of_string+1) != '\0'){
+"2534
 [e $U 1233  ]
 [e :U 1234 ]
 {
-[; ;prog.c: 2536: end_of_string++;
-"2536
+[; ;prog.c: 2535: end_of_string++;
+"2535
 [e ++ _end_of_string * -> -> 1 `i `x -> -> # *U _end_of_string `i `x ]
-"2537
+"2536
 }
 [e :U 1233 ]
-"2535
+"2534
 [e $ != -> *U + _end_of_string * -> -> 1 `i `x -> -> # *U _end_of_string `i `x `ui -> 0 `ui 1234  ]
 [e :U 1235 ]
-"2539
+"2538
 [v _last_s `uc ~T0 @X0 1 a ]
 [v _not_found `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2537: }
-[; ;prog.c: 2539: unsigned char last_s, not_found = 0;
+[; ;prog.c: 2536: }
+[; ;prog.c: 2538: unsigned char last_s, not_found = 0;
 [e = _not_found -> -> 0 `i `uc ]
-[; ;prog.c: 2540: for(unsigned char j = 0; end_of_string - j >= string && j < 81-1; j++){
-"2540
+[; ;prog.c: 2539: for(unsigned char j = 0; end_of_string - j >= string && j < 81-1; j++){
+"2539
 {
 [v _j `uc ~T0 @X0 1 a ]
 [e = _j -> -> 0 `i `uc ]
 [e $U 1239  ]
 [e :U 1236 ]
 {
-"2541
-[v _s0 `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2541: unsigned char s0 = *(end_of_string - j);
-[e = _s0 *U - _end_of_string * -> _j `ux -> -> # *U _end_of_string `ui `ux ]
-[; ;prog.c: 2542: last_s = 81 - 2 - j;
-"2542
-[e = _last_s -> - - -> 81 `i -> 2 `i -> _j `i `uc ]
-[; ;prog.c: 2543: *(IncommingBuffer[(11 - 1)] + last_s) = s0;
-"2543
-[e = *U + *U + &U _IncommingBuffer * -> -> - -> 11 `i -> 1 `i `ui `ux -> -> # *U &U _IncommingBuffer `ui `ux * -> _last_s `ux -> -> # *U *U + &U _IncommingBuffer * -> -> - -> 11 `i -> 1 `i `ui `ux -> -> # *U &U _IncommingBuffer `ui `ux `ui `ux _s0 ]
-"2544
-}
 "2540
+[v _s0 `uc ~T0 @X0 1 a ]
+[; ;prog.c: 2540: unsigned char s0 = *(end_of_string - j);
+[e = _s0 *U - _end_of_string * -> _j `ux -> -> # *U _end_of_string `ui `ux ]
+[; ;prog.c: 2541: last_s = 81 - 2 - j;
+"2541
+[e = _last_s -> - - -> 81 `i -> 2 `i -> _j `i `uc ]
+[; ;prog.c: 2542: *(IncommingBuffer[(11 - 1)] + last_s) = s0;
+"2542
+[e = *U + *U + &U _IncommingBuffer * -> -> - -> 11 `i -> 1 `i `ui `ux -> -> # *U &U _IncommingBuffer `ui `ux * -> _last_s `ux -> -> # *U *U + &U _IncommingBuffer * -> -> - -> 11 `i -> 1 `i `ui `ux -> -> # *U &U _IncommingBuffer `ui `ux `ui `ux _s0 ]
+"2543
+}
+"2539
 [e ++ _j -> -> 1 `i `uc ]
 [e :U 1239 ]
 [e $ && >= - _end_of_string * -> _j `ux -> -> # *U _end_of_string `ui `ux _string < -> _j `i - -> 81 `i -> 1 `i 1236  ]
 [e :U 1237 ]
-"2544
+"2543
 }
+[; ;prog.c: 2543: }
 [; ;prog.c: 2544: }
-[; ;prog.c: 2545: }
-"2545
+"2544
 [e :UE 1232 ]
 }
-"2547
+"2546
 [v _main2 `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2547: void main2() {
+[; ;prog.c: 2546: void main2() {
 [e :U _main2 ]
 [f ]
-"2552
+"2551
 [v _container `uc ~T0 @X0 -> 50 `i a ]
-[; ;prog.c: 2552: unsigned char container[50];
-[; ;prog.c: 2558: Init_GSM(1);
-"2558
-[e ( _Init_GSM (1 -> -> 1 `i `uc ]
-[; ;prog.c: 2560: flags.isTimeSetting = 0;
-"2560
+[; ;prog.c: 2551: unsigned char container[50];
+[; ;prog.c: 2553: FillBuffer("+CLIP: \"+380957075762\",145,\"\",,\"\",0");
+"2553
+[e ( _FillBuffer (1 -> :s 28C `*uc ]
+[; ;prog.c: 2555: FindIncommingData(StandardAnswer_INCCALL, container, (11 - 1));
+"2555
+[e ( _FindIncommingData (3 , , -> &U _StandardAnswer_INCCALL `*uc &U _container -> - -> 11 `i -> 1 `i `uc ]
+[; ;prog.c: 2559: flags.isTimeSetting = 0;
+"2559
 [e = . _flags 4 -> -> 0 `i `uc ]
-[; ;prog.c: 2562: NearTimeStart = Clock;
-"2562
+[; ;prog.c: 2561: NearTimeStart = Clock;
+"2561
 [e = _NearTimeStart -> _Clock `ul ]
-[; ;prog.c: 2563: AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
-"2563
+[; ;prog.c: 2562: AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
+"2562
 [e = _AdressOfNextStartCell ( _FindNextTimeStart (1 &U _NearTimeStart ]
-[; ;prog.c: 2565: while (1) {
-"2565
+[; ;prog.c: 2564: while (1) {
+"2564
 [e :U 1242 ]
 {
-[; ;prog.c: 2567: if (flags.LCD_Power_On == 1 && LCD_ON_TIMEOUT == 0 && CurrentSignals == 0) {
-"2567
+[; ;prog.c: 2566: if (flags.LCD_Power_On == 1 && LCD_ON_TIMEOUT == 0 && CurrentSignals == 0) {
+"2566
 [e $ ! && && == -> . _flags 6 `i -> 1 `i == _LCD_ON_TIMEOUT -> -> 0 `i `ui == -> _CurrentSignals `i -> 0 `i 1244  ]
 {
-[; ;prog.c: 2568: lcd_off();
-"2568
+[; ;prog.c: 2567: lcd_off();
+"2567
 [e ( _lcd_off ..  ]
-"2569
+"2568
 }
-[; ;prog.c: 2569: } else if (flags.LCD_Power_On == 0 && KeyCode != 0) {
+[; ;prog.c: 2568: } else if (flags.LCD_Power_On == 0 && KeyCode != 0) {
 [e $U 1245  ]
 [e :U 1244 ]
 [e $ ! && == -> . _flags 6 `i -> 0 `i != -> _KeyCode `i -> 0 `i 1246  ]
 {
-[; ;prog.c: 2570: KeyCode = 0;
-"2570
+[; ;prog.c: 2569: KeyCode = 0;
+"2569
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2571: lcd_on();
-"2571
+[; ;prog.c: 2570: lcd_on();
+"2570
 [e ( _lcd_on ..  ]
-"2572
+"2571
 }
 [e :U 1246 ]
-"2574
+"2573
 [e :U 1245 ]
-[; ;prog.c: 2572: }
-[; ;prog.c: 2574: if (flags.LCD_Power_On == 0) {
+[; ;prog.c: 2571: }
+[; ;prog.c: 2573: if (flags.LCD_Power_On == 0) {
 [e $ ! == -> . _flags 6 `i -> 0 `i 1247  ]
 {
-[; ;prog.c: 2575: continue;
-"2575
+[; ;prog.c: 2574: continue;
+"2574
 [e $U 1241  ]
-"2576
+"2575
 }
 [e :U 1247 ]
-[; ;prog.c: 2576: }
-[; ;prog.c: 2578: TimeToInd();
-"2578
+[; ;prog.c: 2575: }
+[; ;prog.c: 2577: TimeToInd();
+"2577
 [e ( _TimeToInd ..  ]
-[; ;prog.c: 2580: if (KeyCode == 45 && !flags.DetailModeOfViewSheduler) {
-"2580
+[; ;prog.c: 2579: if (KeyCode == 45 && !flags.DetailModeOfViewSheduler) {
+"2579
 [e $ ! && == -> _KeyCode `i -> 45 `i ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1248  ]
 {
-[; ;prog.c: 2581: KeyCode = 0;
-"2581
+[; ;prog.c: 2580: KeyCode = 0;
+"2580
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2582: TimeEdit();
-"2582
+[; ;prog.c: 2581: TimeEdit();
+"2581
 [e ( _TimeEdit ..  ]
-"2583
+"2582
 }
-[; ;prog.c: 2583: } else if (KeyCode == 40) {
+[; ;prog.c: 2582: } else if (KeyCode == 40) {
 [e $U 1249  ]
 [e :U 1248 ]
 [e $ ! == -> _KeyCode `i -> 40 `i 1250  ]
 {
-[; ;prog.c: 2584: KeyCode = 0;
-"2584
+[; ;prog.c: 2583: KeyCode = 0;
+"2583
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2585: Scheduler((8 * 48));
-"2585
+[; ;prog.c: 2584: Scheduler((8 * 48));
+"2584
 [e ( _Scheduler (1 -> * -> 8 `i -> 48 `i `ui ]
-"2586
+"2585
 }
-[; ;prog.c: 2586: } else if (KeyCode == 41) {
+[; ;prog.c: 2585: } else if (KeyCode == 41) {
 [e $U 1251  ]
 [e :U 1250 ]
 [e $ ! == -> _KeyCode `i -> 41 `i 1252  ]
 {
-[; ;prog.c: 2587: KeyCode = 0;
-"2587
+[; ;prog.c: 2586: KeyCode = 0;
+"2586
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2588: PhonebookEdit();
-"2588
+[; ;prog.c: 2587: PhonebookEdit();
+"2587
 [e ( _PhonebookEdit ..  ]
-"2589
+"2588
 }
-[; ;prog.c: 2589: } else if (KeyCode == 44) {
+[; ;prog.c: 2588: } else if (KeyCode == 44) {
 [e $U 1253  ]
 [e :U 1252 ]
 [e $ ! == -> _KeyCode `i -> 44 `i 1254  ]
 {
-[; ;prog.c: 2590: KeyCode = 0;
-"2590
+[; ;prog.c: 2589: KeyCode = 0;
+"2589
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2591: if (flags.LCD_Power_On) {
-"2591
+[; ;prog.c: 2590: if (flags.LCD_Power_On) {
+"2590
 [e $ ! != -> . _flags 6 `i -> -> -> 0 `i `uc `i 1255  ]
 {
-[; ;prog.c: 2592: flags.LCD_Light_On = !flags.LCD_Light_On;
-"2592
+[; ;prog.c: 2591: flags.LCD_Light_On = !flags.LCD_Light_On;
+"2591
 [e = . _flags 5 -> -> ! != -> . _flags 5 `i -> -> -> 0 `i `uc `i `i `uc ]
-"2593
+"2592
 }
 [e :U 1255 ]
-"2594
+"2593
 }
-[; ;prog.c: 2593: }
-[; ;prog.c: 2594: } else if (KeyCode == 30) {
+[; ;prog.c: 2592: }
+[; ;prog.c: 2593: } else if (KeyCode == 30) {
 [e $U 1256  ]
 [e :U 1254 ]
 [e $ ! == -> _KeyCode `i -> 30 `i 1257  ]
 {
-[; ;prog.c: 2595: KeyCode = 0;
-"2595
+[; ;prog.c: 2594: KeyCode = 0;
+"2594
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2596: flags.LockSignals = 1;
-"2596
+[; ;prog.c: 2595: flags.LockSignals = 1;
+"2595
 [e = . _flags 7 -> -> 1 `i `uc ]
-[; ;prog.c: 2597: CurrentSignals = 0;
-"2597
+[; ;prog.c: 2596: CurrentSignals = 0;
+"2596
 [e = _CurrentSignals -> -> 0 `i `uc ]
-[; ;prog.c: 2598: EEWR(((8 * 48) + 6), flags.LockSignals);
-"2598
+[; ;prog.c: 2597: EEWR(((8 * 48) + 6), flags.LockSignals);
+"2597
 [e ( _EEWR (2 , -> + * -> 8 `i -> 48 `i -> 6 `i `ui . _flags 7 ]
-"2599
+"2598
 }
-[; ;prog.c: 2599: } else if (KeyCode == 37 && !flags.DetailModeOfViewSheduler) {
+[; ;prog.c: 2598: } else if (KeyCode == 37 && !flags.DetailModeOfViewSheduler) {
 [e $U 1258  ]
 [e :U 1257 ]
 [e $ ! && == -> _KeyCode `i -> 37 `i ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1259  ]
 {
-[; ;prog.c: 2600: KeyCode = 0;
-"2600
+[; ;prog.c: 2599: KeyCode = 0;
+"2599
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2601: clrInd();
-"2601
+[; ;prog.c: 2600: clrInd();
+"2600
 [e ( _clrInd ..  ]
-[; ;prog.c: 2602: CurrentSignals = CurrentSignals^0b00000001;
-"2602
+[; ;prog.c: 2601: CurrentSignals = CurrentSignals^0b00000001;
+"2601
 [e = _CurrentSignals -> ^ -> _CurrentSignals `i -> 1 `i `uc ]
-"2603
+"2602
 }
-[; ;prog.c: 2603: } else if (KeyCode == 38 && !flags.DetailModeOfViewSheduler) {
+[; ;prog.c: 2602: } else if (KeyCode == 38 && !flags.DetailModeOfViewSheduler) {
 [e $U 1260  ]
 [e :U 1259 ]
 [e $ ! && == -> _KeyCode `i -> 38 `i ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1261  ]
 {
-[; ;prog.c: 2604: KeyCode = 0;
-"2604
+[; ;prog.c: 2603: KeyCode = 0;
+"2603
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2605: clrInd();
-"2605
+[; ;prog.c: 2604: clrInd();
+"2604
 [e ( _clrInd ..  ]
-[; ;prog.c: 2606: CurrentSignals = CurrentSignals^0b00000010;
-"2606
+[; ;prog.c: 2605: CurrentSignals = CurrentSignals^0b00000010;
+"2605
 [e = _CurrentSignals -> ^ -> _CurrentSignals `i -> 2 `i `uc ]
-"2607
+"2606
 }
-[; ;prog.c: 2607: } else if (KeyCode == 39 && !flags.DetailModeOfViewSheduler) {
+[; ;prog.c: 2606: } else if (KeyCode == 39 && !flags.DetailModeOfViewSheduler) {
 [e $U 1262  ]
 [e :U 1261 ]
 [e $ ! && == -> _KeyCode `i -> 39 `i ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1263  ]
 {
-[; ;prog.c: 2608: KeyCode = 0;
-"2608
+[; ;prog.c: 2607: KeyCode = 0;
+"2607
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2609: clrInd();
-"2609
+[; ;prog.c: 2608: clrInd();
+"2608
 [e ( _clrInd ..  ]
-[; ;prog.c: 2610: CurrentSignals = CurrentSignals^0b00000100;
-"2610
+[; ;prog.c: 2609: CurrentSignals = CurrentSignals^0b00000100;
+"2609
 [e = _CurrentSignals -> ^ -> _CurrentSignals `i -> 4 `i `uc ]
-"2611
+"2610
 }
-[; ;prog.c: 2611: } else if (KeyCode == 34 && !flags.DetailModeOfViewSheduler) {
+[; ;prog.c: 2610: } else if (KeyCode == 34 && !flags.DetailModeOfViewSheduler) {
 [e $U 1264  ]
 [e :U 1263 ]
 [e $ ! && == -> _KeyCode `i -> 34 `i ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1265  ]
 {
-[; ;prog.c: 2612: KeyCode = 0;
-"2612
+[; ;prog.c: 2611: KeyCode = 0;
+"2611
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2613: clrInd();
-"2613
+[; ;prog.c: 2612: clrInd();
+"2612
 [e ( _clrInd ..  ]
-[; ;prog.c: 2614: CurrentSignals = 0;
-"2614
+[; ;prog.c: 2613: CurrentSignals = 0;
+"2613
 [e = _CurrentSignals -> -> 0 `i `uc ]
-"2615
+"2614
 }
-[; ;prog.c: 2615: } else if (KeyCode == 35 && !flags.DetailModeOfViewSheduler) {
+[; ;prog.c: 2614: } else if (KeyCode == 35 && !flags.DetailModeOfViewSheduler) {
 [e $U 1266  ]
 [e :U 1265 ]
 [e $ ! && == -> _KeyCode `i -> 35 `i ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1267  ]
 {
-[; ;prog.c: 2616: KeyCode = 0;
-"2616
+[; ;prog.c: 2615: KeyCode = 0;
+"2615
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2617: flags.LockSignals = 0;
-"2617
+[; ;prog.c: 2616: flags.LockSignals = 0;
+"2616
 [e = . _flags 7 -> -> 0 `i `uc ]
-[; ;prog.c: 2618: EEWR(((8 * 48) + 6), flags.LockSignals);
-"2618
+[; ;prog.c: 2617: EEWR(((8 * 48) + 6), flags.LockSignals);
+"2617
 [e ( _EEWR (2 , -> + * -> 8 `i -> 48 `i -> 6 `i `ui . _flags 7 ]
-[; ;prog.c: 2619: clrInd();
-"2619
+[; ;prog.c: 2618: clrInd();
+"2618
 [e ( _clrInd ..  ]
-"2620
+"2619
 }
-[; ;prog.c: 2620: } else if (KeyCode == 31) {
+[; ;prog.c: 2619: } else if (KeyCode == 31) {
 [e $U 1268  ]
 [e :U 1267 ]
 [e $ ! == -> _KeyCode `i -> 31 `i 1269  ]
 {
-[; ;prog.c: 2621: KeyCode = 0;
-"2621
+[; ;prog.c: 2620: KeyCode = 0;
+"2620
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2622: lcd_off();
-"2622
+[; ;prog.c: 2621: lcd_off();
+"2621
 [e ( _lcd_off ..  ]
-"2623
+"2622
 }
-[; ;prog.c: 2623: } else if (KeyCode == 33) {
+[; ;prog.c: 2622: } else if (KeyCode == 33) {
 [e $U 1270  ]
 [e :U 1269 ]
 [e $ ! == -> _KeyCode `i -> 33 `i 1271  ]
 {
-[; ;prog.c: 2624: KeyCode = 0;
-"2624
+[; ;prog.c: 2623: KeyCode = 0;
+"2623
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2625: WorkingWithGSM();
-"2625
+[; ;prog.c: 2624: WorkingWithGSM();
+"2624
 [e ( _WorkingWithGSM ..  ]
-"2626
+"2625
 }
-[; ;prog.c: 2626: } else if (KeyCode == 43 || (KeyCode == 36 && (!flags.LockSignals || flags.DetailModeOfViewSheduler))) {
+[; ;prog.c: 2625: } else if (KeyCode == 43 || (KeyCode == 36 && (!flags.LockSignals || flags.DetailModeOfViewSheduler))) {
 [e $U 1272  ]
 [e :U 1271 ]
 [e $ ! || == -> _KeyCode `i -> 43 `i && == -> _KeyCode `i -> 36 `i || ! != -> . _flags 7 `i -> -> -> 0 `i `uc `i != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1273  ]
 {
-[; ;prog.c: 2627: if (KeyCode == 43) {
-"2627
+[; ;prog.c: 2626: if (KeyCode == 43) {
+"2626
 [e $ ! == -> _KeyCode `i -> 43 `i 1274  ]
 {
-[; ;prog.c: 2628: NearTimeStart = Clock;
-"2628
+[; ;prog.c: 2627: NearTimeStart = Clock;
+"2627
 [e = _NearTimeStart -> _Clock `ul ]
-[; ;prog.c: 2629: if (flags.DetailModeOfViewSheduler) {
-"2629
+[; ;prog.c: 2628: if (flags.DetailModeOfViewSheduler) {
+"2628
 [e $ ! != -> . _flags 0 `i -> -> -> 0 `i `uc `i 1275  ]
 {
-[; ;prog.c: 2630: flags.DetailModeOfViewSheduler = 0;
-"2630
+[; ;prog.c: 2629: flags.DetailModeOfViewSheduler = 0;
+"2629
 [e = . _flags 0 -> -> 0 `i `uc ]
-[; ;prog.c: 2631: clrInd();
-"2631
+[; ;prog.c: 2630: clrInd();
+"2630
 [e ( _clrInd ..  ]
-"2632
+"2631
 }
 [e :U 1275 ]
-"2633
+"2632
 }
 [e :U 1274 ]
+[; ;prog.c: 2631: }
 [; ;prog.c: 2632: }
-[; ;prog.c: 2633: }
-[; ;prog.c: 2634: KeyCode = 0;
-"2634
+[; ;prog.c: 2633: KeyCode = 0;
+"2633
 [e = _KeyCode -> -> 0 `i `uc ]
-[; ;prog.c: 2635: FillMinutes();
-"2635
+[; ;prog.c: 2634: FillMinutes();
+"2634
 [e ( _FillMinutes ..  ]
-[; ;prog.c: 2636: AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
-"2636
+[; ;prog.c: 2635: AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
+"2635
 [e = _AdressOfNextStartCell ( _FindNextTimeStart (1 &U _NearTimeStart ]
-"2637
+"2636
 }
 [e :U 1273 ]
-"2638
+"2637
 [e :U 1272 ]
 [e :U 1270 ]
 [e :U 1268 ]
@@ -13242,479 +13242,479 @@ Version 3.2 HI-TECH Software Intermediate Code
 [e :U 1249 ]
 }
 [e :U 1241 ]
-"2565
+"2564
 [e $U 1242  ]
 [e :U 1243 ]
+[; ;prog.c: 2636: }
 [; ;prog.c: 2637: }
 [; ;prog.c: 2638: }
-[; ;prog.c: 2639: }
-"2639
+"2638
 [e :UE 1240 ]
 }
-"2641
+"2640
 [v _BCD_to_DEC `(uc ~T0 @X0 1 ef1`uc ]
 {
-[; ;prog.c: 2641: unsigned char BCD_to_DEC(unsigned char BCD) {
+[; ;prog.c: 2640: unsigned char BCD_to_DEC(unsigned char BCD) {
 [e :U _BCD_to_DEC ]
 [v _BCD `uc ~T0 @X0 1 r1 ]
 [f ]
-[; ;prog.c: 2642: return ((BCD & 0b11110000) >> 4) * 10 + (BCD & 0b00001111);
-"2642
+[; ;prog.c: 2641: return ((BCD & 0b11110000) >> 4) * 10 + (BCD & 0b00001111);
+"2641
 [e ) -> + * >> & -> _BCD `i -> 240 `i -> 4 `i -> 10 `i & -> _BCD `i -> 15 `i `uc ]
 [e $UE 1276  ]
-[; ;prog.c: 2643: }
-"2643
+[; ;prog.c: 2642: }
+"2642
 [e :UE 1276 ]
 }
-"2645
+"2644
 [v _DEC_to_BCD `(uc ~T0 @X0 1 ef1`uc ]
 {
-[; ;prog.c: 2645: unsigned char DEC_to_BCD(unsigned char DEC) {
+[; ;prog.c: 2644: unsigned char DEC_to_BCD(unsigned char DEC) {
 [e :U _DEC_to_BCD ]
 [v _DEC `uc ~T0 @X0 1 r1 ]
 [f ]
-[; ;prog.c: 2646: if (DEC > 99) {
-"2646
+[; ;prog.c: 2645: if (DEC > 99) {
+"2645
 [e $ ! > -> _DEC `i -> 99 `i 1278  ]
 {
-[; ;prog.c: 2647: DEC = 99;
-"2647
+[; ;prog.c: 2646: DEC = 99;
+"2646
 [e = _DEC -> -> 99 `i `uc ]
-"2648
+"2647
 }
 [e :U 1278 ]
-[; ;prog.c: 2648: }
-[; ;prog.c: 2649: return ((DEC / 10) << 4) +DEC % 10;
-"2649
+[; ;prog.c: 2647: }
+[; ;prog.c: 2648: return ((DEC / 10) << 4) +DEC % 10;
+"2648
 [e ) -> + << / -> _DEC `i -> 10 `i -> 4 `i % -> _DEC `i -> 10 `i `uc ]
 [e $UE 1277  ]
-[; ;prog.c: 2650: }
-"2650
+[; ;prog.c: 2649: }
+"2649
 [e :UE 1277 ]
 }
-"2652
+"2651
 [v _ReadTime `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2652: void ReadTime() {
+[; ;prog.c: 2651: void ReadTime() {
 [e :U _ReadTime ]
 [f ]
-"2654
+"2653
 [v _Seconds `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2654: unsigned char Seconds = 0x00;
+[; ;prog.c: 2653: unsigned char Seconds = 0x00;
 [e = _Seconds -> -> 0 `i `uc ]
-[; ;prog.c: 2656: I2CInit();
-"2656
+[; ;prog.c: 2655: I2CInit();
+"2655
 [e ( _I2CInit ..  ]
-[; ;prog.c: 2657: I2CStart();
-"2657
+[; ;prog.c: 2656: I2CStart();
+"2656
 [e ( _I2CStart ..  ]
-[; ;prog.c: 2658: I2CSend(0xD0);
-"2658
+[; ;prog.c: 2657: I2CSend(0xD0);
+"2657
 [e ( _I2CSend (1 -> -> 208 `i `uc ]
-[; ;prog.c: 2659: I2CSend(0x00);
-"2659
+[; ;prog.c: 2658: I2CSend(0x00);
+"2658
 [e ( _I2CSend (1 -> -> 0 `i `uc ]
-[; ;prog.c: 2660: I2CRestart();
-"2660
+[; ;prog.c: 2659: I2CRestart();
+"2659
 [e ( _I2CRestart ..  ]
-[; ;prog.c: 2661: I2CSend(0xD1);
-"2661
+[; ;prog.c: 2660: I2CSend(0xD1);
+"2660
 [e ( _I2CSend (1 -> -> 209 `i `uc ]
-"2664
+"2663
 [v _I `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2664: unsigned char I = I2CRead();
+[; ;prog.c: 2663: unsigned char I = I2CRead();
 [e = _I ( _I2CRead ..  ]
-[; ;prog.c: 2666: if ((I & 0b10000000) == 0) {
-"2666
+[; ;prog.c: 2665: if ((I & 0b10000000) == 0) {
+"2665
 [e $ ! == & -> _I `i -> 128 `i -> 0 `i 1280  ]
 {
-[; ;prog.c: 2667: flags.TimeIsRead = 1;
-"2667
+[; ;prog.c: 2666: flags.TimeIsRead = 1;
+"2666
 [e = . _flags 3 -> -> 1 `i `uc ]
-[; ;prog.c: 2668: I2CAck();
+[; ;prog.c: 2667: I2CAck();
+"2667
+[e ( _I2CAck ..  ]
+[; ;prog.c: 2668: Seconds = BCD_to_DEC(I);
 "2668
-[e ( _I2CAck ..  ]
-[; ;prog.c: 2669: Seconds = BCD_to_DEC(I);
-"2669
 [e = _Seconds ( _BCD_to_DEC (1 _I ]
-[; ;prog.c: 2670: cMinutes = BCD_to_DEC(I2CRead());
-"2670
+[; ;prog.c: 2669: cMinutes = BCD_to_DEC(I2CRead());
+"2669
 [e = _cMinutes ( _BCD_to_DEC (1 ( _I2CRead ..  ]
-[; ;prog.c: 2671: I2CAck();
+[; ;prog.c: 2670: I2CAck();
+"2670
+[e ( _I2CAck ..  ]
+[; ;prog.c: 2671: cHours = BCD_to_DEC(I2CRead());
 "2671
-[e ( _I2CAck ..  ]
-[; ;prog.c: 2672: cHours = BCD_to_DEC(I2CRead());
-"2672
 [e = _cHours ( _BCD_to_DEC (1 ( _I2CRead ..  ]
-[; ;prog.c: 2673: I2CAck();
-"2673
+[; ;prog.c: 2672: I2CAck();
+"2672
 [e ( _I2CAck ..  ]
-[; ;prog.c: 2674: cWeekDay = BCD_to_DEC(I2CRead());
-"2674
+[; ;prog.c: 2673: cWeekDay = BCD_to_DEC(I2CRead());
+"2673
 [e = _cWeekDay ( _BCD_to_DEC (1 ( _I2CRead ..  ]
-[; ;prog.c: 2675: if (!flags.isTimeSetting) {
-"2675
+[; ;prog.c: 2674: if (!flags.isTimeSetting) {
+"2674
 [e $ ! ! != -> . _flags 4 `i -> -> -> 0 `i `uc `i 1281  ]
 {
-[; ;prog.c: 2676: I2CAck();
+[; ;prog.c: 2675: I2CAck();
+"2675
+[e ( _I2CAck ..  ]
+[; ;prog.c: 2676: cDays = BCD_to_DEC(I2CRead());
 "2676
-[e ( _I2CAck ..  ]
-[; ;prog.c: 2677: cDays = BCD_to_DEC(I2CRead());
-"2677
 [e = _cDays ( _BCD_to_DEC (1 ( _I2CRead ..  ]
-[; ;prog.c: 2678: I2CAck();
+[; ;prog.c: 2677: I2CAck();
+"2677
+[e ( _I2CAck ..  ]
+[; ;prog.c: 2678: cMonths = BCD_to_DEC(I2CRead());
 "2678
-[e ( _I2CAck ..  ]
-[; ;prog.c: 2679: cMonths = BCD_to_DEC(I2CRead());
-"2679
 [e = _cMonths ( _BCD_to_DEC (1 ( _I2CRead ..  ]
-[; ;prog.c: 2680: I2CAck();
-"2680
+[; ;prog.c: 2679: I2CAck();
+"2679
 [e ( _I2CAck ..  ]
-[; ;prog.c: 2681: cYears = BCD_to_DEC(I2CRead());
-"2681
+[; ;prog.c: 2680: cYears = BCD_to_DEC(I2CRead());
+"2680
 [e = _cYears ( _BCD_to_DEC (1 ( _I2CRead ..  ]
-"2682
+"2681
 }
 [e :U 1281 ]
-"2683
+"2682
 }
-[; ;prog.c: 2682: }
-[; ;prog.c: 2683: } else {
+[; ;prog.c: 2681: }
+[; ;prog.c: 2682: } else {
 [e $U 1282  ]
 [e :U 1280 ]
 {
-[; ;prog.c: 2684: flags.TimeIsRead = 0;
-"2684
+[; ;prog.c: 2683: flags.TimeIsRead = 0;
+"2683
 [e = . _flags 3 -> -> 0 `i `uc ]
-[; ;prog.c: 2685: I2CNak();
-"2685
+[; ;prog.c: 2684: I2CNak();
+"2684
 [e ( _I2CNak ..  ]
-[; ;prog.c: 2686: I2CStop();
-"2686
+[; ;prog.c: 2685: I2CStop();
+"2685
 [e ( _I2CStop ..  ]
-[; ;prog.c: 2687: cDays = EERD(cDaysAdress);
-"2687
+[; ;prog.c: 2686: cDays = EERD(cDaysAdress);
+"2686
 [e = _cDays ( _EERD (1 -> _cDaysAdress `ui ]
-[; ;prog.c: 2688: cMonths = EERD(cMonthsAdress);
-"2688
+[; ;prog.c: 2687: cMonths = EERD(cMonthsAdress);
+"2687
 [e = _cMonths ( _EERD (1 -> _cMonthsAdress `ui ]
-[; ;prog.c: 2689: cYears = EERD(cYearsAdress);
-"2689
+[; ;prog.c: 2688: cYears = EERD(cYearsAdress);
+"2688
 [e = _cYears ( _EERD (1 -> _cYearsAdress `ui ]
-[; ;prog.c: 2691: return;
-"2691
+[; ;prog.c: 2690: return;
+"2690
 [e $UE 1279  ]
-"2692
+"2691
 }
 [e :U 1282 ]
-[; ;prog.c: 2692: }
-[; ;prog.c: 2693: I2CNak();
-"2693
+[; ;prog.c: 2691: }
+[; ;prog.c: 2692: I2CNak();
+"2692
 [e ( _I2CNak ..  ]
-[; ;prog.c: 2695: I2CStop();
-"2695
+[; ;prog.c: 2694: I2CStop();
+"2694
 [e ( _I2CStop ..  ]
-[; ;prog.c: 2697: Clock = ((long int) Seconds
-[; ;prog.c: 2698: + (long int) cMinutes * 60
-[; ;prog.c: 2699: + (long int) cHours * 3600
-[; ;prog.c: 2700: + ((long int) cWeekDay - 1) * 86400) * 100;
-"2700
+[; ;prog.c: 2696: Clock = ((long int) Seconds
+[; ;prog.c: 2697: + (long int) cMinutes * 60
+[; ;prog.c: 2698: + (long int) cHours * 3600
+[; ;prog.c: 2699: + ((long int) cWeekDay - 1) * 86400) * 100;
+"2699
 [e = _Clock * + + + -> _Seconds `l * -> _cMinutes `l -> -> 60 `i `l * -> _cHours `l -> -> 3600 `i `l * - -> _cWeekDay `l -> -> 1 `i `l -> 86400 `l -> -> 100 `i `l ]
-[; ;prog.c: 2702: }
-"2702
+[; ;prog.c: 2701: }
+"2701
 [e :UE 1279 ]
 }
-"2704
+"2703
 [v _WriteTime `(v ~T0 @X0 1 ef4`ul`uc`uc`uc ]
 {
-[; ;prog.c: 2704: void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years) {
+[; ;prog.c: 2703: void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years) {
 [e :U _WriteTime ]
 [v _lClock `ul ~T0 @X0 1 r1 ]
 [v _days `uc ~T0 @X0 1 r2 ]
 [v _months `uc ~T0 @X0 1 r3 ]
 [v _years `uc ~T0 @X0 1 r4 ]
 [f ]
-"2706
+"2705
 [v _INTCON_BUP `Vuc ~T0 @X0 1 a ]
-[; ;prog.c: 2706: volatile unsigned char INTCON_BUP = INTCON;
+[; ;prog.c: 2705: volatile unsigned char INTCON_BUP = INTCON;
 [e = _INTCON_BUP _INTCON ]
-[; ;prog.c: 2707: INTCONbits.GIEH = 0;
-"2707
+[; ;prog.c: 2706: INTCONbits.GIEH = 0;
+"2706
 [e = . . _INTCONbits 2 2 -> -> 0 `i `uc ]
-[; ;prog.c: 2708: INTCONbits.GIEL = 0;
-"2708
+[; ;prog.c: 2707: INTCONbits.GIEL = 0;
+"2707
 [e = . . _INTCONbits 2 1 -> -> 0 `i `uc ]
-[; ;prog.c: 2709: asm(" clrwdt");
-"2709
+[; ;prog.c: 2708: asm(" clrwdt");
+"2708
 [; <"  clrwdt ;# ">
-"2711
+"2710
 [v _week_day `uc ~T0 @X0 1 a ]
-"2712
+"2711
 [v _hours `uc ~T0 @X0 1 a ]
-"2713
+"2712
 [v _minutes `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2711: unsigned char week_day;
-[; ;prog.c: 2712: unsigned char hours;
-[; ;prog.c: 2713: unsigned char minutes;
-[; ;prog.c: 2715: lClock/=6000;
-"2715
+[; ;prog.c: 2710: unsigned char week_day;
+[; ;prog.c: 2711: unsigned char hours;
+[; ;prog.c: 2712: unsigned char minutes;
+[; ;prog.c: 2714: lClock/=6000;
+"2714
 [e =/ _lClock -> -> 6000 `us `ul ]
-[; ;prog.c: 2716: minutes = DEC_to_BCD(lClock % 60);
-"2716
+[; ;prog.c: 2715: minutes = DEC_to_BCD(lClock % 60);
+"2715
 [e = _minutes ( _DEC_to_BCD (1 -> % _lClock -> -> -> 60 `i `l `ul `uc ]
-[; ;prog.c: 2717: lClock /= 60;
-"2717
+[; ;prog.c: 2716: lClock /= 60;
+"2716
 [e =/ _lClock -> -> 60 `uc `ul ]
-[; ;prog.c: 2718: hours = DEC_to_BCD(lClock % 24);
-"2718
+[; ;prog.c: 2717: hours = DEC_to_BCD(lClock % 24);
+"2717
 [e = _hours ( _DEC_to_BCD (1 -> % _lClock -> -> -> 24 `i `l `ul `uc ]
-[; ;prog.c: 2719: lClock /= 24;
-"2719
+[; ;prog.c: 2718: lClock /= 24;
+"2718
 [e =/ _lClock -> -> 24 `uc `ul ]
-[; ;prog.c: 2720: week_day = DEC_to_BCD(lClock + 1);
-"2720
+[; ;prog.c: 2719: week_day = DEC_to_BCD(lClock + 1);
+"2719
 [e = _week_day ( _DEC_to_BCD (1 -> + _lClock -> -> -> 1 `i `l `ul `uc ]
-[; ;prog.c: 2722: I2CInit();
-"2722
+[; ;prog.c: 2721: I2CInit();
+"2721
 [e ( _I2CInit ..  ]
-[; ;prog.c: 2723: I2CStart();
-"2723
+[; ;prog.c: 2722: I2CStart();
+"2722
 [e ( _I2CStart ..  ]
-[; ;prog.c: 2724: I2CSend(0xD0);
-"2724
+[; ;prog.c: 2723: I2CSend(0xD0);
+"2723
 [e ( _I2CSend (1 -> -> 208 `i `uc ]
-[; ;prog.c: 2725: I2CSend(0x00);
-"2725
+[; ;prog.c: 2724: I2CSend(0x00);
+"2724
 [e ( _I2CSend (1 -> -> 0 `i `uc ]
-[; ;prog.c: 2727: I2CSend(0x00);
+[; ;prog.c: 2726: I2CSend(0x00);
+"2726
+[e ( _I2CSend (1 -> -> 0 `i `uc ]
+[; ;prog.c: 2727: I2CSend(minutes);
 "2727
-[e ( _I2CSend (1 -> -> 0 `i `uc ]
-[; ;prog.c: 2728: I2CSend(minutes);
-"2728
 [e ( _I2CSend (1 _minutes ]
-[; ;prog.c: 2729: I2CSend(hours);
-"2729
+[; ;prog.c: 2728: I2CSend(hours);
+"2728
 [e ( _I2CSend (1 _hours ]
-[; ;prog.c: 2730: I2CSend(week_day);
-"2730
+[; ;prog.c: 2729: I2CSend(week_day);
+"2729
 [e ( _I2CSend (1 _week_day ]
-[; ;prog.c: 2731: I2CSend(DEC_to_BCD(days));
-"2731
+[; ;prog.c: 2730: I2CSend(DEC_to_BCD(days));
+"2730
 [e ( _I2CSend (1 ( _DEC_to_BCD (1 _days ]
-[; ;prog.c: 2732: I2CSend(DEC_to_BCD(months));
-"2732
+[; ;prog.c: 2731: I2CSend(DEC_to_BCD(months));
+"2731
 [e ( _I2CSend (1 ( _DEC_to_BCD (1 _months ]
-[; ;prog.c: 2733: I2CSend(DEC_to_BCD(years));
-"2733
+[; ;prog.c: 2732: I2CSend(DEC_to_BCD(years));
+"2732
 [e ( _I2CSend (1 ( _DEC_to_BCD (1 _years ]
-[; ;prog.c: 2734: I2CSend(0b00010000);
-"2734
+[; ;prog.c: 2733: I2CSend(0b00010000);
+"2733
 [e ( _I2CSend (1 -> -> 16 `i `uc ]
-[; ;prog.c: 2736: I2CStop();
-"2736
+[; ;prog.c: 2735: I2CStop();
+"2735
 [e ( _I2CStop ..  ]
-[; ;prog.c: 2738: INTCON = INTCON_BUP;
-"2738
+[; ;prog.c: 2737: INTCON = INTCON_BUP;
+"2737
 [e = _INTCON _INTCON_BUP ]
-[; ;prog.c: 2740: }
-"2740
+[; ;prog.c: 2739: }
+"2739
 [e :UE 1283 ]
 }
-"2742
+"2741
 [v _I2CInit `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2742: void I2CInit(void) {
+[; ;prog.c: 2741: void I2CInit(void) {
 [e :U _I2CInit ]
 [f ]
-[; ;prog.c: 2743: TRISCbits.TRISC3 = 1;
-"2743
+[; ;prog.c: 2742: TRISCbits.TRISC3 = 1;
+"2742
 [e = . . _TRISCbits 0 3 -> -> 1 `i `uc ]
-[; ;prog.c: 2744: TRISCbits.TRISC4 = 1;
-"2744
+[; ;prog.c: 2743: TRISCbits.TRISC4 = 1;
+"2743
 [e = . . _TRISCbits 0 4 -> -> 1 `i `uc ]
-[; ;prog.c: 2745: SSPSTAT |= 0b10000000;
-"2745
+[; ;prog.c: 2744: SSPSTAT |= 0b10000000;
+"2744
 [e =| _SSPSTAT -> -> 128 `i `uc ]
-[; ;prog.c: 2746: SSPADD = 0x18;
-"2746
+[; ;prog.c: 2745: SSPADD = 0x18;
+"2745
 [e = _SSPADD -> -> 24 `i `uc ]
-[; ;prog.c: 2747: SSPCON1 = 0b00101000;
-"2747
+[; ;prog.c: 2746: SSPCON1 = 0b00101000;
+"2746
 [e = _SSPCON1 -> -> 40 `i `uc ]
-[; ;prog.c: 2748: }
-"2748
+[; ;prog.c: 2747: }
+"2747
 [e :UE 1284 ]
 }
-"2750
+"2749
 [v _I2CStart `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2750: void I2CStart() {
+[; ;prog.c: 2749: void I2CStart() {
 [e :U _I2CStart ]
 [f ]
-[; ;prog.c: 2751: SSPCON2bits.SEN = 1;
-"2751
+[; ;prog.c: 2750: SSPCON2bits.SEN = 1;
+"2750
 [e = . . _SSPCON2bits 0 0 -> -> 1 `i `uc ]
-[; ;prog.c: 2752: while (SSPCON2bits.SEN);
-"2752
+[; ;prog.c: 2751: while (SSPCON2bits.SEN);
+"2751
 [e $U 1286  ]
 [e :U 1287 ]
 [e :U 1286 ]
 [e $ != -> . . _SSPCON2bits 0 0 `i -> -> -> 0 `i `Vuc `i 1287  ]
 [e :U 1288 ]
-[; ;prog.c: 2754: }
-"2754
+[; ;prog.c: 2753: }
+"2753
 [e :UE 1285 ]
 }
-"2756
+"2755
 [v _I2CStop `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2756: void I2CStop() {
+[; ;prog.c: 2755: void I2CStop() {
 [e :U _I2CStop ]
 [f ]
-[; ;prog.c: 2757: SSPCON2bits.PEN = 1;
-"2757
+[; ;prog.c: 2756: SSPCON2bits.PEN = 1;
+"2756
 [e = . . _SSPCON2bits 0 2 -> -> 1 `i `uc ]
-[; ;prog.c: 2758: while (SSPCON2bits.PEN);
-"2758
+[; ;prog.c: 2757: while (SSPCON2bits.PEN);
+"2757
 [e $U 1290  ]
 [e :U 1291 ]
 [e :U 1290 ]
 [e $ != -> . . _SSPCON2bits 0 2 `i -> -> -> 0 `i `Vuc `i 1291  ]
 [e :U 1292 ]
-[; ;prog.c: 2760: }
-"2760
+[; ;prog.c: 2759: }
+"2759
 [e :UE 1289 ]
 }
-"2762
+"2761
 [v _I2CRestart `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2762: void I2CRestart() {
+[; ;prog.c: 2761: void I2CRestart() {
 [e :U _I2CRestart ]
 [f ]
-[; ;prog.c: 2763: SSPCON2bits.RSEN = 1;
-"2763
+[; ;prog.c: 2762: SSPCON2bits.RSEN = 1;
+"2762
 [e = . . _SSPCON2bits 0 1 -> -> 1 `i `uc ]
-[; ;prog.c: 2764: while (SSPCON2bits.RSEN);
-"2764
+[; ;prog.c: 2763: while (SSPCON2bits.RSEN);
+"2763
 [e $U 1294  ]
 [e :U 1295 ]
 [e :U 1294 ]
 [e $ != -> . . _SSPCON2bits 0 1 `i -> -> -> 0 `i `Vuc `i 1295  ]
 [e :U 1296 ]
-[; ;prog.c: 2765: }
-"2765
+[; ;prog.c: 2764: }
+"2764
 [e :UE 1293 ]
 }
-"2767
+"2766
 [v _I2CAck `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2767: void I2CAck() {
+[; ;prog.c: 2766: void I2CAck() {
 [e :U _I2CAck ]
 [f ]
-[; ;prog.c: 2768: SSPCON2bits.ACKDT = 0;
-"2768
+[; ;prog.c: 2767: SSPCON2bits.ACKDT = 0;
+"2767
 [e = . . _SSPCON2bits 0 5 -> -> 0 `i `uc ]
-[; ;prog.c: 2769: SSPCON2bits.ACKEN = 1;
-"2769
+[; ;prog.c: 2768: SSPCON2bits.ACKEN = 1;
+"2768
 [e = . . _SSPCON2bits 0 4 -> -> 1 `i `uc ]
-[; ;prog.c: 2770: while (SSPCON2bits.ACKEN);
-"2770
+[; ;prog.c: 2769: while (SSPCON2bits.ACKEN);
+"2769
 [e $U 1298  ]
 [e :U 1299 ]
 [e :U 1298 ]
 [e $ != -> . . _SSPCON2bits 0 4 `i -> -> -> 0 `i `Vuc `i 1299  ]
 [e :U 1300 ]
-[; ;prog.c: 2771: }
-"2771
+[; ;prog.c: 2770: }
+"2770
 [e :UE 1297 ]
 }
-"2773
+"2772
 [v _I2CNak `(v ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2773: void I2CNak() {
+[; ;prog.c: 2772: void I2CNak() {
 [e :U _I2CNak ]
 [f ]
-[; ;prog.c: 2774: SSPCON2bits.ACKDT = 1;
-"2774
+[; ;prog.c: 2773: SSPCON2bits.ACKDT = 1;
+"2773
 [e = . . _SSPCON2bits 0 5 -> -> 1 `i `uc ]
-[; ;prog.c: 2775: SSPCON2bits.ACKEN = 1;
-"2775
+[; ;prog.c: 2774: SSPCON2bits.ACKEN = 1;
+"2774
 [e = . . _SSPCON2bits 0 4 -> -> 1 `i `uc ]
-[; ;prog.c: 2776: while (SSPCON2bits.ACKEN);
-"2776
+[; ;prog.c: 2775: while (SSPCON2bits.ACKEN);
+"2775
 [e $U 1302  ]
 [e :U 1303 ]
 [e :U 1302 ]
 [e $ != -> . . _SSPCON2bits 0 4 `i -> -> -> 0 `i `Vuc `i 1303  ]
 [e :U 1304 ]
-[; ;prog.c: 2777: }
-"2777
+[; ;prog.c: 2776: }
+"2776
 [e :UE 1301 ]
 }
-"2779
+"2778
 [v _I2CSend `(v ~T0 @X0 1 ef1`uc ]
 {
-[; ;prog.c: 2779: void I2CSend(unsigned char dat) {
+[; ;prog.c: 2778: void I2CSend(unsigned char dat) {
 [e :U _I2CSend ]
 [v _dat `uc ~T0 @X0 1 r1 ]
 [f ]
-[; ;prog.c: 2780: SSPBUF = dat;
-"2780
+[; ;prog.c: 2779: SSPBUF = dat;
+"2779
 [e = _SSPBUF _dat ]
-[; ;prog.c: 2781: while (SSPSTATbits.BF);
-"2781
+[; ;prog.c: 2780: while (SSPSTATbits.BF);
+"2780
 [e $U 1306  ]
 [e :U 1307 ]
 [e :U 1306 ]
 [e $ != -> . . _SSPSTATbits 2 0 `i -> -> -> 0 `i `Vuc `i 1307  ]
 [e :U 1308 ]
-[; ;prog.c: 2782: while ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100));
-"2782
+[; ;prog.c: 2781: while ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100));
+"2781
 [e $U 1309  ]
 [e :U 1310 ]
 [e :U 1309 ]
 [e $ || != & -> _SSPCON2 `i -> 31 `i -> 0 `i != & -> _SSPSTAT `i -> 4 `i -> 0 `i 1310  ]
 [e :U 1311 ]
-[; ;prog.c: 2783: }
-"2783
+[; ;prog.c: 2782: }
+"2782
 [e :UE 1305 ]
 }
-"2785
+"2784
 [v _I2CRead `(uc ~T0 @X0 1 ef ]
 {
-[; ;prog.c: 2785: unsigned char I2CRead(void) {
+[; ;prog.c: 2784: unsigned char I2CRead(void) {
 [e :U _I2CRead ]
 [f ]
-"2786
+"2785
 [v _temp `uc ~T0 @X0 1 a ]
-[; ;prog.c: 2786: unsigned char temp;
-[; ;prog.c: 2788: SSPCON2bits.RCEN = 1;
-"2788
+[; ;prog.c: 2785: unsigned char temp;
+[; ;prog.c: 2787: SSPCON2bits.RCEN = 1;
+"2787
 [e = . . _SSPCON2bits 0 3 -> -> 1 `i `uc ]
-[; ;prog.c: 2789: while (!SSPSTATbits.BF);
-"2789
+[; ;prog.c: 2788: while (!SSPSTATbits.BF);
+"2788
 [e $U 1313  ]
 [e :U 1314 ]
 [e :U 1313 ]
 [e $ ! != -> . . _SSPSTATbits 2 0 `i -> -> -> 0 `i `Vuc `i 1314  ]
 [e :U 1315 ]
-[; ;prog.c: 2790: temp = SSPBUF;
-"2790
+[; ;prog.c: 2789: temp = SSPBUF;
+"2789
 [e = _temp _SSPBUF ]
-[; ;prog.c: 2791: while ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100));
-"2791
+[; ;prog.c: 2790: while ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100));
+"2790
 [e $U 1316  ]
 [e :U 1317 ]
 [e :U 1316 ]
 [e $ || != & -> _SSPCON2 `i -> 31 `i -> 0 `i != & -> _SSPSTAT `i -> 4 `i -> 0 `i 1317  ]
 [e :U 1318 ]
-[; ;prog.c: 2792: return temp;
-"2792
+[; ;prog.c: 2791: return temp;
+"2791
 [e ) _temp ]
 [e $UE 1312  ]
-[; ;prog.c: 2793: }
-"2793
+[; ;prog.c: 2792: }
+"2792
 [e :UE 1312 ]
 }
 [a 17C 65 84 0 ]
@@ -13726,6 +13726,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [a 27C 206 242 239 240 224 226 232 242 252 32 226 251 231 238 226 63 0 ]
 [a 22C 65 84 43 68 68 69 84 61 49 0 ]
 [a 20C 65 84 69 48 0 ]
+[a 28C 43 67 76 73 80 58 32 34 43 51 56 48 57 53 55 48 55 53 55 54 50 34 44 49 52 53 44 34 34 44 44 34 34 44 48 0 ]
 [a 16C 207 238 232 241 234 32 71 83 77 45 32 32 32 32 32 32 236 238 228 243 235 255 46 46 46 0 ]
 [a 19C 205 224 241 242 240 238 233 234 224 32 236 238 228 243 235 255 46 46 46 0 ]
 [a 9C 208 224 241 239 232 241 224 237 232 229 32 238 242 234 235 46 0 ]
