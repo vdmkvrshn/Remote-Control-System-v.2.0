@@ -59,7 +59,8 @@
 // CONFIG7H
 #pragma config EBTRB = OFF      // Boot Block Table Read Protection bit (Boot Block (000000-0007FFh) not protected from table reads executed in other blocks)
 
-volatile unsigned char digits[2][16];
+unsigned char digits[32];
+unsigned char digits_system_message[32];
 
 typedef struct {
 	unsigned blink: 1;
@@ -71,7 +72,8 @@ typedef struct {
 #define LAST_CELL (END_OF_CELLS - CELL_CAPACITY)
 
 
-volatile digits_atributes digitsAtrib[2][16];
+digits_atributes digitsAtrib[32];
+digits_atributes digitsAtrib_system_message[32];
 unsigned long int _systemCounter = 0;
 long int Clock;
 long int Minutes = 0;
@@ -98,6 +100,11 @@ struct {
 	unsigned IsLCDModified: 1;
 	unsigned GlobalBlink: 1;
 	unsigned GSM_Connected: 1;
+	unsigned ActiveCall: 1;
+	unsigned UnreadSystemMessage: 1;
+	unsigned UnprocessedIncommingUartData: 1;
+	unsigned CurrentSignalsSetted: 1;
+	unsigned RemoteControlIsEnabled: 1;
 } flags;
 
 unsigned char cMinutes = 0;
@@ -170,7 +177,10 @@ typedef struct {
 #define END_OF_PHONEBOOK (PHONEBOOK_START_ADRESS + PHONEBOOK_CAPACITY * sizeof(Phone))
 #define LAST_PHONEBOOK_CELL (END_OF_PHONEBOOK - sizeof(Phone))
 
-#define _XTAL_FREQ 39400000
+
+#define USART_SPEED_NUMBER_CELL (END_OF_PHONEBOOK + 1)
+
+#define _XTAL_FREQ 40000000
 
 #define E	RC0
 #define RS	RC2
@@ -181,11 +191,11 @@ typedef struct {
 #define EMPTY_STRING_16 "                "
 #define BELL_SYMBOL '\x07'
 
-#define BUFFER_STRING_LENGTH 81
-#define MAX_INCOMMING_BUFF_INDEX 11
+#define BUFFER_STRING_LENGTH 256
+#define MAX_INCOMMING_BUFF_INDEX 3
 #define LAST_INCOMMING_DATA_INDEX (MAX_INCOMMING_BUFF_INDEX - 1)
 #define INCOMMING_BUFF_LENGTH (MAX_INCOMMING_BUFF_INDEX + 1)
-
+/*
 unsigned char buff_string_0 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_1 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_2 [BUFFER_STRING_LENGTH];
@@ -194,6 +204,7 @@ unsigned char buff_string_4 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_5 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_6 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_7 [BUFFER_STRING_LENGTH];
+*/
 unsigned char buff_string_8 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_9 [BUFFER_STRING_LENGTH];
 unsigned char buff_string_10 [BUFFER_STRING_LENGTH];
@@ -208,7 +219,26 @@ const unsigned char StandardAnswer_OK [] = "OK";
 const unsigned char StandardAnswer_CLOCK [] = "+CCLK: \"\x10\x10/\x10\x10/\x10\x10,\x10\x10:\x10\x10:\x10\x10\x10\x10\x10\"";
 //	+CLIP: "+380957075762",145,"",,"",0
 const unsigned char StandardAnswer_INCCALL [] = "+CLIP: \"\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\",145,\"\",,\"\",0";
-	
+const unsigned char StandardAnswer_BUSY [] = "BUSY";
+const unsigned char StandardAnswer_NO_ANSWER [] = "NO ANSWER";
+const unsigned char StandardAnswer_NO_CARRIER [] = "NO CARRIER";
+const unsigned char StandardAnswer_NO_DIALTONE [] = "NO DIALTONE";
+const unsigned char StandardAnswer_DTMF [] = "+DTMF:\x10";
+const unsigned char StandardAnswer_ERROR [] = "ERROR";
+/*
+const unsigned char StandardAnswer_ [] = "";
+const unsigned char StandardAnswer_ [] = "";
+const unsigned char StandardAnswer_ [] = "";
+const unsigned char StandardAnswer_ [] = "";
+*/	
+
+unsigned char Clock_from_GSM[30];
+unsigned char Incomming_Call_Data[36];
+unsigned char Incomming_DTMF_Data[] = "       ";
+unsigned char DTMF_Symbol;
+
+Phone IncommingPhone;
+
 void main2(void);
 void lcd_init(void);
 void lcd_on(void);
@@ -235,7 +265,7 @@ void I2CAck(void);
 void I2CNak(void);
 void I2CWait(void);
 void I2CSend(unsigned char dat);
-void outputString(unsigned char * stringData, unsigned char line, unsigned char position);
+void OutputString(unsigned char * stringData, unsigned char line, unsigned char position, unsigned char trasnsfer_line);
 unsigned char I2CRead(void);
 void ReadTime();
 void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years);
@@ -244,42 +274,52 @@ unsigned char DEC_to_BCD(unsigned char DEC);
 void FillArrayFromEEPROM(unsigned char * container, unsigned int adress_start, unsigned int quantity);
 void WriteArrayToEEPROM(unsigned char * container, unsigned int adress_start, unsigned int quantity);
 void ReadDataOfCell(unsigned char *CellsData, unsigned long int *Data, unsigned int TargetAdress);
-void CleanStringArray(unsigned char *myArray, unsigned char size, unsigned char settingData);
+void CleanStringArray(unsigned char *myArray, unsigned int size, unsigned char settingData);
 unsigned long int getSystemTimePoint(void);
 unsigned char testTimePoint(unsigned long int point, unsigned long int value);
 void PhonebookEdit(void);
 unsigned char *InputText(unsigned char *text, input_text_props *_props, unsigned char capacity);
 unsigned char Select_OK_NO(unsigned char *text);
-unsigned char FindIncommingData(unsigned char *regexp, unsigned char *container, char history_index);
+unsigned char FindIncommingData(unsigned char *regexp, unsigned char *container, int history_index);
+unsigned char _FindIncommingData_interrupt(unsigned char *regexp, unsigned char *container, int history_index);
+char ShowMenu(unsigned char *menu[], unsigned char item);
+void OutputSystemMessage(unsigned char *stringData);
+void SendCommandToUSART(unsigned char *command, unsigned char wait);
+unsigned char USART_Speed_Choise(void);
+void Save_USART_SpeedNumber(unsigned char speed);
+void Settings(void);
+unsigned char Read_USART_SpeedNumber(void);
+unsigned int GetStringLength(unsigned char *container);
+unsigned int _GetStringLength_interr(unsigned char *container);
 
 unsigned char getDigit(char line, char symbol) {
-	return digits[line][symbol];
+	return *(digits + 16 * line + symbol);
 }
 
 void setDigit(char line, char symbol, unsigned char data) {
 	unsigned char value = data;
-	unsigned char value0 = digits[line][symbol];
-	digitsAtrib[line][symbol].modifided = digitsAtrib[line][symbol].modifided > 0 || (value != value0);
+	unsigned char value0 = *(digits + 16 * line + symbol);
+	(*(digitsAtrib + 16 * line + symbol)).modifided = (*(digitsAtrib + 16 * line + symbol)).modifided > 0 || (value != value0);
 	flags.IsLCDModified = flags.IsLCDModified || (value != value0);
-	digits[line][symbol] = value;
+	*(digits + 16 * line + symbol) = value;
 }
 
 void setBlink(char line, char symbol, unsigned char value) {
 	if (value != 0) {
-		digitsAtrib[line][symbol].blink = 1;
+		(*(digitsAtrib + 16 * line + symbol)).blink = 1;
 	} else {
-		digitsAtrib[line][symbol].blink = 0;
+		(*(digitsAtrib + 16 * line + symbol)).blink = 0;
 	}
-	digitsAtrib[line][symbol].modifided = 1;
+	(*(digitsAtrib + 16 * line + symbol)).modifided = 1;
 	flags.IsLCDModified = 1;
 }
 
 void clrInd() {
 	for (char line = 0; line < 2; line++) {
 		for (char symb = 0; symb < 16; symb++) {
-			digits[line][symb] = ' ';
-			digitsAtrib[line][symb].blink = 0;
-			digitsAtrib[line][symb].modifided = 1;
+			*(digits + line * 16 + symb) = ' ';
+			(*(digitsAtrib + line * 16 + symb)).blink = 0;
+			(*(digitsAtrib + line * 16 + symb)).modifided = 1;
 		}
 	}
 	flags.IsLCDModified = 1;
@@ -628,6 +668,10 @@ unsigned char *GetDayOfWeek(unsigned char day) {
 }
 
 void TimeToInd() {
+	if(flags.CurrentSignalsSetted){
+		flags.CurrentSignalsSetted = 0;
+		clrInd();
+	}
 	
 	if (KeyCode == 32 && (AdressOfNextStartCell != END_OF_CELLS || flags.DetailModeOfViewSheduler)) {
 		KeyCode = 0;
@@ -666,7 +710,7 @@ void TimeToInd() {
 					D[2] = getNumChar(i);
 				}
 			}
-			outputString(D, 0, 13);
+			OutputString(D, 0, 13, 0);
 		}
         
         unsigned char TimeData [] = "--:--:--"; // чч:мм:сс
@@ -685,12 +729,12 @@ void TimeToInd() {
         TimeData[0] = getNumChar(temp / 10);
         
         SignalsFinal = CurrentSignals | SignalsForInd;
-        outputString(TimeData, 0, (SignalsFinal == 7) ? 4 : 5);
-        outputString(GetDayOfWeek(day), 0, (SignalsFinal == 7) ? 1 : 2);
+        OutputString(TimeData, 0, (SignalsFinal == 7) ? 4 : 5, 0);
+        OutputString(GetDayOfWeek(day), 0, (SignalsFinal == 7) ? 1 : 2, 0);
 	}
     
 	if (flags.LockSignals && !flags.DetailModeOfViewSheduler) {
-		outputString("Расписание откл.", 1, 0);
+		OutputString("Расписание откл.", 1, 0, 0);
 		return;
 	}
 
@@ -741,7 +785,7 @@ void TimeToInd() {
 		DataArray[2] = DataArray2[0];
 		DataArray[3] = DataArray2[1];
 
-        outputString(DataArray, line, 0);
+        OutputString(DataArray, line, 0, 0);
 
 		if (flags.DetailModeOfViewSheduler) {
 			unsigned char DataArrayOfLine2[] = "№   по --:--"; // №12   по 12:30
@@ -762,14 +806,14 @@ void TimeToInd() {
 				CellsNumber /= 10;
 			} while (CellsNumber > 0);
 
-			outputString(DataArrayOfLine2, 1, 0);
+			OutputString(DataArrayOfLine2, 1, 0, 0);
 		}
 	} else {
 		if (flags.DetailModeOfViewSheduler) {
 			clrInd();
 			flags.DetailModeOfViewSheduler = 0;
 		}
-        outputString(EMPTY_STRING_16, 1, 0);
+        OutputString(EMPTY_STRING_16, 1, 0, 0);
 	}
 }
 
@@ -810,7 +854,7 @@ unsigned char EERD(unsigned int adress) {
 	return EEDATA_BUP;
 }
 
-void outputInteractiveData(SymbolData *data[], unsigned char length, unsigned char start_symbol){
+void OutputInteractiveData(SymbolData *data[], unsigned char length, unsigned char start_symbol){
 	for(unsigned char i = 0; i < length; i++){
 		unsigned char s = start_symbol + (*(data[i])).index;
 		unsigned char line = s/16;
@@ -839,9 +883,9 @@ void ReIndTimeEdit(TimeEditData *TimeData) {
 	(*((*TimeData).WeekDay[0])).index = 0;
 	
 	char n = 1;
-	outputInteractiveData((*TimeData).Date, 10, n);
-	outputInteractiveData((*TimeData).Time, 5, n+4+16);
-	outputInteractiveData((*TimeData).WeekDay, 1, n+1+16);
+	OutputInteractiveData((*TimeData).Date, 10, n);
+	OutputInteractiveData((*TimeData).Time, 5, n+4+16);
+	OutputInteractiveData((*TimeData).WeekDay, 1, n+1+16);
 }
 
 void InteractiveData_BlinkOFF(SymbolData * InteractiveData[], unsigned char leght){
@@ -1109,7 +1153,7 @@ void delay(unsigned char del, unsigned int count) {
 
 void SendSymbolToLCD(unsigned char Symb) {
 	RS = 1;
-	PORTA = (0b11110000 & Symb) / 8 | (flags.LCD_Light_On == 1 ? 0b00100000 : 0b00000000);
+	PORTA = (0b11110000 & Symb) / 8 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1) ? 0b00100000 : 0b00000000);
 	E = 1;
 	delay(10, 1);
 	E = 0;
@@ -1117,7 +1161,7 @@ void SendSymbolToLCD(unsigned char Symb) {
 	delay(25, 5);
 
 	RS = 1;
-	PORTA = (0b11110000 & (Symb * 16)) / 8 | (flags.LCD_Light_On == 1 ? 0b00100000 : 0b00000000);
+	PORTA = (0b11110000 & (Symb * 16)) / 8 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1) ? 0b00100000 : 0b00000000);
 	E = 1;
 	delay(10, 1);
 	E = 0;
@@ -1136,7 +1180,7 @@ void SendArrayToLCD(unsigned char *Symb, char line, char position) {
 
 void lcd_send_initial_half_byte(unsigned char data) {
 	RS = 0;
-	PORTA = (0b00011110 & (data * 2)) | (flags.LCD_Light_On == 1 ? 0b00100000 : 0b00000000);
+	PORTA = (0b00011110 & (data * 2)) | (flags.LCD_Light_On == 1 || flags.ActiveCall == 1 ? 0b00100000 : 0b00000000);
 	E = 1;
 	E = 0;
 }
@@ -1169,7 +1213,8 @@ void lcd_init() {
 	E = 0;
 	RS = 0;
 	// http://cxem.net/mcmc89.php
-	__delay_ms(20);
+	__delay_ms(10);
+	__delay_ms(10);
 	lcd_send_initial_half_byte(0b00000011);
 	__delay_ms(5);
 	lcd_send_initial_half_byte(0b00000011);
@@ -1231,26 +1276,6 @@ unsigned char ConvKeyNum(unsigned char Num) {
 		case 15: return 37;
 		default: return 0;
 	}
-	/*
-	switch (Num) {
-		case 0: return 33;
-		case 1: return 43;
-		case 2: return 42;
-		case 3: return 41;
-		case 4: return 40;
-		case 5: return 45;
-		case 6: return 39;
-		case 7: return 36;
-		case 8: return 37;
-		case 9: return 38;
-		case 10: return 35;
-		case 11: return 34;
-		case 12: return 32;
-		case 13: return 30;
-		case 14: return 44;
-		case 15: return 31;
-		default: return 0;
-	}*/
 }
 
 unsigned int FindCell(unsigned int adressStart, char New, unsigned int previous) {
@@ -1312,21 +1337,21 @@ unsigned int RefreshSchedulerIndicator(unsigned int adress, char New, unsigned i
     if(cell != 0){
         unsigned char num [] = "  ";
         NumericToString(cell, num, sizeof(num));
-        outputString(num, 0, 14);
+        OutputString(num, 0, 14, 0);
     }else{
-        outputString("--", 0, 14);
+        OutputString("--", 0, 14, 0);
     }
     
 	if (New == 1) {
 		if (CopyFrom != END_OF_CELLS) {
-            outputString("копировать с", 1, 0);
+            OutputString("копировать с", 1, 0, 0);
 			unsigned char num [] = "  ";
 			NumericToString(1 + CopyFrom / CELL_CAPACITY, num, sizeof(num));
-			outputString(num, 1, 14);
+			OutputString(num, 1, 14, 0);
 		}
-        outputString("новая ", 0, 0);
+        OutputString("новая ", 0, 0, 0);
 	}
-    outputString("запись ", 0, 6);
+    OutputString("запись ", 0, 6, 0);
     
 	return adress;
 }
@@ -1412,8 +1437,14 @@ void WriteDataOfCell(unsigned char *CellsData, unsigned long int *Data, unsigned
 	WriteArrayToEEPROM(CellsData, TargetAdress, CELL_CAPACITY);
 }
 
-void CleanStringArray(unsigned char *myArray, unsigned char size, unsigned char settingData){
-	for(unsigned char i = 0; i < size; i++){
+void CleanStringArray(unsigned char *myArray, unsigned int size, unsigned char settingData){
+	for(unsigned int i = 0; i < size; i++){
+		*(myArray + i) = settingData;
+	}
+}
+
+void _CleanStringArray_interrupt(unsigned char *myArray, unsigned int size, unsigned char settingData){
+	for(unsigned int i = 0; i < size; i++){
 		*(myArray + i) = settingData;
 	}
 }
@@ -1477,7 +1508,7 @@ unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
             {
                 unsigned char string [] = "**:**-**:**";
                 TimeDataToString(TimeData, string);
-                outputString(string, 0, 5);
+                OutputString(string, 0, 5, 0);
                 
                 if (KeyCode == 45 || BeginEditTimes == 1) {
                     KeyCode = 0;
@@ -1533,7 +1564,7 @@ unsigned char EditSchedule(unsigned int adress, unsigned int SourceOfRecord) {
                         
                         unsigned char string2 [] = "**:**-**:**";
                         TimeDataToString(TimeData, string2);
-                        outputString(string2, 0, 5);
+                        OutputString(string2, 0, 5, 0);
                         
                         char d = 0;
                         switch(n){
@@ -1802,6 +1833,132 @@ void FillMinutes() {
 	Minutes = Clock - 3000;
 }
 
+Phone *FindPhoneContactByNumber(unsigned char *number){
+	Phone container;
+
+	unsigned char found = 0;
+	
+	for(unsigned char i = 0; i < PHONEBOOK_CAPACITY; i++){
+		FillPhonebookCellFromEEPROM(&container, PHONEBOOK_START_ADRESS + sizeof(container) * i);
+		if(container.filled[0] != 1){
+			continue;
+		}
+		
+		unsigned char end_of_phone = 0;
+		while(container.phone[end_of_phone + 1] != '\0'){
+			end_of_phone++;
+		}
+		
+		for(unsigned char j = 0; j < 10 && (end_of_phone - j + 1) > 0; j++){
+			if(container.phone[end_of_phone - j] != *(number + 9 - j)){
+				found = 0;
+				break;
+			}else{
+				found = 1;
+			}
+		}
+		
+		if(found){
+			break;
+		}
+	}
+	
+	if(found){
+		return &container;
+	}else{
+		return NULL;
+	}
+}
+
+unsigned char *_getContainer_Clock_from_GSM(){
+	CleanStringArray(Clock_from_GSM, sizeof(Clock_from_GSM), '\0');
+	return Clock_from_GSM;
+}
+
+unsigned char *_getContainer_Incomming_Call_Data(){
+	CleanStringArray(Incomming_Call_Data, sizeof(Incomming_Call_Data), '\0');
+	return Incomming_Call_Data;
+}
+
+unsigned char *_getContainer_Incomming_DTMF_Data(){
+	CleanStringArray(Incomming_DTMF_Data, sizeof(Incomming_DTMF_Data), '\0');
+	return Incomming_DTMF_Data;
+}
+
+void ProcessIncommingUartData(){
+	
+	if(flags.UnprocessedIncommingUartData){
+		flags.UnprocessedIncommingUartData = 0;
+		
+		if(_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)){
+			// do nothing
+		}else if(_FindIncommingData_interrupt("RING", NULL, LAST_INCOMMING_DATA_INDEX)){
+			// do nothing
+		}else if(_FindIncommingData_interrupt(StandardAnswer_CLOCK, _getContainer_Clock_from_GSM(), LAST_INCOMMING_DATA_INDEX)){
+			
+		}else if(_FindIncommingData_interrupt(StandardAnswer_INCCALL, _getContainer_Incomming_Call_Data(), LAST_INCOMMING_DATA_INDEX)){
+			unsigned char number [11];
+			CleanStringArray(number, sizeof(number), '\0');
+
+			for(unsigned char i = 0; i < sizeof(number)-1; i++){
+				number[i] = Incomming_Call_Data[i+11];
+			}
+			Phone *contact = FindPhoneContactByNumber(number);
+			if(contact == NULL){
+				SendCommandToUSART("ATH", 0);
+				flags.ActiveCall = 0;
+			}else{
+		//		OutputSystemMessage((*contact).name);
+				SendCommandToUSART("ATA", 0);
+				flags.ActiveCall = 1;
+			}
+		}else if(_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_DATA_INDEX)){
+			
+			DTMF_Symbol = Incomming_DTMF_Data[sizeof(Incomming_DTMF_Data)-2];
+			
+			if(flags.RemoteControlIsEnabled){
+				if (DTMF_Symbol == '4') {
+					CurrentSignals = 0;
+					flags.CurrentSignalsSetted = 1;
+				} else if (DTMF_Symbol == '7') {
+					CurrentSignals = CurrentSignals | 0b00000001;
+					flags.CurrentSignalsSetted = 1;
+				} else if (DTMF_Symbol == '8') {
+					CurrentSignals = CurrentSignals | 0b00000010;
+					flags.CurrentSignalsSetted = 1;
+				} else if (DTMF_Symbol == '9') {
+					CurrentSignals = CurrentSignals | 0b00000100;
+					flags.CurrentSignalsSetted = 1;
+				} else if (DTMF_Symbol == '0') {
+					flags.LockSignals = 1;
+					CurrentSignals = 0;
+					EEWR(LOCK_SIGNALS_FLAG_CELL, flags.LockSignals);
+					flags.CurrentSignalsSetted = 1;
+				} else if (DTMF_Symbol == '5') {
+					flags.LockSignals = 0;
+					flags.CurrentSignalsSetted = 1;
+					EEWR(LOCK_SIGNALS_FLAG_CELL, flags.LockSignals);
+				}
+			}else if(DTMF_Symbol == '*'){
+				flags.RemoteControlIsEnabled = 1;
+			}
+			
+			flags.ActiveCall = 1;
+		}else if(  _FindIncommingData_interrupt(StandardAnswer_NO_CARRIER	, NULL, LAST_INCOMMING_DATA_INDEX)
+				|| _FindIncommingData_interrupt(StandardAnswer_BUSY			, NULL, LAST_INCOMMING_DATA_INDEX)
+				|| _FindIncommingData_interrupt(StandardAnswer_NO_ANSWER	, NULL, LAST_INCOMMING_DATA_INDEX)
+				|| _FindIncommingData_interrupt(StandardAnswer_NO_DIALTONE	, NULL, LAST_INCOMMING_DATA_INDEX))
+		{
+			flags.ActiveCall = 0;
+			flags.RemoteControlIsEnabled = 1;
+		
+		}else if(_FindIncommingData_interrupt(StandardAnswer_ERROR, NULL, LAST_INCOMMING_DATA_INDEX)){
+			OutputSystemMessage("Ошибка GSM");
+		}
+
+	}
+}
+
 void AddByteToUSARTbuff(unsigned char byte){
 	
 	static struct{
@@ -1819,13 +1976,13 @@ void AddByteToUSARTbuff(unsigned char byte){
 			lastdata.is_n = 1;
 		}
 	}else{
-		lastdata.is_rn = 0;
 		if(lastdata.is_r || lastdata.is_n){
 			lastdata.is_r = 0;
 			lastdata.is_n = 0;
 		}
 		if(byte != '\n'){
-			for(unsigned char i = 0; i < BUFFER_STRING_LENGTH-2; i++){
+			lastdata.is_rn = 0;
+			for(unsigned int i = 0; i < BUFFER_STRING_LENGTH-2; i++){
 				*(*(IncommingBuffer + MAX_INCOMMING_BUFF_INDEX) + i) = *(*(IncommingBuffer + MAX_INCOMMING_BUFF_INDEX) + i + 1);
 			}
 			*(*(IncommingBuffer + MAX_INCOMMING_BUFF_INDEX) + BUFFER_STRING_LENGTH-2) = byte;
@@ -1839,11 +1996,13 @@ void AddByteToUSARTbuff(unsigned char byte){
 		lastdata.is_rn = 1;
 		
 		unsigned char *buff = IncommingBuffer[0];
-		for(unsigned char i = 0; i < INCOMMING_BUFF_LENGTH; i++){
+		for(unsigned char i = 0; i < MAX_INCOMMING_BUFF_INDEX; i++){
 			IncommingBuffer[i] = IncommingBuffer[i+1];
 		}
 		IncommingBuffer[MAX_INCOMMING_BUFF_INDEX] = buff;
-		CleanStringArray(IncommingBuffer[MAX_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
+		_CleanStringArray_interrupt(IncommingBuffer[MAX_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
+		
+		flags.UnprocessedIncommingUartData = 1;
 	}
 }
 
@@ -1891,6 +2050,13 @@ void system_BlinkReset(unsigned char val){
 	flags.GlobalBlink = val;
 }
 
+void ProcessSystemMessageShowing(){
+	if(flags.UnreadSystemMessage){
+		KeyCode = 0;
+		flags.UnreadSystemMessage = 0;
+	}
+}
+
 void interrupt low_priority F_l() {
 	ClrWdt();
 	if (TMR1IF) {
@@ -1903,18 +2069,29 @@ void interrupt low_priority F_l() {
 			FillMinutes();
 			flags.RelevanceOfNextStartCell = 0;
 		}
-
+		
+		unsigned char *digs;
+		digits_atributes *digsAtrib;
+		
+		if(flags.UnreadSystemMessage){
+			digs = digits_system_message;
+			digsAtrib = digitsAtrib_system_message;
+		}else{
+			digs = digits;
+			digsAtrib = digitsAtrib;
+		}
+		
 		if (flags.LCD_Power_On && (GlobalBlinkCycleTime == 100 || flags.IsLCDModified)) {
 			for (char line = 0; line < 2; line++) {
 				for (int symbol = 0; symbol < 16; symbol++) {
-					if (GlobalBlinkCycleTime == 100 || digitsAtrib[line][symbol].modifided > 0) {
-						unsigned char digit = digits[line][symbol];
+					if (GlobalBlinkCycleTime == 100 || (*(digsAtrib + 16 * line + symbol)).modifided > 0) {
+						unsigned char digit = *(digs + 16 * line + symbol);
 						lcd_send_byte((line * 0x40 + symbol) | 0b10000000); //SetDDRAM
-						if (!(digitsAtrib[line][symbol].blink == 0 || digitsAtrib[line][symbol].blink == 1 && flags.GlobalBlink)) {
+						if (!((*(digsAtrib + 16 * line + symbol)).blink == 0 || (*(digsAtrib + 16 * line + symbol)).blink == 1 && flags.GlobalBlink)) {
 							digit = '_';
 						}
 						SendSymbolToLCD(getLcdCodeOfChar(digit));
-						digitsAtrib[line][symbol].modifided = 0;
+						(*(digsAtrib + 16 * line + symbol)).modifided = 0;
 					}
 				}
 			}
@@ -1963,22 +2140,40 @@ void interrupt low_priority F_l() {
 					PressedKeyIndex = KeyIndex;
 					KeyCode = ConvKeyNum(PressedKeyIndex);
 					ButtonPressTimeOut = 10;
+					
+					ProcessSystemMessageShowing();
 				}
 			}
 		}
+		
+		ProcessIncommingUartData();
+	}
+	if(T0IF) {
 		T0IF = 0;
 	}
 }
 
-void Init_USART(){
+void Init_USART(unsigned char SpeedNumber){
 	
-    TRISCbits.RC6 = 0; //TX pin set as output
+ 	unsigned int _value = 0;
+	if(SpeedNumber == 1){			// 1200
+		_value = 8332;
+	}else if(SpeedNumber == 2){		// 2400
+		_value = 4165;
+	}else if(SpeedNumber == 4){		// 19200
+		_value = 520;
+	}else if(SpeedNumber == 5){		// 57600
+		_value = 172;
+	}else{							// 9600
+		_value = 1040;
+	}
+	
+	TRISCbits.RC6 = 1; //TX pin set as output
     TRISCbits.RC7 = 1; //RX pin set as input
-	
 	BAUDCONbits.BRG16 = 1;
-	TXSTAbits.BRGH = 1; // high speed
-	SPBRG = 1040%256;	//9.6
-	SPBRGH = 1040/256;
+	TXSTAbits.BRGH = 1;
+	SPBRG = (unsigned char)(_value%256);
+	SPBRGH = (unsigned char)(_value/256);
 	
 	IPR1bits.RCIP = 1; // высокий приоритет прерывания от приемника USART
 	IPR1bits.TXIP = 1; // высокий приоритет прерывания от передатчика USART
@@ -2041,24 +2236,25 @@ void main() {
 	
 	flags.LockSignals = EERD(LOCK_SIGNALS_FLAG_CELL);
 	
-	IncommingBuffer[0] = buff_string_0;
-	IncommingBuffer[1] = buff_string_1;
-	IncommingBuffer[2] = buff_string_2;
-	IncommingBuffer[3] = buff_string_3;
-	IncommingBuffer[4] = buff_string_4;
-	IncommingBuffer[5] = buff_string_5;
-	IncommingBuffer[6] = buff_string_6;
-	IncommingBuffer[7] = buff_string_7;
-	IncommingBuffer[8] = buff_string_8;
-	IncommingBuffer[9] = buff_string_9;
-	IncommingBuffer[10] = buff_string_10;
-	IncommingBuffer[11] = buff_string_11;
+	unsigned char i = 0;
+	/*
+	IncommingBuffer[i++] = buff_string_0;
+	IncommingBuffer[i++] = buff_string_1;
+	IncommingBuffer[i++] = buff_string_2;
+	IncommingBuffer[i++] = buff_string_3;
+	IncommingBuffer[i++] = buff_string_4;
+	IncommingBuffer[i++] = buff_string_5;
+	IncommingBuffer[i++] = buff_string_6;
+	IncommingBuffer[i++] = buff_string_7;
+	*/
+	IncommingBuffer[i++] = buff_string_8;
+	IncommingBuffer[i++] = buff_string_9;
+	IncommingBuffer[i++] = buff_string_10;
+	IncommingBuffer[i++] = buff_string_11;
 	
 	for(unsigned char i = 0; i < INCOMMING_BUFF_LENGTH; i++){
 		CleanStringArray(IncommingBuffer[i], BUFFER_STRING_LENGTH, '\0');
 	}
-
-	Init_USART();
 
 	lcd_on();
 	main2();
@@ -2086,7 +2282,7 @@ unsigned char getNumChar(unsigned char num) {
 	}
 }
 
-void outputString(unsigned char * stringData, unsigned char line, unsigned char position) {
+void OutputString(unsigned char *stringData, unsigned char line, unsigned char position, unsigned char transfer_line) {
 	unsigned int i = 0;
 	while(*(stringData + i) != '\0'){
 		unsigned char l = line;
@@ -2096,9 +2292,35 @@ void outputString(unsigned char * stringData, unsigned char line, unsigned char 
 				setDigit(l, s, *(stringData + i));
 				i++;
 			}
+			if(!transfer_line){
+				return;
+			}
 		}
 	}
 }
+
+void OutputSystemMessage(unsigned char *stringData) {
+	for (char line = 0; line < 2; line++) {
+		for (char symb = 0; symb < 16; symb++) {
+			*(digits_system_message + line * 16 + symb) = EMPTY_SYMBOL_VALUE;
+			(*(digitsAtrib_system_message + line * 16 + symb)).blink = 0;
+			(*(digitsAtrib_system_message + line * 16 + symb)).modifided = 1;
+		}
+	}
+	unsigned int i = 0;
+	while(*(stringData + i) != '\0'){
+		for(unsigned char l = 0; l < 2; l++) {
+			unsigned char s = 0;
+			for (unsigned char position = 0; (s < 16) && (*(stringData + i) != '\0'); s++) {
+				(*(digitsAtrib_system_message + 16 * l + s)).modifided = 1;
+				*(digits_system_message + 16 * l + s) = *(stringData + i);
+				i++;
+			}
+		}
+	}
+	flags.UnreadSystemMessage = 1;
+	flags.IsLCDModified = 1;
+}	
 
 void drowText(unsigned char * stringData, int startNum, int direction){
 	unsigned char srcLine, destLine;
@@ -2111,9 +2333,9 @@ void drowText(unsigned char * stringData, int startNum, int direction){
 	}
 	
 	for(unsigned char symbol = 0; symbol < 16; symbol++){
-		digits[destLine][symbol] = digits[srcLine][symbol];
-		digitsAtrib[destLine][symbol].blink = digitsAtrib[srcLine][symbol].blink;
-		digitsAtrib[destLine][symbol].modifided = 1;
+		*(digits + destLine * 16 + symbol) = *(digits + srcLine * 16 + symbol);
+		(*(digitsAtrib + destLine * 16 + symbol)).blink = (*(digitsAtrib + srcLine * 16 + symbol)).blink;
+		(*(digitsAtrib + destLine * 16 + symbol)).modifided = 1;
 	}
 	
 	flags.IsLCDModified = 1;
@@ -2127,19 +2349,21 @@ void drowText(unsigned char * stringData, int startNum, int direction){
 		cutedString[symbol] = a;
 	}
 	
-	outputString(cutedString, (direction >= 0 ? 1 : 0), 0);
+	OutputString(cutedString, (direction >= 0 ? 1 : 0), 0, 1);
 }
 
-unsigned char FindIncommingData(unsigned char *regexp, unsigned char *container, char history_index){
+unsigned char FindIncommingData(unsigned char *regexp, unsigned char *container, int history_index){
 	
 	unsigned char *pointer;
-	
+	/*
 	unsigned char *end_of_regexp = regexp;
 	while(*(end_of_regexp+1) != '\0'){
 		end_of_regexp++;
 	}
+	*/
+	unsigned char *end_of_regexp = GetStringLength(regexp) - 1 + regexp;
 	
-	unsigned char start_index, finish_index;
+	unsigned int start_index, finish_index;
 	if(history_index >= 0){
 		start_index = history_index;
 		finish_index = history_index;
@@ -2148,13 +2372,13 @@ unsigned char FindIncommingData(unsigned char *regexp, unsigned char *container,
 		finish_index = MAX_INCOMMING_BUFF_INDEX-1;
 	}
 	
-	for(unsigned char i = start_index; i <= finish_index; i++){
+	for(unsigned int i = start_index; i <= finish_index; i++){
 		pointer = IncommingBuffer[i];
-		unsigned char last_s, not_found = 0;
-		for(unsigned char j = 0; end_of_regexp - j >= regexp && j < BUFFER_STRING_LENGTH-1; j++){
-			unsigned char s0 = *(end_of_regexp - j);
+		unsigned int last_s, not_found = 0;
+		for(unsigned int j = 0; end_of_regexp - j >= regexp && j < BUFFER_STRING_LENGTH-1; j++){
+			unsigned int s0 = *(end_of_regexp - j);
 			last_s = BUFFER_STRING_LENGTH - 2 - j;
-			unsigned char s1 = *(pointer + last_s);
+			unsigned int s1 = *(pointer + last_s);
 			if(s0 != s1 && s0 != '\x10'){
 				not_found = 1;
 				break;
@@ -2162,14 +2386,73 @@ unsigned char FindIncommingData(unsigned char *regexp, unsigned char *container,
 		}
 		if(!not_found){ // if regexp is found copy data to container
 			if(container != NULL){
-				CleanStringArray(container, BUFFER_STRING_LENGTH, '\0');
-				for(unsigned char a = 0; last_s < BUFFER_STRING_LENGTH - 1;){
+				for(unsigned int a = 0; last_s < BUFFER_STRING_LENGTH - 1;){
 					*(container + a) = *(pointer + last_s);
 					 a++;
 					 last_s++;
 				}
 			}
 			CleanStringArray(pointer, BUFFER_STRING_LENGTH, '\0');
+			return 1;
+		}
+	}
+	return 0;
+}
+
+unsigned int GetStringLength(unsigned char *container){
+	unsigned int i = 0;
+	while(*(container) != '\0'){
+		i++;
+		container++;
+	}
+	return i;
+}
+
+unsigned int _GetStringLength_interr(unsigned char *container){
+	unsigned int i = 0;
+	while(*(container) != '\0'){
+		i++;
+		container++;
+	}
+	return i;
+}
+
+unsigned char _FindIncommingData_interrupt(unsigned char *regexp, unsigned char *container, int history_index){
+	
+	unsigned char *pointer;
+	
+	unsigned char *end_of_regexp = _GetStringLength_interr(regexp) - 1 + regexp;
+	
+	unsigned int start_index, finish_index;
+	if(history_index >= 0){
+		start_index = history_index;
+		finish_index = history_index;
+	}else{
+		start_index = 0;
+		finish_index = LAST_INCOMMING_DATA_INDEX;
+	}
+	
+	for(unsigned int i = start_index; i <= finish_index; i++){
+		pointer = IncommingBuffer[i];
+		unsigned int last_s, not_found = 0;
+		for(unsigned int j = 0; end_of_regexp - j >= regexp && j < BUFFER_STRING_LENGTH-1; j++){
+			unsigned int s0 = *(end_of_regexp - j);
+			last_s = BUFFER_STRING_LENGTH - 2 - j;
+			unsigned int s1 = *(pointer + last_s);
+			if(s0 != s1 && s0 != '\x10'){
+				not_found = 1;
+				break;
+			}
+		}
+		if(!not_found){ // if regexp is found copy data to container
+			if(container != NULL){
+				for(unsigned int a = 0; last_s < BUFFER_STRING_LENGTH - 1;){
+					*(container + a) = *(pointer + last_s);
+					 a++;
+					 last_s++;
+				}
+				CleanStringArray(pointer, BUFFER_STRING_LENGTH, '\0');
+			}
 			return 1;
 		}
 	}
@@ -2197,8 +2480,8 @@ void _setInputTextProps(input_text_props *_props){
 			Lang[i] = source_L[i + 7 * props.Language];
 		}
 		
-		outputString(Aa, 0, 2);
-		outputString(Lang, 0, 7);
+		OutputString(Aa, 0, 2, 0);
+		OutputString(Lang, 0, 7, 0);
 		
 		if (KeyCode == 35){
 			KeyCode = 0;
@@ -2360,7 +2643,7 @@ unsigned char *InputText(unsigned char *text, input_text_props *_props, unsigned
 		InteractiveData_BlinkOFF(InputData, 32);
 		(*InputData[active_cell]).props.blink = 1;
 		
-		outputInteractiveData(InputData, 32, 0);
+		OutputInteractiveData(InputData, 32, 0);
 		
 		if (KeyCode == 40){ // next
 			KeyCode = 0;
@@ -2421,7 +2704,7 @@ unsigned char *InputText(unsigned char *text, input_text_props *_props, unsigned
 	}
 }
 
-void SendCommandToUART(unsigned char *command, unsigned char wait){
+void SendCommandToUSART(unsigned char *command, unsigned char wait){
 	
 	if(command != NULL){
 		OutcommingBuffer = command;
@@ -2446,25 +2729,32 @@ void WorkingWithGSM(){
 		for(unsigned char i = 0; i < 32; i++){
 			*(myOutputString + i) = *p++;
 			if(*(myOutputString + i) == '\0'){
-				*(myOutputString + i) = ' ';
+				*(myOutputString + i) = EMPTY_SYMBOL_VALUE;
 			}
 		}
 		
-		outputString(myOutputString, 0, 0);
-		
-		if (KeyCode == 45){
+		OutputString(myOutputString, 0, 0, 1);
+
+		if (KeyCode == 33){
+			KeyCode = 0;
+			unsigned char speed = USART_Speed_Choise();
+			if(speed != 0){
+				Save_USART_SpeedNumber(speed);
+				Init_USART(speed);
+			}
+		}else if (KeyCode == 45){
 			KeyCode = 0;
 			unsigned char *command = InputText(NULL, NULL, 0);
-			SendCommandToUART(command, 0);
+			SendCommandToUSART(command, 0);
 		}else if (KeyCode == 40){
-			KeyCode = 0;
-			if(line < MAX_INCOMMING_BUFF_INDEX){
-				line++;
-			}
-		}else if (KeyCode == 41){
 			KeyCode = 0;
 			if(line > 0){
 				line--;
+			}
+		}else if (KeyCode == 41){
+			KeyCode = 0;
+			if(line < MAX_INCOMMING_BUFF_INDEX){
+				line++;
 			}
 		}else if (KeyCode == 43){
 			KeyCode = 0;
@@ -2485,7 +2775,7 @@ void testSystemTimer(){
 			string[i] = ' ';
 		}
 		NumericToString(a, string, sizeof(string));
-		outputString(string, 1, 0);
+		OutputString(string, 1, 0, 0);
 		if (KeyCode == 43) {
 			KeyCode = 0;
 			clrInd();
@@ -2502,34 +2792,40 @@ void UserDelay(unsigned int value){
 unsigned char Init_GSM(unsigned char show){
 	
 	do{
+		flags.GSM_Connected = 0;
+		
+		Init_USART(Read_USART_SpeedNumber());
+		
 		if(show){
 			clrInd();
-			outputString("Поиск GSM-      модуля...", 0, 0);
+			OutputSystemMessage("Поиск GSM-      модуля...");
 		}
-		SendCommandToUART("AT", 1);
+		SendCommandToUSART("AT", 1);
 		UserDelay(20);
 		if(!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)){
 			if(show){
 				UserDelay(200);
 				clrInd();
-				outputString("GSM-модуль не   найден", 0, 0);
+				OutputSystemMessage("GSM-модуль не   найден");
 				UserDelay(200);
 			}
 			break;
 		}else{
 			flags.GSM_Connected = 1;
 		}
-		
+		//SendCommandToUSART("AT+IPR=9600", 1);
+		//while(!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
+		//Init_USART(19200);
 		if(show){
 			clrInd();
-			outputString("Настройка модуля...", 0, 0);
+			OutputSystemMessage("Настройка модуля...");
 		}
-		SendCommandToUART("ATE0", 1);
+		SendCommandToUSART("ATE0", 1);
 		while(!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
-		outputString("OK", 1, 4);
-		SendCommandToUART("AT+DDET=1", 1);
+		OutputSystemMessage("Настройка модуля... OK");
+		SendCommandToUSART("AT+DDET=1", 1);
 		while(!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
-		outputString("OK", 1, 8);
+		OutputSystemMessage("Настройка модуля... OK  OK");
 		
 		if(show){
 			UserDelay(120);
@@ -2558,7 +2854,7 @@ void TelephoneCall(unsigned char *phone_number){
 	}
 	command[i+3] = ';';
 	command[i+4] = '\0';
-	SendCommandToUART(command, 1);
+	SendCommandToUSART(command, 1);
 	
 }
 
@@ -2568,7 +2864,7 @@ unsigned char Select_OK_NO(unsigned char *text){
 	
 	while (1) {
 		
-		outputString(text, 0, 0);
+		OutputString(text, 0, 0, 1);
 		
 		if (KeyCode == 42) { // Enter
 			KeyCode = 0;
@@ -2580,6 +2876,80 @@ unsigned char Select_OK_NO(unsigned char *text){
 			return 0;
 		}
 	}
+}
+
+unsigned char ShowMenu(unsigned char *menu[], unsigned char item){
+	
+	clrInd();
+	
+	static unsigned char line = 0;
+	if(item > 0){
+		item--;
+	}
+	if(item == 0){
+		line = 0;
+	}
+	
+	unsigned char result = 0;
+	
+	unsigned char item_max = 0;
+	while(menu[item_max] != NULL){
+		item_max++;		
+	}
+	
+	item_max--;
+	
+	while (1) {
+		
+		if(line == 0){
+			OutputString(menu[item], 0, 1, 0);
+			if(item_max > item){
+				OutputString(menu[item+1], 1, 1, 0);
+			}
+		}else if(line == 1){
+			if(item > 0){
+				OutputString(menu[item-1], 0, 1, 0);
+			}
+			OutputString(menu[item], 1, 1, 0);
+		}
+		
+		OutputString("»", line, 0, 0);
+	
+		if (KeyCode == 42) { // Enter
+			KeyCode = 0;
+			result = item + 1;
+			break;
+		} else if (KeyCode == 43) { // Cancel
+			KeyCode = 0;
+			result = 0;
+			break;
+		} else if (KeyCode == 40) { // Up
+			KeyCode = 0;
+			if(item > 0){
+				item--;
+				if(line == 1){
+					line = 0;
+				}
+			}
+			clrInd();
+		} else if (KeyCode == 41) { // Down
+			KeyCode = 0;
+			if(item < item_max){
+				item++;
+				if(line == 0){
+					line = 1;
+				}
+			}
+			clrInd();
+		}
+	}
+	
+	clrInd();
+	return result;
+}
+
+void DialDTMF(){
+	
 }
 
 void PhonebookEdit(){
@@ -2608,81 +2978,96 @@ void PhonebookEdit(){
 		
 		unsigned char num_cell[] = "  ";
 		NumericToString((cell - PHONEBOOK_START_ADRESS)/ sizeof(Contact) + 1, num_cell, sizeof(num_cell));
-		outputString(num_cell, 1, 14);
+		OutputString(num_cell, 1, 14, 0);
 		if(Contact.filled[0] == 1){
-			outputString(Contact.name, 0, 0);
-			outputString(Contact.phone, 1, 0);
+			OutputString(Contact.name, 0, 0, 0);
+			OutputString(Contact.phone, 1, 0, 0);
 		}else{
-			outputString("     <пусто>    ", 0, 0);
-			outputString("             ", 1, 0);
+			OutputString("     <пусто>    ", 0, 0, 0);
+			OutputString("             ", 1, 0, 0);
 		}
 		
-		if (KeyCode == 44) { // Delete
+		if (KeyCode == 45) { // Menu
 			KeyCode = 0;
-			if(Contact.filled[0] == 1 && Select_OK_NO("Удалить номер?")){
-				Phone aaa;
-				WritePhonebookCellToEEPROM(&aaa, cell);
-				read = 0;
+			unsigned char *menu[] = {"Изменить", "Набрать номер", "Удалить", NULL};
+			char result = ShowMenu(menu, 0);
+			
+			if(result == 1){ // Изменить
 				clrInd();
-			}
-			
-		} else if (KeyCode == 45) { // Edit
-			KeyCode = 0;
-			
-			clrInd();
 
-			unsigned char *field;
-			input_text_props input_props;
-			input_props.Aa = Aa;
-			input_props.Language = Russian;
-			if((field = InputText(
-					(Contact.filled[0] == 1)
-					?
-						Contact.name
-					:
-						NULL,
-					&input_props, sizeof(Contact.name)-1)) != NULL){
-				
-				unsigned char i;
-				for(i = 0; (*(field + i) != '\0'); i++){
-					Contact.name[i] = *(field + i);
-				}
-				Contact.name[i] = '\0';
-				input_props.Language = Numeric;
-				
+				unsigned char *field;
+				input_text_props input_props;
+				input_props.Aa = Aa;
+				input_props.Language = Russian;
 				if((field = InputText(
-					(Contact.filled[0] == 1)
-					?
-						Contact.phone
-					:
-						NULL,
-					&input_props, sizeof(Contact.phone)-1)) != NULL){
-					
-					for(i = 0; (*(field + i) != '\0'); i++){
-						Contact.phone[i] = *(field + i);
-					}
-					Contact.phone[i] = '\0';
+						(Contact.filled[0] == 1)
+						?
+							Contact.name
+						:
+							NULL,
+						&input_props, sizeof(Contact.name)-1)) != NULL){
 
-					Contact.filled[0] = 1;
-					WritePhonebookCellToEEPROM(&Contact, cell);
-				}else{
+					unsigned char i;
+					for(i = 0; (*(field + i) != '\0'); i++){
+						Contact.name[i] = *(field + i);
+					}
+					Contact.name[i] = '\0';
+					input_props.Language = Numeric;
+
+					if((field = InputText(
+						(Contact.filled[0] == 1)
+						?
+							Contact.phone
+						:
+							NULL,
+						&input_props, sizeof(Contact.phone)-1)) != NULL){
+
+						for(i = 0; (*(field + i) != '\0'); i++){
+							Contact.phone[i] = *(field + i);
+						}
+						Contact.phone[i] = '\0';
+
+						Contact.filled[0] = 1;
+						WritePhonebookCellToEEPROM(&Contact, cell);
+					}else{
+						read = 0;
+					}
+				}
+			}else if(result == 2){ // Набрать номер
+				
+				input_text_props input_props;
+				input_props.Language = Numeric;
+				unsigned char *number = InputText(NULL, &input_props, 13);
+				if(number != NULL){
+					TelephoneCall(number);
+					flags.ActiveCall = 1;
+				}
+			
+			}else if(result == 3){ // Удалить
+				
+				if(Contact.filled[0] == 1 && Select_OK_NO("Удалить номер?")){
+					Phone aaa;
+					WritePhonebookCellToEEPROM(&aaa, cell);
 					read = 0;
+					clrInd();
 				}
 			}
 			
-		} else if (KeyCode == 32) {
+		} else if (KeyCode == 31){
 			KeyCode = 0;
-			input_text_props input_props;
-			input_props.Language = Numeric;
-			unsigned char *number = InputText(NULL, &input_props, 13);
-			if(number != NULL){
-				TelephoneCall(number);
+			if(flags.ActiveCall){
+				SendCommandToUSART("ATA", 0); // Принять вызов
+			}else if(Select_OK_NO("Отправить вызов?")){
+				if(Contact.filled[0] == 1){
+					TelephoneCall(Contact.phone);
+					flags.ActiveCall = 1;
+				}
 			}
-		} else if (KeyCode == 33 && Select_OK_NO("Отправить вызов?")) {
+		} else if (KeyCode == 33) { // Отклонить вызов
 			KeyCode = 0;
-			if(Contact.filled[0] == 1){
-				TelephoneCall(Contact.phone);
-			}
+			SendCommandToUSART("ATH", 0);
+			flags.ActiveCall = 0;
+			flags.RemoteControlIsEnabled = 0;
 		} else if (KeyCode == 40) { // Next
 			KeyCode = 0;
 			if(cell < LAST_PHONEBOOK_CELL){
@@ -2714,29 +3099,66 @@ void PhonebookEdit(){
 	}
 }
 
-void FillBuffer(unsigned char *string){
+unsigned char Read_USART_SpeedNumber(){
+	unsigned char value = EERD(USART_SPEED_NUMBER_CELL);
+	if(value == 0 || value == 0xFF){
+		value = 3;
+	}
+	return value;
+}
 
-	unsigned char *end_of_string = string;
-	while(*(end_of_string+1) != '\0'){
-		end_of_string++;
+void Save_USART_SpeedNumber(unsigned char speed){
+	if(speed == 0 || speed == 0xFF){
+		speed == 1;
 	}
-	
-	unsigned char last_s, not_found = 0;
-	for(unsigned char j = 0; end_of_string - j >= string && j < BUFFER_STRING_LENGTH-1; j++){
-		unsigned char s0 = *(end_of_string - j);
-		last_s = BUFFER_STRING_LENGTH - 2 - j;
-		*(IncommingBuffer[LAST_INCOMMING_DATA_INDEX] + last_s) = s0;
-	}
+	EEWR(USART_SPEED_NUMBER_CELL, speed);
+}
+
+unsigned char USART_Speed_Choise(){
+	unsigned char *menu[] = {
+		" 1200",
+		" 2400",
+		" 9600",
+		" 19200",
+		//" 57600",
+		NULL
+	};
+	return ShowMenu(menu, Read_USART_SpeedNumber());
+}
+
+void Settings(){
+	KeyCode = 0;
+	char item = 0;
+	unsigned char *menu[] = {
+		"Установ. время",
+		"Скорость USART",
+		"Init GSM",
+		NULL
+	};
+	do{
+
+		item = ShowMenu(menu, item);
+
+		if(item == 1){ // 
+			TimeEdit();
+		}else if(item == 2){ // 
+			unsigned char speed = USART_Speed_Choise();
+			if(speed != 0){
+				Save_USART_SpeedNumber(speed);
+			}
+		}else if(item == 3){ // 
+			Init_GSM(1);
+		}
+	}while(item > 0);
 }
 
 void main2() {
 	
 	//+CCLK: "16/05/15,22:37:52+03"
 	//+CLIP: "+380957075762",145,"",,"",0
-	
-	unsigned char container[50];
-	
-	//FillBuffer("+CLIP: \"+380957075762\",145,\"\",,\"\",0");
+	//flags.UnprocessedIncommingUartData = 1;
+	//ProcessIncommingUartData();
+	//unsigned char container[50];
 	
 	//FindIncommingData(StandardAnswer_INCCALL, container, LAST_INCOMMING_DATA_INDEX);
 	
@@ -2764,7 +3186,26 @@ void main2() {
 		
 		if (KeyCode == 45 && !flags.DetailModeOfViewSheduler) {
 			KeyCode = 0;
-			TimeEdit();
+			char item = 0;
+			unsigned char *menu[] = {
+				"Планировщик",
+				"Тел. книга",
+				"Настройки",
+				NULL
+			};
+			do{
+				
+				item = ShowMenu(menu, item);
+				
+				if(item == 1){ // 
+					Scheduler(END_OF_CELLS);
+				}else if(item == 2){ // 
+					PhonebookEdit();
+				}else if(item == 3){ // Настройки
+					Settings();
+				}
+			}while(item > 0);
+			clrInd();
 		} else if (KeyCode == 40) {
 			KeyCode = 0;
 			Scheduler(END_OF_CELLS);
@@ -2976,4 +3417,3 @@ unsigned char I2CRead(void) {
 	while ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100)); //I2CWait();       /* wait to check any pending transfer */
 	return temp; /* Return the read data from bus */
 }
-
