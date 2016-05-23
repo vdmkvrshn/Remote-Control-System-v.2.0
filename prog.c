@@ -105,6 +105,7 @@ struct {
 	unsigned UnprocessedIncommingUartData : 1;
 	unsigned CurrentSignalsSetted : 1;
 	unsigned RemoteControlIsEnabled : 1;
+	unsigned TimeSource: 2;
 } flags;
 
 unsigned char cMinutes = 0;
@@ -114,12 +115,12 @@ unsigned char cDays = 1;
 unsigned char cMonths = 1;
 unsigned char cYears = 1;
 
-unsigned char cMinutesAdress = END_OF_CELLS;
-unsigned char cHoursAdress = END_OF_CELLS + 1;
-unsigned char cWeekDayAdress = END_OF_CELLS + 2;
-unsigned char cDaysAdress = END_OF_CELLS + 3;
-unsigned char cMonthsAdress = END_OF_CELLS + 4;
-unsigned char cYearsAdress = END_OF_CELLS + 5;
+const unsigned char cMinutesAdress = END_OF_CELLS;
+const unsigned char cHoursAdress = END_OF_CELLS + 1;
+const unsigned char cWeekDayAdress = END_OF_CELLS + 2;
+const unsigned char cDaysAdress = END_OF_CELLS + 3;
+const unsigned char cMonthsAdress = END_OF_CELLS + 4;
+const unsigned char cYearsAdress = END_OF_CELLS + 5;
 
 #define LOCK_SIGNALS_FLAG_CELL	(END_OF_CELLS + 6)
 
@@ -135,6 +136,11 @@ enum InputType {
 	aa,
 	Aa,
 	AA
+};
+
+enum Devices {
+	RTC = 1,
+	GSM = 2
 };
 
 enum InputLang {
@@ -162,6 +168,7 @@ typedef struct {
 	SymbolData *Time [5];
 	SymbolData *WeekDay [1];
 	SymbolData *Date [10];
+	SymbolData *TimeSource [1];
 } TimeEditData;
 
 typedef struct {
@@ -178,6 +185,7 @@ typedef struct {
 
 
 #define USART_SPEED_NUMBER_CELL (END_OF_PHONEBOOK + 1)
+#define TIME_SOURCE_CELL (END_OF_PHONEBOOK + 2)
 
 #define _XTAL_FREQ 40000000
 
@@ -291,6 +299,7 @@ unsigned char Read_USART_SpeedNumber(void);
 unsigned int GetStringLength(unsigned char *container);
 unsigned int _GetStringLength_interr(unsigned char *container);
 void Format_EEPROM_Memory(unsigned int first_cell, unsigned int last_cell, unsigned char interactive);
+unsigned char GetDayOfWeekByDate(unsigned char _year, unsigned char _mounth, unsigned char _day);
 
 unsigned char getDigit(char line, char symbol) {
 	return *(digits + 16 * line + symbol);
@@ -323,6 +332,16 @@ void clrInd() {
 		}
 	}
 	flags.IsLCDModified = 1;
+}
+
+unsigned char GetTimeSource(){
+	flags.TimeSource = EERD(TIME_SOURCE_CELL);
+	return flags.TimeSource;
+}
+
+void SetTimeSource(unsigned char time_source){
+	EEWR(TIME_SOURCE_CELL, time_source);
+	flags.TimeSource = time_source;
 }
 
 unsigned char getLcdCodeOfChar(unsigned char dig) {
@@ -493,6 +512,22 @@ unsigned char getLcdCodeOfChar(unsigned char dig) {
 		case '\x07': return 0xED; //bell
 
 		default: return 0x3F; // '?'
+	}
+}
+
+unsigned char ConvertCharToNumeric(unsigned char symbol) {
+	switch (symbol) {
+		case '0': return 0;
+		case '1': return 1;
+		case '2': return 2;
+		case '3': return 3;
+		case '4': return 4;
+		case '5': return 5;
+		case '6': return 6;
+		case '7': return 7;
+		case '8': return 8;
+		case '9': return 9;
+		default: return 0;
 	}
 }
 
@@ -879,7 +914,20 @@ void ReIndTimeEdit(TimeEditData *TimeData) {
 	char n = 1;
 	OutputInteractiveData((*TimeData).Date, 10, n);
 	OutputInteractiveData((*TimeData).Time, 5, n + 4 + 16);
-	OutputInteractiveData((*TimeData).WeekDay, 1, n + 1 + 16);
+	OutputString((*((*TimeData).WeekDay[0])).number, 1, n + 1, 0);
+	//OutputInteractiveData((*TimeData).WeekDay, 1, n + 1 + 16);
+	
+	unsigned char *sources_of_time [] = {
+		"unknown",
+		"RTC",
+		"GSM"
+	};
+	unsigned char value = (*((*TimeData).WeekDay[0])).number;
+	if(value != 0 && value != 1 && value != 2){
+		value = 0;
+	}
+	OutputString("Src:", 0, n + 11, 0);
+	OutputString(sources_of_time[value], 1, n + 11, 0);
 }
 
 void InteractiveData_BlinkOFF(SymbolData * InteractiveData[], unsigned char leght) {
@@ -912,6 +960,8 @@ void TimeData_INIT(TimeEditData * TimeData) {
 	(*((*TimeData).Date[5])).props.const_symbol = 1;
 	(*((*TimeData).Date[2])).symbol = '/';
 	(*((*TimeData).Date[2])).props.const_symbol = 1;
+	
+	(*((*TimeData).TimeSource[0])).number = flags.TimeSource;
 }
 
 void TimeEdit() {
@@ -926,6 +976,7 @@ void TimeEdit() {
 	SymbolData _time[5];
 	SymbolData _weekday[1];
 	SymbolData _date[10];
+	SymbolData _timesource[1];
 
 	for (unsigned char i = 0; i < 5; i++) {
 		TimeData.Time[i] = &(_time[i]);
@@ -935,6 +986,9 @@ void TimeEdit() {
 	}
 	for (unsigned char i = 0; i < 10; i++) {
 		TimeData.Date[i] = &(_date[i]);
+	}
+	for (unsigned char i = 0; i < 1; i++) {
+		TimeData.TimeSource[i] = &(_timesource[i]);
 	}
 
 	TimeData_INIT(&TimeData);
@@ -966,28 +1020,34 @@ void TimeEdit() {
 	(*(TimeData.Date[0])).number = cDays / 10;
 
 
-	SymbolData * symb_array [11];
+	SymbolData *symb_array [10];
+	unsigned char symb_array_max_index = sizeof(symb_array) / sizeof(SymbolData);
+	unsigned char p = 0;
+	symb_array[p++] = TimeData.Date[0]; // day_H
+	symb_array[p++] = TimeData.Date[1]; // day_L
+	symb_array[p++] = TimeData.Date[3]; // month_H
+	symb_array[p++] = TimeData.Date[4]; // month_L
+	symb_array[p++] = TimeData.Date[8]; // year_H
+	symb_array[p++] = TimeData.Date[9]; // year_L
 
-	symb_array[0] = TimeData.Date[0]; // day_H
-	symb_array[1] = TimeData.Date[1]; // day_L
-	symb_array[2] = TimeData.Date[3]; // month_H
-	symb_array[3] = TimeData.Date[4]; // month_L
-	symb_array[4] = TimeData.Date[8]; // year_H
-	symb_array[5] = TimeData.Date[9]; // year_L
+	//symb_array[p++] = TimeData.WeekDay[0]; // day_of_week
 
-	symb_array[6] = TimeData.WeekDay[0]; // day_of_week
+	symb_array[p++] = TimeData.Time[0]; // hour_H
+	symb_array[p++] = TimeData.Time[1]; // hour_L
+	symb_array[p++] = TimeData.Time[3]; // minute_H
+	symb_array[p++] = TimeData.Time[4]; // minute_L	
 
-	symb_array[7] = TimeData.Time[0]; // hour_H
-	symb_array[8] = TimeData.Time[1]; // hour_L
-	symb_array[9] = TimeData.Time[3]; // minute_H
-	symb_array[10] = TimeData.Time[4]; // minute_L	
-
-
-	char blinking = 7;
+	char blinking = 6;
 	char input = 255;
 	while (1) {
 		(*symb_array[blinking]).props.blink = 1;
-
+		
+		(*(TimeData.WeekDay[0])).number = GetDayOfWeekByDate(
+			(*(TimeData.Date[8])).number * 10 + (*(TimeData.Date[9])).number,
+			(*(TimeData.Date[3])).number * 10 + (*(TimeData.Date[4])).number,
+			(*(TimeData.Date[0])).number * 10 + (*(TimeData.Date[1])).number
+		);
+		//(*(TimeData.WeekDay[0])).symbol= (*(TimeData.WeekDay[0])).number;
 		ReIndTimeEdit(&TimeData);
 
 		input = entNum(0, 9);
@@ -995,17 +1055,26 @@ void TimeEdit() {
 		if (input != 255) {
 			(*symb_array[blinking]).number = input;
 			TimeData_BlinkOFF(&TimeData);
-			blinking == 10 ? blinking = 0 : blinking++;
+			blinking == symb_array_max_index ? blinking = 0 : blinking++;
 		}
 
 		if (KeyCode == 40) {
 			KeyCode = 0;
 			TimeData_BlinkOFF(&TimeData);
-			blinking == 10 ? blinking = 0 : blinking++;
+			blinking == symb_array_max_index ? blinking = 0 : blinking++;
+		} else if (KeyCode == 44) {
+			KeyCode = 0;
+			unsigned char ts = (*(TimeData.TimeSource[0])).number;
+			if(ts == 2){
+				ts = 1;
+			}else{
+				ts++;
+			}
+			(*(TimeData.TimeSource[0])).number = ts;
 		} else if (KeyCode == 41) {
 			KeyCode = 0;
 			TimeData_BlinkOFF(&TimeData);
-			blinking == 0 ? blinking = 10 : blinking--;
+			blinking == 0 ? blinking = symb_array_max_index : blinking--;
 		} else if (KeyCode == 42) {
 			KeyCode = 0;
 			unsigned char t;
@@ -1033,21 +1102,14 @@ void TimeEdit() {
 					break;
 				}
 
-				t = (*symb_array[6]).number;
-				if (t > 7) {
-					TimeData_BlinkOFF(&TimeData);
-					blinking = 6;
-					break;
-				}
-
-				t = (*symb_array[7]).number * 10 + (*symb_array[8]).number;
+				t = (*symb_array[6]).number * 10 + (*symb_array[7]).number;
 				if (t > 23) {
 					TimeData_BlinkOFF(&TimeData);
 					blinking = 7;
 					break;
 				}
 
-				t = (*symb_array[9]).number * 10 + (*symb_array[10]).number;
+				t = (*symb_array[8]).number * 10 + (*symb_array[9]).number;
 				if (t > 59) {
 					TimeData_BlinkOFF(&TimeData);
 					blinking = 9;
@@ -1056,13 +1118,14 @@ void TimeEdit() {
 
 				t = 0;
 
-				Clock = ((long int) ((*symb_array[6]).number - 1) * 86400
-						+ (long int) ((*symb_array[7]).number * 10 + (*symb_array[8]).number) * 3600
-						+ (long int) ((*symb_array[9]).number * 10 + (*symb_array[10]).number) * 60) * 100;
+				Clock = ((long int) ((*(TimeData.WeekDay[0])).number - 1) * 86400
+						+ (long int) ((*symb_array[6]).number * 10 + (*symb_array[7]).number) * 3600
+						+ (long int) ((*symb_array[8]).number * 10 + (*symb_array[9]).number) * 60) * 100;
 
 				cDays = (*symb_array[0]).number * 10 + (*symb_array[1]).number;
 				cMonths = (*symb_array[2]).number * 10 + (*symb_array[3]).number;
 				cYears = (*symb_array[4]).number * 10 + (*symb_array[5]).number;
+				SetTimeSource((*(TimeData.TimeSource[0])).number);
 				/*
 				WriteTime(Clock, cDays, cMonths, cYears);
 				 */
@@ -1908,6 +1971,19 @@ unsigned char *_getContainer_Incomming_DTMF_Data() {
 	return Incomming_DTMF_Data;
 }
 
+unsigned char GetDayOfWeekByDate(unsigned char _year, unsigned char _mounth, unsigned char _day) {
+	const unsigned char century_number = 20;
+	if(_mounth < 3){
+		_mounth += 12;
+		_year--;
+	}
+	return ((_day + 13 * (_mounth + 1) / 5 + _year + _year / 4 - 2 * (century_number % 4)) + 5) % 7 + 1;
+}
+
+unsigned char GetNumericFromString(unsigned char *string, unsigned char index){
+	return ConvertCharToNumeric(*(string + index));
+}
+
 void ProcessIncommingUartData() {
 
 	if (flags.UnprocessedIncommingUartData) {
@@ -1918,7 +1994,17 @@ void ProcessIncommingUartData() {
 		} else if (_FindIncommingData_interrupt("RING", NULL, LAST_INCOMMING_DATA_INDEX)) {
 			// do nothing
 		} else if (_FindIncommingData_interrupt(StandardAnswer_CLOCK, _getContainer_Clock_from_GSM(), LAST_INCOMMING_DATA_INDEX)) {
-
+			flags.TimeIsRead = 1;
+			// +CCLK: "16/05/15,22:37:52+03"
+			
+			cYears	= GetNumericFromString(Clock_from_GSM, 8) * 10 + GetNumericFromString(Clock_from_GSM, 9);
+			cMonths = GetNumericFromString(Clock_from_GSM, 11) * 10 + GetNumericFromString(Clock_from_GSM, 12);
+			cDays	= GetNumericFromString(Clock_from_GSM, 14) * 10 + GetNumericFromString(Clock_from_GSM, 15);
+			Clock = ((long int) (GetDayOfWeekByDate(cYears, cMonths, cDays) - 1) * 86400
+					+ (long int) (GetNumericFromString(Clock_from_GSM, 17) * 10 + GetNumericFromString(Clock_from_GSM, 18)) * 3600
+					+ (long int) (GetNumericFromString(Clock_from_GSM, 20) * 10 + GetNumericFromString(Clock_from_GSM, 21)) * 60
+					+ (long int) (GetNumericFromString(Clock_from_GSM, 23) * 10 + GetNumericFromString(Clock_from_GSM, 24))) * 100;
+			
 		} else if (_FindIncommingData_interrupt(StandardAnswer_INCCALL, _getContainer_Incomming_Call_Data(), LAST_INCOMMING_DATA_INDEX)) {
 			unsigned char number [11];
 			CleanStringArray(number, sizeof (number), '\0');
@@ -1931,12 +2017,11 @@ void ProcessIncommingUartData() {
 				SendCommandToUSART("ATH", 0);
 				flags.ActiveCall = 0;
 			} else {
-				//		OutputSystemMessage((*contact).name);
 				SendCommandToUSART("ATA", 0);
 				flags.ActiveCall = 1;
 			}
 		} else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_DATA_INDEX)) {
-
+			
 			DTMF_Symbol = Incomming_DTMF_Data[sizeof (Incomming_DTMF_Data) - 2];
 
 			if (flags.RemoteControlIsEnabled) {
@@ -2136,7 +2221,7 @@ void interrupt low_priority F_l() {
 			GlobalBlinkCycleTime = 100;
 			flags.GlobalBlink = !flags.GlobalBlink;
 
-			// 	ReadTime();
+			ReadTime();
 		}
 
 		static unsigned char ButtonPressTimeOut;
@@ -2287,6 +2372,7 @@ void main() {
 		CleanStringArray(IncommingBuffer[i], BUFFER_STRING_LENGTH, '\0');
 	}
 
+	GetTimeSource();
 	lcd_on();
 	main2();
 }
@@ -3347,55 +3433,59 @@ unsigned char DEC_to_BCD(unsigned char DEC) {
 }
 
 void ReadTime() {
+	
+	if(0){ // && flags.TimeSource == RTC
+	
+		unsigned char Seconds = 0x00;
 
-	unsigned char Seconds = 0x00;
-
-	I2CInit();
-	I2CStart();
-	I2CSend(0xD0);
-	I2CSend(0x00);
-	I2CRestart();
-	I2CSend(0xD1);
+		I2CInit();
+		I2CStart();
+		I2CSend(0xD0);
+		I2CSend(0x00);
+		I2CRestart();
+		I2CSend(0xD1);
 
 
-	unsigned char I = I2CRead();
+		unsigned char I = I2CRead();
 
-	if ((I & 0b10000000) == 0) {
-		flags.TimeIsRead = 1;
-		I2CAck();
-		Seconds = BCD_to_DEC(I);
-		cMinutes = BCD_to_DEC(I2CRead());
-		I2CAck();
-		cHours = BCD_to_DEC(I2CRead());
-		I2CAck();
-		cWeekDay = BCD_to_DEC(I2CRead());
-		if (!flags.isTimeSetting) {
+		if ((I & 0b10000000) == 0) {
+			flags.TimeIsRead = 1;
 			I2CAck();
-			cDays = BCD_to_DEC(I2CRead());
+			Seconds = BCD_to_DEC(I);
+			cMinutes = BCD_to_DEC(I2CRead());
 			I2CAck();
-			cMonths = BCD_to_DEC(I2CRead());
+			cHours = BCD_to_DEC(I2CRead());
 			I2CAck();
-			cYears = BCD_to_DEC(I2CRead());
+			cWeekDay = BCD_to_DEC(I2CRead());
+			if (!flags.isTimeSetting) {
+				I2CAck();
+				cDays = BCD_to_DEC(I2CRead());
+				I2CAck();
+				cMonths = BCD_to_DEC(I2CRead());
+				I2CAck();
+				cYears = BCD_to_DEC(I2CRead());
+			}
+		} else {
+			flags.TimeIsRead = 0;
+			I2CNak();
+			I2CStop();
+			cDays = EERD(cDaysAdress);
+			cMonths = EERD(cMonthsAdress);
+			cYears = EERD(cYearsAdress);
+
+			return;
 		}
-	} else {
-		flags.TimeIsRead = 0;
 		I2CNak();
+
 		I2CStop();
-		cDays = EERD(cDaysAdress);
-		cMonths = EERD(cMonthsAdress);
-		cYears = EERD(cYearsAdress);
 
-		return;
+		Clock = ((long int) Seconds
+				+ (long int) cMinutes * 60
+				+ (long int) cHours * 3600
+				+ ((long int) cWeekDay - 1) * 86400) * 100;
+	}else if(flags.TimeSource == GSM){
+		SendCommandToUSART("AT+CCLK?", 0);
 	}
-	I2CNak();
-
-	I2CStop();
-
-	Clock = ((long int) Seconds
-			+ (long int) cMinutes * 60
-			+ (long int) cHours * 3600
-			+ ((long int) cWeekDay - 1) * 86400) * 100;
-
 }
 
 void WriteTime(unsigned long int lClock, unsigned char days, unsigned char months, unsigned char years) {
