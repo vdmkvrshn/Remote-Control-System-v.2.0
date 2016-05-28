@@ -1,6 +1,7 @@
 
 #include <xc.h>
 #include <stdio.h>
+#include <string.h>
 #include <pic18f2620.h>
 
 
@@ -114,7 +115,6 @@ volatile unsigned char SignalsForInd = 0;
 struct {
 	unsigned DetailModeOfViewSheduler : 1;
 	unsigned RelevanceOfNextStartCell : 1;
-	unsigned ModeOfFirstLine : 1;
 	unsigned LCD_Light_On : 1;
 	unsigned LCD_Power_On : 1;
 	unsigned LockSignals : 1;
@@ -128,6 +128,8 @@ struct {
 	unsigned RemoteControlIsEnabled : 1;
 	unsigned TimeSource : 2;
 	unsigned SendTimeRequest : 1;
+	unsigned UsartExchangeEnabled : 1;
+	unsigned StatusIsRequested : 1;
 } flags;
 
 unsigned char cMinutes = 0;
@@ -239,6 +241,7 @@ const unsigned char StandardAnswer_NO_DIALTONE [] = "NO DIALTONE";
 const unsigned char StandardAnswer_DTMF [] = "+DTMF:\x10";
 const unsigned char StandardAnswer_ERROR [] = "ERROR";
 const unsigned char StandardAnswer_NORMAL_POWER_DOWN [] = "NORMAL POWER DOWN";
+const unsigned char StandardAnswer_STAT [] = "+CPAS: \x10";
 /*
 const unsigned char StandardAnswer_ [] = "";
 const unsigned char StandardAnswer_ [] = "";
@@ -250,6 +253,10 @@ unsigned char Clock_from_GSM[30];
 unsigned char Incomming_Call_Data[36];
 unsigned char Incomming_DTMF_Data[8];
 unsigned char DTMF_Symbol;
+
+unsigned char SMS [512];
+unsigned char active_phone [14];
+
 
 void main2(void);
 void lcd_init(void);
@@ -305,6 +312,7 @@ unsigned int GetStringLength(unsigned char *container);
 unsigned int _GetStringLength_interr(unsigned char *container);
 void Format_EEPROM_Memory(unsigned int first_cell, unsigned int last_cell, unsigned char interactive);
 unsigned char GetDayOfWeekByDate(unsigned char _year, unsigned char _mounth, unsigned char _day);
+void SendSMS(unsigned char *, unsigned char *);
 
 unsigned char getDigit(char line, char symbol) {
 	return *(digits + 16 * line + symbol);
@@ -344,6 +352,268 @@ void CalculateClockDelta(long int newTime){
 		clock_delta = clock_delta + (newTime - Clock) / (newTime/100 - lastClock/100);
 	}
 	lastClock = newTime;
+}
+
+unsigned int GetUnicodeSymbol(unsigned char symb){
+	switch(symb){
+		case 0x00: return 0x0000; // #NULL
+		case 0x01: return 0x0001; // #START OF HEADING
+		case 0x02: return 0x0002; // #START OF TEXT
+		case 0x03: return 0x0003; // #END OF TEXT
+		case 0x04: return 0x0004; // #END OF TRANSMISSION
+		case 0x05: return 0x0005; // #ENQUIRY
+		case 0x06: return 0x0006; // #ACKNOWLEDGE
+		case 0x07: return 0x0007; // #BELL
+		case 0x08: return 0x0008; // #BACKSPACE
+		case 0x09: return 0x0009; // #HORIZONTAL TABULATION
+		case 0x0A: return 0x000A; // #LINE FEED
+		case 0x0B: return 0x000B; // #VERTICAL TABULATION
+		case 0x0C: return 0x000C; // #FORM FEED
+		case 0x0D: return 0x000D; // #CARRIAGE RETURN
+		case 0x0E: return 0x000E; // #SHIFT OUT
+		case 0x0F: return 0x000F; // #SHIFT IN
+		case 0x10: return 0x0010; // #DATA LINK ESCAPE
+		case 0x11: return 0x0011; // #DEVICE CONTROL ONE
+		case 0x12: return 0x0012; // #DEVICE CONTROL TWO
+		case 0x13: return 0x0013; // #DEVICE CONTROL THREE
+		case 0x14: return 0x0014; // #DEVICE CONTROL FOUR
+		case 0x15: return 0x0015; // #NEGATIVE ACKNOWLEDGE
+		case 0x16: return 0x0016; // #SYNCHRONOUS IDLE
+		case 0x17: return 0x0017; // #END OF TRANSMISSION BLOCK
+		case 0x18: return 0x0018; // #CANCEL
+		case 0x19: return 0x0019; // #END OF MEDIUM
+		case 0x1A: return 0x001A; // #SUBSTITUTE
+		case 0x1B: return 0x001B; // #ESCAPE
+		case 0x1C: return 0x001C; // #FILE SEPARATOR
+		case 0x1D: return 0x001D; // #GROUP SEPARATOR
+		case 0x1E: return 0x001E; // #RECORD SEPARATOR
+		case 0x1F: return 0x001F; // #UNIT SEPARATOR
+		case 0x20: return 0x0020; // #SPACE
+		case 0x21: return 0x0021; // #EXCLAMATION MARK
+		case 0x22: return 0x0022; // #QUOTATION MARK
+		case 0x23: return 0x0023; // #NUMBER SIGN
+		case 0x24: return 0x0024; // #DOLLAR SIGN
+		case 0x25: return 0x0025; // #PERCENT SIGN
+		case 0x26: return 0x0026; // #AMPERSAND
+		case 0x27: return 0x0027; // #APOSTROPHE
+		case 0x28: return 0x0028; // #LEFT PARENTHESIS
+		case 0x29: return 0x0029; // #RIGHT PARENTHESIS
+		case 0x2A: return 0x002A; // #ASTERISK
+		case 0x2B: return 0x002B; // #PLUS SIGN
+		case 0x2C: return 0x002C; // #COMMA
+		case 0x2D: return 0x002D; // #HYPHEN-MINUS
+		case 0x2E: return 0x002E; // #FULL STOP
+		case 0x2F: return 0x002F; // #SOLIDUS
+		case 0x30: return 0x0030; // #DIGIT ZERO
+		case 0x31: return 0x0031; // #DIGIT ONE
+		case 0x32: return 0x0032; // #DIGIT TWO
+		case 0x33: return 0x0033; // #DIGIT THREE
+		case 0x34: return 0x0034; // #DIGIT FOUR
+		case 0x35: return 0x0035; // #DIGIT FIVE
+		case 0x36: return 0x0036; // #DIGIT SIX
+		case 0x37: return 0x0037; // #DIGIT SEVEN
+		case 0x38: return 0x0038; // #DIGIT EIGHT
+		case 0x39: return 0x0039; // #DIGIT NINE
+		case 0x3A: return 0x003A; // #COLON
+		case 0x3B: return 0x003B; // #SEMICOLON
+		case 0x3C: return 0x003C; // #LESS-THAN SIGN
+		case 0x3D: return 0x003D; // #EQUALS SIGN
+		case 0x3E: return 0x003E; // #GREATER-THAN SIGN
+		case 0x3F: return 0x003F; // #QUESTION MARK
+		case 0x40: return 0x0040; // #COMMERCIAL AT
+		case 0x41: return 0x0041; // #LATIN CAPITAL LETTER A
+		case 0x42: return 0x0042; // #LATIN CAPITAL LETTER B
+		case 0x43: return 0x0043; // #LATIN CAPITAL LETTER C
+		case 0x44: return 0x0044; // #LATIN CAPITAL LETTER D
+		case 0x45: return 0x0045; // #LATIN CAPITAL LETTER E
+		case 0x46: return 0x0046; // #LATIN CAPITAL LETTER F
+		case 0x47: return 0x0047; // #LATIN CAPITAL LETTER G
+		case 0x48: return 0x0048; // #LATIN CAPITAL LETTER H
+		case 0x49: return 0x0049; // #LATIN CAPITAL LETTER I
+		case 0x4A: return 0x004A; // #LATIN CAPITAL LETTER J
+		case 0x4B: return 0x004B; // #LATIN CAPITAL LETTER K
+		case 0x4C: return 0x004C; // #LATIN CAPITAL LETTER L
+		case 0x4D: return 0x004D; // #LATIN CAPITAL LETTER M
+		case 0x4E: return 0x004E; // #LATIN CAPITAL LETTER N
+		case 0x4F: return 0x004F; // #LATIN CAPITAL LETTER O
+		case 0x50: return 0x0050; // #LATIN CAPITAL LETTER P
+		case 0x51: return 0x0051; // #LATIN CAPITAL LETTER Q
+		case 0x52: return 0x0052; // #LATIN CAPITAL LETTER R
+		case 0x53: return 0x0053; // #LATIN CAPITAL LETTER S
+		case 0x54: return 0x0054; // #LATIN CAPITAL LETTER T
+		case 0x55: return 0x0055; // #LATIN CAPITAL LETTER U
+		case 0x56: return 0x0056; // #LATIN CAPITAL LETTER V
+		case 0x57: return 0x0057; // #LATIN CAPITAL LETTER W
+		case 0x58: return 0x0058; // #LATIN CAPITAL LETTER X
+		case 0x59: return 0x0059; // #LATIN CAPITAL LETTER Y
+		case 0x5A: return 0x005A; // #LATIN CAPITAL LETTER Z
+		case 0x5B: return 0x005B; // #LEFT SQUARE BRACKET
+		case 0x5C: return 0x005C; // #REVERSE SOLIDUS
+		case 0x5D: return 0x005D; // #RIGHT SQUARE BRACKET
+		case 0x5E: return 0x005E; // #CIRCUMFLEX ACCENT
+		case 0x5F: return 0x005F; // #LOW LINE
+		case 0x60: return 0x0060; // #GRAVE ACCENT
+		case 0x61: return 0x0061; // #LATIN SMALL LETTER A
+		case 0x62: return 0x0062; // #LATIN SMALL LETTER B
+		case 0x63: return 0x0063; // #LATIN SMALL LETTER C
+		case 0x64: return 0x0064; // #LATIN SMALL LETTER D
+		case 0x65: return 0x0065; // #LATIN SMALL LETTER E
+		case 0x66: return 0x0066; // #LATIN SMALL LETTER F
+		case 0x67: return 0x0067; // #LATIN SMALL LETTER G
+		case 0x68: return 0x0068; // #LATIN SMALL LETTER H
+		case 0x69: return 0x0069; // #LATIN SMALL LETTER I
+		case 0x6A: return 0x006A; // #LATIN SMALL LETTER J
+		case 0x6B: return 0x006B; // #LATIN SMALL LETTER K
+		case 0x6C: return 0x006C; // #LATIN SMALL LETTER L
+		case 0x6D: return 0x006D; // #LATIN SMALL LETTER M
+		case 0x6E: return 0x006E; // #LATIN SMALL LETTER N
+		case 0x6F: return 0x006F; // #LATIN SMALL LETTER O
+		case 0x70: return 0x0070; // #LATIN SMALL LETTER P
+		case 0x71: return 0x0071; // #LATIN SMALL LETTER Q
+		case 0x72: return 0x0072; // #LATIN SMALL LETTER R
+		case 0x73: return 0x0073; // #LATIN SMALL LETTER S
+		case 0x74: return 0x0074; // #LATIN SMALL LETTER T
+		case 0x75: return 0x0075; // #LATIN SMALL LETTER U
+		case 0x76: return 0x0076; // #LATIN SMALL LETTER V
+		case 0x77: return 0x0077; // #LATIN SMALL LETTER W
+		case 0x78: return 0x0078; // #LATIN SMALL LETTER X
+		case 0x79: return 0x0079; // #LATIN SMALL LETTER Y
+		case 0x7A: return 0x007A; // #LATIN SMALL LETTER Z
+		case 0x7B: return 0x007B; // #LEFT CURLY BRACKET
+		case 0x7C: return 0x007C; // #VERTICAL LINE
+		case 0x7D: return 0x007D; // #RIGHT CURLY BRACKET
+		case 0x7E: return 0x007E; // #TILDE
+		case 0x7F: return 0x007F; // #DELETE
+		case 0x80: return 0x0402; // #CYRILLIC CAPITAL LETTER DJE
+		case 0x81: return 0x0403; // #CYRILLIC CAPITAL LETTER GJE
+		case 0x82: return 0x201A; // #SINGLE LOW-9 QUOTATION MARK
+		case 0x83: return 0x0453; // #CYRILLIC SMALL LETTER GJE
+		case 0x84: return 0x201E; // #DOUBLE LOW-9 QUOTATION MARK
+		case 0x85: return 0x2026; // #HORIZONTAL ELLIPSIS
+		case 0x86: return 0x2020; // #DAGGER
+		case 0x87: return 0x2021; // #DOUBLE DAGGER
+		case 0x88: return 0x20AC; // #EURO SIGN
+		case 0x89: return 0x2030; // #PER MILLE SIGN
+		case 0x8A: return 0x0409; // #CYRILLIC CAPITAL LETTER LJE
+		case 0x8B: return 0x2039; // #SINGLE LEFT-POINTING ANGLE QUOTATION MARK
+		case 0x8C: return 0x040A; // #CYRILLIC CAPITAL LETTER NJE
+		case 0x8D: return 0x040C; // #CYRILLIC CAPITAL LETTER KJE
+		case 0x8E: return 0x040B; // #CYRILLIC CAPITAL LETTER TSHE
+		case 0x8F: return 0x040F; // #CYRILLIC CAPITAL LETTER DZHE
+		case 0x90: return 0x0452; // #CYRILLIC SMALL LETTER DJE
+		case 0x91: return 0x2018; // #LEFT SINGLE QUOTATION MARK
+		case 0x92: return 0x2019; // #RIGHT SINGLE QUOTATION MARK
+		case 0x93: return 0x201C; // #LEFT DOUBLE QUOTATION MARK
+		case 0x94: return 0x201D; // #RIGHT DOUBLE QUOTATION MARK
+		case 0x95: return 0x2022; // #BULLET
+		case 0x96: return 0x2013; // #EN DASH
+		case 0x97: return 0x2014; // #EM DASH
+		case 0x98: return 0x003F; // #UNDEFINED
+		case 0x99: return 0x2122; // #TRADE MARK SIGN
+		case 0x9A: return 0x0459; // #CYRILLIC SMALL LETTER LJE
+		case 0x9B: return 0x203A; // #SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
+		case 0x9C: return 0x045A; // #CYRILLIC SMALL LETTER NJE
+		case 0x9D: return 0x045C; // #CYRILLIC SMALL LETTER KJE
+		case 0x9E: return 0x045B; // #CYRILLIC SMALL LETTER TSHE
+		case 0x9F: return 0x045F; // #CYRILLIC SMALL LETTER DZHE
+		case 0xA0: return 0x00A0; // #NO-BREAK SPACE
+		case 0xA1: return 0x040E; // #CYRILLIC CAPITAL LETTER SHORT U
+		case 0xA2: return 0x045E; // #CYRILLIC SMALL LETTER SHORT U
+		case 0xA3: return 0x0408; // #CYRILLIC CAPITAL LETTER JE
+		case 0xA4: return 0x00A4; // #CURRENCY SIGN
+		case 0xA5: return 0x0490; // #CYRILLIC CAPITAL LETTER GHE WITH UPTURN
+		case 0xA6: return 0x00A6; // #BROKEN BAR
+		case 0xA7: return 0x00A7; // #SECTION SIGN
+		case 0xA8: return 0x0401; // #CYRILLIC CAPITAL LETTER IO
+		case 0xA9: return 0x00A9; // #COPYRIGHT SIGN
+		case 0xAA: return 0x0404; // #CYRILLIC CAPITAL LETTER UKRAINIAN IE
+		case 0xAB: return 0x00AB; // #LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
+		case 0xAC: return 0x00AC; // #NOT SIGN
+		case 0xAD: return 0x00AD; // #SOFT HYPHEN
+		case 0xAE: return 0x00AE; // #REGISTERED SIGN
+		case 0xAF: return 0x0407; // #CYRILLIC CAPITAL LETTER YI
+		case 0xB0: return 0x00B0; // #DEGREE SIGN
+		case 0xB1: return 0x00B1; // #PLUS-MINUS SIGN
+		case 0xB2: return 0x0406; // #CYRILLIC CAPITAL LETTER BYELORUSSIAN-UKRAINIAN I
+		case 0xB3: return 0x0456; // #CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
+		case 0xB4: return 0x0491; // #CYRILLIC SMALL LETTER GHE WITH UPTURN
+		case 0xB5: return 0x00B5; // #MICRO SIGN
+		case 0xB6: return 0x00B6; // #PILCROW SIGN
+		case 0xB7: return 0x00B7; // #MIDDLE DOT
+		case 0xB8: return 0x0451; // #CYRILLIC SMALL LETTER IO
+		case 0xB9: return 0x2116; // #NUMERO SIGN
+		case 0xBA: return 0x0454; // #CYRILLIC SMALL LETTER UKRAINIAN IE
+		case 0xBB: return 0x00BB; // #RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+		case 0xBC: return 0x0458; // #CYRILLIC SMALL LETTER JE
+		case 0xBD: return 0x0405; // #CYRILLIC CAPITAL LETTER DZE
+		case 0xBE: return 0x0455; // #CYRILLIC SMALL LETTER DZE
+		case 0xBF: return 0x0457; // #CYRILLIC SMALL LETTER YI
+		case 0xC0: return 0x0410; // #CYRILLIC CAPITAL LETTER A
+		case 0xC1: return 0x0411; // #CYRILLIC CAPITAL LETTER BE
+		case 0xC2: return 0x0412; // #CYRILLIC CAPITAL LETTER VE
+		case 0xC3: return 0x0413; // #CYRILLIC CAPITAL LETTER GHE
+		case 0xC4: return 0x0414; // #CYRILLIC CAPITAL LETTER DE
+		case 0xC5: return 0x0415; // #CYRILLIC CAPITAL LETTER IE
+		case 0xC6: return 0x0416; // #CYRILLIC CAPITAL LETTER ZHE
+		case 0xC7: return 0x0417; // #CYRILLIC CAPITAL LETTER ZE
+		case 0xC8: return 0x0418; // #CYRILLIC CAPITAL LETTER I
+		case 0xC9: return 0x0419; // #CYRILLIC CAPITAL LETTER SHORT I
+		case 0xCA: return 0x041A; // #CYRILLIC CAPITAL LETTER KA
+		case 0xCB: return 0x041B; // #CYRILLIC CAPITAL LETTER EL
+		case 0xCC: return 0x041C; // #CYRILLIC CAPITAL LETTER EM
+		case 0xCD: return 0x041D; // #CYRILLIC CAPITAL LETTER EN
+		case 0xCE: return 0x041E; // #CYRILLIC CAPITAL LETTER O
+		case 0xCF: return 0x041F; // #CYRILLIC CAPITAL LETTER PE
+		case 0xD0: return 0x0420; // #CYRILLIC CAPITAL LETTER ER
+		case 0xD1: return 0x0421; // #CYRILLIC CAPITAL LETTER ES
+		case 0xD2: return 0x0422; // #CYRILLIC CAPITAL LETTER TE
+		case 0xD3: return 0x0423; // #CYRILLIC CAPITAL LETTER U
+		case 0xD4: return 0x0424; // #CYRILLIC CAPITAL LETTER EF
+		case 0xD5: return 0x0425; // #CYRILLIC CAPITAL LETTER HA
+		case 0xD6: return 0x0426; // #CYRILLIC CAPITAL LETTER TSE
+		case 0xD7: return 0x0427; // #CYRILLIC CAPITAL LETTER CHE
+		case 0xD8: return 0x0428; // #CYRILLIC CAPITAL LETTER SHA
+		case 0xD9: return 0x0429; // #CYRILLIC CAPITAL LETTER SHCHA
+		case 0xDA: return 0x042A; // #CYRILLIC CAPITAL LETTER HARD SIGN
+		case 0xDB: return 0x042B; // #CYRILLIC CAPITAL LETTER YERU
+		case 0xDC: return 0x042C; // #CYRILLIC CAPITAL LETTER SOFT SIGN
+		case 0xDD: return 0x042D; // #CYRILLIC CAPITAL LETTER E
+		case 0xDE: return 0x042E; // #CYRILLIC CAPITAL LETTER YU
+		case 0xDF: return 0x042F; // #CYRILLIC CAPITAL LETTER YA
+		case 0xE0: return 0x0430; // #CYRILLIC SMALL LETTER A
+		case 0xE1: return 0x0431; // #CYRILLIC SMALL LETTER BE
+		case 0xE2: return 0x0432; // #CYRILLIC SMALL LETTER VE
+		case 0xE3: return 0x0433; // #CYRILLIC SMALL LETTER GHE
+		case 0xE4: return 0x0434; // #CYRILLIC SMALL LETTER DE
+		case 0xE5: return 0x0435; // #CYRILLIC SMALL LETTER IE
+		case 0xE6: return 0x0436; // #CYRILLIC SMALL LETTER ZHE
+		case 0xE7: return 0x0437; // #CYRILLIC SMALL LETTER ZE
+		case 0xE8: return 0x0438; // #CYRILLIC SMALL LETTER I
+		case 0xE9: return 0x0439; // #CYRILLIC SMALL LETTER SHORT I
+		case 0xEA: return 0x043A; // #CYRILLIC SMALL LETTER KA
+		case 0xEB: return 0x043B; // #CYRILLIC SMALL LETTER EL
+		case 0xEC: return 0x043C; // #CYRILLIC SMALL LETTER EM
+		case 0xED: return 0x043D; // #CYRILLIC SMALL LETTER EN
+		case 0xEE: return 0x043E; // #CYRILLIC SMALL LETTER O
+		case 0xEF: return 0x043F; // #CYRILLIC SMALL LETTER PE
+		case 0xF0: return 0x0440; // #CYRILLIC SMALL LETTER ER
+		case 0xF1: return 0x0441; // #CYRILLIC SMALL LETTER ES
+		case 0xF2: return 0x0442; // #CYRILLIC SMALL LETTER TE
+		case 0xF3: return 0x0443; // #CYRILLIC SMALL LETTER U
+		case 0xF4: return 0x0444; // #CYRILLIC SMALL LETTER EF
+		case 0xF5: return 0x0445; // #CYRILLIC SMALL LETTER HA
+		case 0xF6: return 0x0446; // #CYRILLIC SMALL LETTER TSE
+		case 0xF7: return 0x0447; // #CYRILLIC SMALL LETTER CHE
+		case 0xF8: return 0x0448; // #CYRILLIC SMALL LETTER SHA
+		case 0xF9: return 0x0449; // #CYRILLIC SMALL LETTER SHCHA
+		case 0xFA: return 0x044A; // #CYRILLIC SMALL LETTER HARD SIGN
+		case 0xFB: return 0x044B; // #CYRILLIC SMALL LETTER YERU
+		case 0xFC: return 0x044C; // #CYRILLIC SMALL LETTER SOFT SIGN
+		case 0xFD: return 0x044D; // #CYRILLIC SMALL LETTER E
+		case 0xFE: return 0x044E; // #CYRILLIC SMALL LETTER YU
+		case 0xFF: return 0x044F; // #CYRILLIC SMALL LETTER YA
+		default: return 0x003F;
+	}
 }
 
 unsigned char GetTimeSource(){
@@ -699,6 +969,18 @@ void NumericToString(long int n, unsigned char * mySring, unsigned char size) {
 	}
 }
 
+void NumericToHEXString(long int n, unsigned char * mySring, unsigned char size) {
+	if (mySring[size - 1] == '\0') {
+		size--;
+	}
+	unsigned char displacement = 1;
+	do {
+		mySring[size - displacement] = getNumChar(n % 16);
+		n /= 16;
+		displacement++;
+	} while ((size - (displacement - 1) > 0) && (n > 0));
+}
+
 unsigned char *GetDayOfWeek(unsigned char day) {
 	if (day == 1) {
 		return "пн";
@@ -719,6 +1001,7 @@ unsigned char *GetDayOfWeek(unsigned char day) {
 }
 
 void TimeToInd() {
+	
 	if (flags.SignalsAreChanged) {
 		flags.SignalsAreChanged = 0;
 		clrInd();
@@ -745,10 +1028,6 @@ void TimeToInd() {
 
 	if (AdressOfNextStartCell == END_OF_CELLS || !flags.DetailModeOfViewSheduler) {
 		unsigned char SignalsFinal = CurrentSignals | SignalsForInd;
-		if (flags.ModeOfFirstLine != (SignalsFinal > 0)) {
-			clrInd();
-			flags.ModeOfFirstLine = SignalsFinal > 0;
-		}
 		if (SignalsFinal > 0) {
 
 			unsigned char D [] = "   ";
@@ -761,7 +1040,7 @@ void TimeToInd() {
 					D[2] = getNumChar(i);
 				}
 			}
-			OutputString(D, 0, 13, 0);
+			OutputString(D, 0, 13, 1);
 		}
 
 		unsigned char TimeData [] = "--:--:--"; // чч:мм:сс
@@ -788,6 +1067,7 @@ void TimeToInd() {
 		OutputString("Расписание откл.", 1, 0, 0);
 		return;
 	}
+	
 
 	if (AdressOfNextStartCell != END_OF_CELLS) {
 
@@ -865,10 +1145,6 @@ void TimeToInd() {
 			flags.DetailModeOfViewSheduler = 0;
 		}
 		OutputString(EMPTY_STRING_16, 1, 0, 0);
-	/*	unsigned char m[] = EMPTY_STRING_16;
-		NumericToString(clock_delta, m, sizeof(m));
-		OutputString(m, 1, 0, 0);
-	*/
 	}
 }
 
@@ -1960,10 +2236,10 @@ void SignalsOnOff() {
 			EEWR(cDaysAdress, cDays);
 			EEWR(cMonthsAdress, cMonths);
 			EEWR(cYearsAdress, cYears);
+			flags.SignalsAreChanged = 1;
 		}
 		CurrentSignalsData = Data & 0b11100000;
 		PORTB = Data;
-		flags.SignalsAreChanged = 1;
 	}
 }
 
@@ -2040,7 +2316,11 @@ void ProcessIncommingUartData() {
 
 	if (flags.UnprocessedIncommingUartData) {
 		flags.UnprocessedIncommingUartData = 0;
-
+		
+		if(!flags.UsartExchangeEnabled){
+			return;
+		}
+		
 		if (_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) {
 			// do nothing
 		} else if (_FindIncommingData_interrupt("RING", NULL, LAST_INCOMMING_DATA_INDEX)) {
@@ -2069,11 +2349,18 @@ void ProcessIncommingUartData() {
 			}
 			Phone *contact = FindPhoneContactByNumber(number);
 			if (contact == NULL) {
-				SendCommandToUSART("ATH", 0);
+				SendCommandToUSART("ATH0", 0);
 				flags.ActiveCall = 0;
+				
+				unsigned char msg [33];
+				CleanStringArray(msg, sizeof(msg), '\0');
+				strcat(msg, "Отклоненный        ");
+				strcat(msg, number);
+				OutputSystemMessage(msg);
 			} else {
 				SendCommandToUSART("ATA", 0);
 				flags.ActiveCall = 1;
+				strcpy(active_phone, (*contact).phone);
 			}
 		} else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_DATA_INDEX)) {
 			
@@ -2101,12 +2388,17 @@ void ProcessIncommingUartData() {
 					flags.LockSignals = 0;
 					flags.SignalsAreChanged = 1;
 					EEWR(LOCK_SIGNALS_FLAG_CELL, flags.LockSignals);
+				} else if (DTMF_Symbol == '#') {
+					flags.StatusIsRequested = 1;
+					flags.ActiveCall = 0;
+					SendCommandToUSART("ATH0", 1);
+					unsigned long int tt = getSystemTimePoint();
+					while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX) && !testTimePoint(tt, 100));
 				}
 			} else if (DTMF_Symbol == '*') {
 				flags.RemoteControlIsEnabled = 1;
 			}
 
-			flags.ActiveCall = 1;
 		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_CARRIER, NULL, LAST_INCOMMING_DATA_INDEX)) {
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
@@ -2213,7 +2505,7 @@ unsigned long int getSystemTimePoint() {
 unsigned char testTimePoint(unsigned long int point, unsigned long int value) {
 	unsigned long int _point = getSystemTimePoint();
 	if (_point < point) {
-		_point = _point + (0xFFFFFFF - point);
+		_point = _point + (0xFFFFFFFF - point);
 	} else {
 		_point = _point - point;
 	}
@@ -2227,7 +2519,7 @@ void system_BlinkReset(unsigned char val) {
 }
 
 void ProcessSystemMessageShowing() {
-	if (flags.UnreadSystemMessage) {
+	if (flags.LCD_Power_On && flags.UnreadSystemMessage) {
 		KeyCode = 0;
 		flags.UnreadSystemMessage = 0;
 	}
@@ -2268,7 +2560,7 @@ void interrupt low_priority F_l() {
 		if (flags.LCD_Power_On && (GlobalBlinkCycleTime == 100 || flags.IsLCDModified)) {
 			for (char line = 0; line < 2; line++) {
 				for (int symbol = 0; symbol < 16; symbol++) {
-					if (GlobalBlinkCycleTime == 100 || (*(digsAtrib + 16 * line + symbol)).modifided > 0) {
+					if (GlobalBlinkCycleTime == 40 || (*(digsAtrib + 16 * line + symbol)).modifided > 0) {
 						unsigned char digit = *(digs + 16 * line + symbol);
 						lcd_send_byte((line * 0x40 + symbol) | 0b10000000); //SetDDRAM
 						if (!((*(digsAtrib + 16 * line + symbol)).blink == 0 || (*(digsAtrib + 16 * line + symbol)).blink == 1 && flags.GlobalBlink)) {
@@ -2471,19 +2763,22 @@ unsigned char getNumChar(unsigned char num) {
 }
 
 void OutputString(unsigned char *stringData, unsigned char line, unsigned char position, unsigned char transfer_line) {
-	unsigned int i = 0;
-	while (*(stringData + i) != '\0') {
-		unsigned char l = line;
-		for (line = 0; l < 2; l++) {
-			unsigned char s = position;
-			for (position = 0; (s < 16) && (*(stringData + i) != '\0'); s++) {
-				setDigit(l, s, *(stringData + i));
+	unsigned char i = 0;
+	unsigned char cont = 1;
+	while ((*(stringData + i)) != '\0' && cont == 1) {
+		for (; line < 2; line++) {
+			for (; (position < 16) && ((*(stringData + i)) != '\0'); ) {
+				setDigit(line, position, *(stringData + i));
 				i++;
+				position++;
 			}
+			position = 0;
 			if (!transfer_line) {
-				return;
+				cont = 0;
+				break;
 			}
 		}
+		line = 0;
 	}
 }
 
@@ -3015,11 +3310,15 @@ unsigned char Init_GSM(unsigned char show) {
 			OutputSystemMessage("Поиск GSM-      модуля...");
 		}
 		SendCommandToUSART("AT", 1);
+		SendCommandToUSART("AT", 1);
 		UserDelay(20);
 		if (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) {
 			if (show) {
 				UserDelay(200);
 				OutputSystemMessage("GSM-модуль не   найден");
+				if(FindIncommingData("> ", NULL, MAX_INCOMMING_BUFF_INDEX)){
+					SendCommandToUSART("\x1B", 1);
+				}
 			}
 			break;
 		}
@@ -3037,7 +3336,12 @@ unsigned char Init_GSM(unsigned char show) {
 		if (show) {
 			OutputSystemMessage("Настройка модуля... OK  OK");
 		}
-
+		SendCommandToUSART("AT+CMGF=0", 1);
+		while (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
+		if (show) {
+			OutputSystemMessage("Настройка модуля... OK  OK  OK");
+		}
+		
 		flags.GSM_Connected = 1;
 		
 		return 1;
@@ -3285,7 +3589,7 @@ void PhonebookEdit() {
 			}
 		} else if (KeyCode == 33) { // Отклонить вызов
 			KeyCode = 0;
-			SendCommandToUSART("ATH", 0);
+			SendCommandToUSART("ATH0", 0);
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
 		} else if (KeyCode == 40) { // Next
@@ -3393,16 +3697,133 @@ void Settings() {
 	} while (item > 0);
 }
 
+unsigned char *GetSystemInfo(){
+
+	unsigned char info [73];
+	CleanStringArray(info, sizeof(info), '\0');
+	strcat(info, "Тек. сост.:\n");
+	
+	unsigned char d;
+	if(!flags.LockSignals){
+		strcat(info, "авто: ");
+		unsigned char s_auto [] = "   \n";
+		d = 0b00001000;
+		for(unsigned char i = 3; i > 0; i--){
+			d = d >> 1;
+			if((SignalsForInd & d) != 0){
+				s_auto[i-1] = getNumChar(i);
+			}else{
+				s_auto[i-1] = '-';
+			}
+		}
+		strcat(info, s_auto);
+	}
+
+	strcat(info, "ручн: ");
+	unsigned char s_hand [] = "   \n";
+	d = 0b00001000;
+	for(unsigned char i = 3; i > 0; i--){
+		d = d >> 1;
+		if((CurrentSignals & d) != 0){
+			s_hand[i-1] = getNumChar(i);
+		}else{
+			s_hand[i-1] = '-';
+		}
+	}
+	strcat(info, s_hand);
+	
+	if(flags.LockSignals){
+		strcat(info, "Расписание ВЫКЛ.\n");
+	}
+	/*
+	Тек.сост.:
+	авто:123
+	ручн:123
+	Рас-ние: ВЫКЛ
+	След.вкл.:
+	сб 11:00-11:59 123
+	*/
+	if(!flags.LockSignals){
+		
+		long int cTime = Clock;
+		unsigned int NextCell = FindNextTimeStart(&cTime);
+		
+		if(NextCell == END_OF_CELLS){
+			cTime = 0;
+			NextCell = FindNextTimeStart(&cTime);
+		}
+		if(NextCell == END_OF_CELLS){
+			strcat(info, "Расписание НЕ УСТ.\n");
+		}else{
+			strcat(info, "След. вкл.:\n");
+			
+			unsigned char DataArray [] = "сб 11:00-11:59 123";
+			CleanStringArray(DataArray, sizeof(DataArray), '\0');
+
+			unsigned long int Data = 0;
+			unsigned char CellsData [CELL_CAPACITY];
+			ReadDataOfCell(&CellsData, &Data, NextCell);
+
+			unsigned int TimeStart;
+			unsigned int TimeStop;
+			unsigned char Days;
+			unsigned char Signals;
+			ParseDataRecord(Data, &TimeStart, &TimeStop, &Days, &Signals);
+
+			unsigned int Time;
+			unsigned char Day;
+			ParseTime(cTime, &Time, &Day);
+
+			unsigned char m_1 [] = "00";
+			NumericToString(Time % 60, m_1, 2);
+
+			Time /= 60;
+
+			unsigned char h_1 [] = "00";
+			NumericToString(Time, h_1, 2);
+
+			unsigned char m_2 [] = "00";
+			NumericToString(TimeStop % 60, m_2, 2);
+
+			TimeStop /= 60;
+
+			unsigned char h_2 [] = "00";
+			NumericToString(TimeStop, h_2, 2);
+			strcat(DataArray, GetDayOfWeek(Day));
+			strcat(DataArray, " ");
+			strcat(DataArray, h_1);
+			strcat(DataArray, ":");
+			strcat(DataArray, m_1);
+			strcat(DataArray, "-");
+			strcat(DataArray, h_2);
+			strcat(DataArray, ":");
+			strcat(DataArray, m_2);
+			strcat(DataArray, " ");
+
+			unsigned char sss [] = "   \n";
+			d = 0b00001000;
+			for(unsigned char i = 3; i > 0; i--){
+				d = d >> 1;
+				if((Signals & d) != 0){
+					sss[i-1] = getNumChar(i);
+				}else{
+					sss[i-1] = '-';
+				}
+			}
+			strcat(DataArray, sss);
+			strcat(info, DataArray);
+		}
+	}
+	strcat(info, "+/-20°C");
+	return info;
+}
+
 void main2() {
 
-	//+CCLK: "16/05/15,22:37:52+03"
-	//+CLIP: "+380957075762",145,"",,"",0
-	//flags.UnprocessedIncommingUartData = 1;
-	//ProcessIncommingUartData();
-	//unsigned char container[50];
-
-	//FindIncommingData(StandardAnswer_INCCALL, container, LAST_INCOMMING_DATA_INDEX);
-
+	//SendSMS("+380507258791", "КПовошпоЖОКПкузш9ег45гуопщукопвалмшкоКПовошпо\n\nрпушкдчН к ЛтмоыщфЖтшфт");
+	//SendSMS("+380507258791", GetSystemInfo());
+	flags.UsartExchangeEnabled = 1;
+	
 	if(EERD(USE_GSM_MODULE_CELL) == 1){
 		for(unsigned char i = 0; i < 2; i++){
 			if(Init_GSM(1)){
@@ -3413,12 +3834,18 @@ void main2() {
 			}
 		}
 	}
-
+	
 	NearTimeStart = Clock;
 	AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
 
 	while (1) {
-
+		
+		if(flags.StatusIsRequested){
+			flags.StatusIsRequested = 0;
+			SendSMS(active_phone, GetSystemInfo());
+			CleanStringArray(active_phone, sizeof(active_phone), '\0');
+		}
+		
 		if (flags.LCD_Power_On == 1 && LCD_ON_TIMEOUT == 0) {
 			lcd_off();
 		} else if (flags.LCD_Power_On == 0 && KeyCode != 0) {
@@ -3429,7 +3856,7 @@ void main2() {
 		if (flags.LCD_Power_On == 0) {
 			continue;
 		}
-
+		
 		TimeToInd();
 
 		if (KeyCode == 45 && !flags.DetailModeOfViewSheduler) {
@@ -3498,6 +3925,9 @@ void main2() {
 		} else if (KeyCode == 33) {
 			KeyCode = 0;
 			WorkingWithGSM();
+		} else if (KeyCode == 42) {
+			KeyCode = 0;
+			SendSMS("+380507258791", GetSystemInfo());
 		} else if (KeyCode == 43 || (KeyCode == 36 && (!flags.LockSignals || flags.DetailModeOfViewSheduler))) {
 			if (KeyCode == 43) {
 				NearTimeStart = Clock;
@@ -3585,7 +4015,7 @@ void ReadTime() {
 				+ (long int) cMinutes * 60
 				+ (long int) cHours * 3600
 				+ ((long int) cWeekDay - 1) * 86400) * 100;
-	}else if(flags.TimeSource == GSM && flags.GSM_Connected){
+	}else if(flags.TimeSource == GSM && flags.GSM_Connected && flags.UsartExchangeEnabled){
 		SendCommandToUSART("AT+CCLK?", 0);
 	}
 }
@@ -3628,7 +4058,7 @@ void WriteTime(unsigned long int lClock, unsigned char days, unsigned char month
 		I2CStop();
 
 		INTCON = INTCON_BUP;
-	}else if(flags.TimeSource == GSM && flags.GSM_Connected) {
+	}else if(flags.TimeSource == GSM && flags.GSM_Connected && flags.UsartExchangeEnabled) {
 		unsigned char comand [] = "AT+CCLK=\"yy/mm/dd,hh:mm:00+03\"";
 		long int temp = Clock / 6000;
 		comand[22] = getNumChar(temp % 10);
@@ -3702,4 +4132,89 @@ unsigned char I2CRead(void) {
 	temp = SSPBUF; /* Read serial buffer and store in temp register */
 	while ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100)); //I2CWait();       /* wait to check any pending transfer */
 	return temp; /* Return the read data from bus */
+}
+
+unsigned char *EncodePhoneNumberToPDU(unsigned char *phone_number){
+	if(*phone_number == '+'){
+		phone_number++;
+	}
+	unsigned char number_legth = strlen(phone_number);
+	
+	unsigned char encoded [15];
+	strcpy(encoded, phone_number);
+	if(number_legth % 2 != 0){
+		strcat(encoded, "F");
+	}
+	
+	unsigned char temp;
+	for(unsigned char i = 0; encoded[i] != '\0'; i+=2){
+		temp = encoded[i];
+		encoded[i] = encoded[i + 1];
+		encoded[i + 1] = temp;
+	}
+	return encoded;
+}
+
+void cp1251_to_unicode(unsigned char *dest, unsigned char *src, unsigned char *eof){
+	unsigned int a = 0;
+	while(dest < eof && *src != '\0'){
+		a = GetUnicodeSymbol(*(src));
+		unsigned char t [] = "0000";
+		NumericToHEXString(a, t, 4);
+		strcat(dest, t);
+		dest+=4;
+		src++;
+	}
+}
+
+void SendSMS(unsigned char *PhoneNumber, unsigned char *Text){
+	
+	if(flags.GSM_Connected != 1){
+		return;
+	}
+	
+	CleanStringArray(SMS, sizeof(SMS), '\0');
+
+	strcat(SMS, "00");
+	
+	unsigned int sc_len = strlen(SMS);
+	
+	unsigned char *pn = PhoneNumber;
+	if(*pn == '+'){
+		pn++;
+	}
+	
+	strcat(SMS, "0100");
+	unsigned char tempString []= "00";
+	NumericToHEXString(strlen(pn), tempString, 2);
+	strcat(SMS, tempString);
+	strcat(SMS, "91");
+	unsigned char *myNumber= EncodePhoneNumberToPDU(PhoneNumber);
+	strcat(SMS, myNumber);
+	strcat(SMS, "00");
+	strcat(SMS, "08");
+	
+	unsigned int l = strlen(Text) * 2;
+	unsigned char e []= "00";
+	NumericToHEXString(l, e, 2);
+	strcat(SMS, e);
+	
+	cp1251_to_unicode(&(SMS[0]) + strlen(SMS), Text, &(SMS[0]) + sizeof(SMS)-1);
+	sc_len = (strlen(SMS) - sc_len) / 2;
+	strcat(SMS, "\x1A");
+	unsigned char y []= "\0\0\0";
+	NumericToString(sc_len, y, (sc_len > 99 ? 4 : (sc_len > 9 ? 3 : 2)));
+	unsigned char command [] = "AT+CMGS=\0\0\0";
+	strcat(command, y);
+	
+	flags.UsartExchangeEnabled = 0;
+	SendCommandToUSART(command, 1);
+	unsigned long int tt = getSystemTimePoint();
+	while(!FindIncommingData("> ", NULL, MAX_INCOMMING_BUFF_INDEX) && !testTimePoint(tt, 1000));
+	SendCommandToUSART(SMS, 1);
+//	if(FindIncommingData("> ", NULL, MAX_INCOMMING_BUFF_INDEX)){
+//	}else{
+//		OutputSystemMessage("Не удалось отправить сообщение");
+//	}
+	flags.UsartExchangeEnabled = 1;
 }
