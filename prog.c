@@ -123,6 +123,7 @@ struct {
 	unsigned GlobalBlink : 1;
 	unsigned GSM_Connected : 1;
 	unsigned ActiveCall : 1;
+	unsigned IncommingCall : 1;
 	unsigned UnreadSystemMessage : 1;
 	unsigned UnprocessedIncommingUartData : 1;
 	unsigned SignalsAreChanged : 1;
@@ -228,7 +229,7 @@ typedef struct {
 
 #define BUFFER_STRING_LENGTH 256
 #define MAX_INCOMMING_BUFF_INDEX 3
-#define LAST_INCOMMING_DATA_INDEX (MAX_INCOMMING_BUFF_INDEX - 1)
+#define LAST_INCOMMING_BUFF_INDEX (MAX_INCOMMING_BUFF_INDEX - 1)
 #define INCOMMING_BUFF_LENGTH (MAX_INCOMMING_BUFF_INDEX + 1)
 /*
 unsigned char buff_string_0 [BUFFER_STRING_LENGTH];
@@ -1687,7 +1688,7 @@ void SendSymbolToLCD(unsigned char Symb) {
 	}
 
 	RS = 1;
-	LATA = (0b11110000 & (Smb * 16)) / 4 | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
+	LATA = (0b11110000 & (Smb * 16)) / 4 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
 	E = 1;
 	//CLRWDT();
 	delay(10, 1);
@@ -1697,7 +1698,7 @@ void SendSymbolToLCD(unsigned char Symb) {
 	delay(25, 5);
 
 	RS = 1;
-	LATA = (0b11110000 & Smb) / 4 | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
+	LATA = (0b11110000 & Smb) / 4 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
 	E = 1;
 	//CLRWDT();
 	delay(10, 1);
@@ -1728,7 +1729,7 @@ void lcd_send_initial_half_byte(unsigned char data) {
 		data /= 2;
 	//	CLRWDT();
 	}
-	LATA = (0b00111100 & (data_temp * 4)) | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
+	LATA = (0b00111100 & (data_temp * 4)) | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
 	E = 1;
 	E = 0;
 }
@@ -2516,11 +2517,11 @@ void ProcessIncommingUartData() {
 
 		flags.IsUartOK = 0;
 
-		if (_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		if (_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			flags.IsUartOK = 1;
-		} else if (_FindIncommingData_interrupt("RING", NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt("RING", NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			// do nothing
-		} else if (_FindIncommingData_interrupt(StandardAnswer_CLOCK, _getContainer_Clock_from_GSM(), LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_CLOCK, _getContainer_Clock_from_GSM(), LAST_INCOMMING_BUFF_INDEX)) {
 
 			// +CCLK: "16/05/15,22:37:52+03"
 
@@ -2535,7 +2536,7 @@ void ProcessIncommingUartData() {
 			CalculateClockDelta(tClock);
 			Clock = tClock;
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_INCCALL, _getContainer_Incomming_Call_Data(), LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_INCCALL, _getContainer_Incomming_Call_Data(), LAST_INCOMMING_BUFF_INDEX)) {
 			unsigned char number [11];
 			_CleanStringArray_interrupt(number, sizeof (number), '\0');
 
@@ -2554,21 +2555,26 @@ void ProcessIncommingUartData() {
 				OutputSystemMessage(msg);
 			} else {
 				SendCommandToUSART("ATA", 1);
-				while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
+				while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX));
 				flags.ActiveCall = 1;
+				flags.IncommingCall = 1;
 				strcpy(active_phone, (*contact).phone);
 				SendCommandToUSART("AT+DDET=1", 1);
 				flags.RemoteControlIsEnabled = 0;
 			}
-		} else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_DATA_INDEX)) {
+			
+			if (flags.LCD_Power_On == 0) {
+				lcd_on();
+			}
+		} else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_BUFF_INDEX)) {
 
 			DTMF_Symbol = Incomming_DTMF_Data[sizeof (Incomming_DTMF_Data) - 2];
 			if (flags.RemoteControlIsEnabled) {
 				unsigned char answerString [] = "AT+VTS=\" \"";
 				answerString[8] = DTMF_Symbol;
-				_CleanStringArray_interrupt(IncommingBuffer[LAST_INCOMMING_DATA_INDEX], BUFFER_STRING_LENGTH, '\0');
+				_CleanStringArray_interrupt(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
 				SendCommandToUSART(answerString, 1);
-				while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
+				while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX));
 
 				if (DTMF_Symbol == '4') {
 					CurrentSignals = 0;
@@ -2597,35 +2603,35 @@ void ProcessIncommingUartData() {
 				} else if (DTMF_Symbol == '#') {
 					flags.StatusIsRequested = 1;
 					flags.ActiveCall = 0;
-					_CleanStringArray_interrupt(IncommingBuffer[LAST_INCOMMING_DATA_INDEX], BUFFER_STRING_LENGTH, '\0');
+					_CleanStringArray_interrupt(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
 					SendCommandToUSART("ATH0", 1);
-					while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX));
+					while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX));
 					flags.RemoteControlIsEnabled = 0;
 				}
 			} else if (DTMF_Symbol == '*') {
 				flags.RemoteControlIsEnabled = 1;
 			}
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_CARRIER, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_CARRIER, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_BUSY, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_BUSY, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_ANSWER, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_ANSWER, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_DIALTONE, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_NO_DIALTONE, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_ERROR, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_ERROR, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			OutputSystemMessage("Ошибка GSM");
 
-		} else if (_FindIncommingData_interrupt(StandardAnswer_NORMAL_POWER_DOWN, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		} else if (_FindIncommingData_interrupt(StandardAnswer_NORMAL_POWER_DOWN, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			flags.ActiveCall = 0;
 			flags.RemoteControlIsEnabled = 0;
 			flags.GSM_Connected = 0;
@@ -2843,10 +2849,9 @@ void interrupt low_priority F_l() {
 
 		ProcessIncommingUartData();
 
-		/*	if(_5seconds){
-				get_temp();
-			}
-		 */
+		if(flags.ActiveCall == 0) {
+			flags.IncommingCall = 0;
+		}
 	}
 }
 
@@ -3131,7 +3136,7 @@ unsigned char _FindIncommingData_interrupt(unsigned char *regexp, unsigned char 
 		finish_index = history_index;
 	} else {
 		start_index = 0;
-		finish_index = LAST_INCOMMING_DATA_INDEX;
+		finish_index = LAST_INCOMMING_BUFF_INDEX;
 	}
 
 	for (unsigned int i = start_index; i <= finish_index; i++) {
@@ -3491,7 +3496,7 @@ void WorkingWithGSM() {
 
 	unsigned char myOutputString [33];
 	myOutputString[32] = '\0';
-	static unsigned char line = LAST_INCOMMING_DATA_INDEX;
+	static unsigned char line = LAST_INCOMMING_BUFF_INDEX;
 
 	while (1) {
 
@@ -3572,7 +3577,7 @@ unsigned char Init_GSM(unsigned char show) {
 		SendCommandToUSART("AT", 1);
 		SendCommandToUSART("AT", 1);
 		UserDelay(20);
-		if (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) {
+		if (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX)) {
 			if (show) {
 				UserDelay(200);
 				OutputSystemMessage("GSM-модуль не   найден");
@@ -3589,7 +3594,7 @@ unsigned char Init_GSM(unsigned char show) {
 		unsigned long int tt = getSystemTimePoint();
 		unsigned char result = 0;
 		SendCommandToUSART("ATE0", 1);
-		while (!(result = FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) && !testTimePoint(tt, 50));
+		while (!(result = FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX)) && !testTimePoint(tt, 50));
 		if (!result) {
 			OutputSystemMessage("Настройка модуля... ошибка");
 			break;
@@ -3598,7 +3603,7 @@ unsigned char Init_GSM(unsigned char show) {
 			OutputSystemMessage("Настройка модуля... OK");
 		}
 		SendCommandToUSART("AT+CMGF=0", 1);
-		while (!(result = FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) && !testTimePoint(tt, 50));
+		while (!(result = FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX)) && !testTimePoint(tt, 50));
 		if (!result) {
 			OutputSystemMessage("Настройка модуля... ошибка");
 			break;
@@ -4000,14 +4005,15 @@ void Settings() {
 		} else if (item == num++) { // 
 			if (flags.GSM_Connected) {
 				unsigned long int tt = getSystemTimePoint();
+				CleanStringArray(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
 				SendCommandToUSART("AT+CSQ", 1);
 				unsigned char result = 0;
-				while (!(result = FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX)) && !testTimePoint(tt, 20));
+				while (!(result = FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX)) && !testTimePoint(tt, 20));
 				if (result) {
 					unsigned char myOutputString [33];
 					myOutputString[32] = '\0';
 
-					unsigned char *p = IncommingBuffer[LAST_INCOMMING_DATA_INDEX - 1] + BUFFER_STRING_LENGTH - 33;
+					unsigned char *p = IncommingBuffer[LAST_INCOMMING_BUFF_INDEX - 1] + BUFFER_STRING_LENGTH - 33;
 					for (unsigned char i = 0; i < 32; i++) {
 						*(myOutputString + i) = *p++;
 						if (*(myOutputString + i) == '\0') {
@@ -4151,8 +4157,6 @@ unsigned char *GetSystemInfo() {
 
 void main2() {
 
-	//SendSMS("+380507258791", "КПовошпоЖОКПкузш9ег45гуопщукопвалмшкоКПовошпо\n\nрпушкдчН к ЛтмоыщфЖтшфт");
-	//SendSMS("+380507258791", GetSystemInfo());
 	flags.UsartExchangeEnabled = 1;
 	
 	flags.UseGSM = EERD(USE_GSM_MODULE_CELL);
@@ -4180,6 +4184,24 @@ void main2() {
 	
 	while (1) {
 
+		if(flags.UseGSM && testTimePoint(t1, 3000)){
+			t1 = getSystemTimePoint();
+			CleanStringArray(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
+			SendCommandToUSART("AT", 1);
+			unsigned long int t2 = getSystemTimePoint();
+			while (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX) && !testTimePoint(t2, 50));
+			if(testTimePoint(t2, 50)){
+				flags.ActiveCall = 0;
+				flags.RemoteControlIsEnabled = 0;
+				flags.StatusIsRequested = 0;
+				CleanStringArray(active_phone, sizeof (active_phone), '\0');
+				PowerOnGSM();
+				Init_GSM(0);
+			}else{
+				flags.GSM_Connected = 1;
+			}
+		}
+
 		if (flags.StatusIsRequested) {
 			flags.StatusIsRequested = 0;
 			SendSMS(active_phone, GetSystemInfo());
@@ -4191,19 +4213,6 @@ void main2() {
 		} else if (flags.LCD_Power_On == 0 && KeyCode != 0) {
 			KeyCode = 0;
 			lcd_on();
-		}
-
-		if(flags.UseGSM && testTimePoint(t1, 3000)){
-			t1 = getSystemTimePoint();
-			SendCommandToUSART("AT", 1);
-			unsigned long int t2 = getSystemTimePoint();
-			while (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_DATA_INDEX) && !testTimePoint(t2, 50));
-			if(testTimePoint(t2, 50)){
-				PowerOnGSM();
-				Init_GSM(0);
-			}else{
-				flags.GSM_Connected = 1;
-			}
 		}
 
 		if (flags.LCD_Power_On == 0) {
