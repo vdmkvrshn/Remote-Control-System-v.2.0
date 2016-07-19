@@ -3571,7 +3571,7 @@ long int lastClock;
 int clock_delta = 0;
 long int Minutes = 0;
 
-unsigned int LCD_ON_TIMEOUT = 8000;
+unsigned int LCD_ON_TIMEOUT = 5000;
 volatile unsigned char KeyCode;
 unsigned int CorrectTimeConst;
 unsigned int AdressOfNextStartCell = (8 * 48);
@@ -5124,7 +5124,7 @@ Symb /= 2;
 }
 
 LC1 = 1;
-LATA = (0b11110000 & (Smb * 16)) / 4 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
+LATA = (0b11110000 & (Smb * 16)) / 4 | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 LC0 = 1;
 
 delay(10, 1);
@@ -5134,7 +5134,7 @@ LC1 = 0;
 delay(25, 5);
 
 LC1 = 1;
-LATA = (0b11110000 & Smb) / 4 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
+LATA = (0b11110000 & Smb) / 4 | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 LC0 = 1;
 
 delay(10, 1);
@@ -5165,7 +5165,7 @@ data_temp++;
 data /= 2;
 
 }
-LATA = (0b00111100 & (data_temp * 4)) | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
+LATA = (0b00111100 & (data_temp * 4)) | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 LC0 = 1;
 LC0 = 0;
 }
@@ -5189,6 +5189,7 @@ LC2 = 1;
 lcd_init();
 lcd_send_byte(0b00001100);
 flags.LCD_Power_On = 1;
+LCD_ON_TIMEOUT = 5000;
 }
 
 void lcd_init() {
@@ -6001,6 +6002,8 @@ flags.RemoteControlIsEnabled = 0;
 
 if (flags.LCD_Power_On == 0) {
 lcd_on();
+flags.LCD_Light_On = 1;
+LCD_ON_TIMEOUT = 5000 / 10;
 }
 } else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), (3 - 1))) {
 
@@ -6196,7 +6199,7 @@ asm(" clrwdt");
 if (TMR0IF) {
 TMR0IF = 0;
 
-# 2771
+# 2774
 unsigned char *digs;
 digits_atributes *digsAtrib;
 
@@ -6270,7 +6273,7 @@ if (PressedKeyIndex == 0xFF) {
 PressedKeyIndex = KeyIndex;
 KeyCode = ConvKeyNum(PressedKeyIndex);
 ButtonPressTimeOut = 1;
-LCD_ON_TIMEOUT = 8000;
+LCD_ON_TIMEOUT = 5000;
 ProcessSystemMessageShowing();
 }
 }
@@ -6376,7 +6379,7 @@ flags.LockSignals = EERD(1020);
 
 unsigned char i = 0;
 
-# 2959
+# 2962
 IncommingBuffer[i++] = buff_string_8;
 IncommingBuffer[i++] = buff_string_9;
 IncommingBuffer[i++] = buff_string_10;
@@ -7494,7 +7497,7 @@ if (flags.LockSignals) {
 strcat(info, "Расписание ВЫКЛ.\n");
 }
 
-# 4083
+# 4086
 if (!flags.LockSignals) {
 
 long int cTime = Clock;
@@ -7649,7 +7652,7 @@ do {
 
 item = ShowMenu(menu, item);
 
-# 4242
+# 4245
 if (item == 1) {
 Settings();
 }

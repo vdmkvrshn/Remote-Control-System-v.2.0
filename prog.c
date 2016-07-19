@@ -101,7 +101,7 @@ long int Clock;
 long int lastClock;
 int clock_delta = 0;
 long int Minutes = 0;
-#define LCD_ON_TIMEOUT_CONST 8000 // 3 min
+#define LCD_ON_TIMEOUT_CONST 5000 // 3 min
 unsigned int LCD_ON_TIMEOUT = LCD_ON_TIMEOUT_CONST;
 volatile unsigned char KeyCode;
 unsigned int CorrectTimeConst;
@@ -1688,7 +1688,7 @@ void SendSymbolToLCD(unsigned char Symb) {
 	}
 
 	RS = 1;
-	LATA = (0b11110000 & (Smb * 16)) / 4 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
+	LATA = (0b11110000 & (Smb * 16)) / 4 | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 	E = 1;
 	//CLRWDT();
 	delay(10, 1);
@@ -1698,7 +1698,7 @@ void SendSymbolToLCD(unsigned char Symb) {
 	delay(25, 5);
 
 	RS = 1;
-	LATA = (0b11110000 & Smb) / 4 | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
+	LATA = (0b11110000 & Smb) / 4 | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 	E = 1;
 	//CLRWDT();
 	delay(10, 1);
@@ -1729,7 +1729,7 @@ void lcd_send_initial_half_byte(unsigned char data) {
 		data /= 2;
 	//	CLRWDT();
 	}
-	LATA = (0b00111100 & (data_temp * 4)) | ((flags.LCD_Light_On == 1 || flags.ActiveCall == 1 && flags.IncommingCall == 1) ? 0b00000010 : 0b00000000);
+	LATA = (0b00111100 & (data_temp * 4)) | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 	E = 1;
 	E = 0;
 }
@@ -1753,6 +1753,7 @@ void lcd_on() {
 	lcd_init();
 	lcd_send_byte(0b00001100);
 	flags.LCD_Power_On = 1;
+	LCD_ON_TIMEOUT = LCD_ON_TIMEOUT_CONST;
 }
 
 void lcd_init() {
@@ -2547,7 +2548,7 @@ void ProcessIncommingUartData() {
 			if (contact == NULL) {
 				SendCommandToUSART("ATH0", 0);
 				flags.ActiveCall = 0;
-
+				
 				unsigned char msg [33];
 				_CleanStringArray_interrupt(msg, sizeof (msg), '\0');
 				strcat(msg, "Отклоненный        ");
@@ -2565,9 +2566,11 @@ void ProcessIncommingUartData() {
 			
 			if (flags.LCD_Power_On == 0) {
 				lcd_on();
+				flags.LCD_Light_On = 1;
+				LCD_ON_TIMEOUT = LCD_ON_TIMEOUT_CONST / 10;
 			}
 		} else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_BUFF_INDEX)) {
-
+			
 			DTMF_Symbol = Incomming_DTMF_Data[sizeof (Incomming_DTMF_Data) - 2];
 			if (flags.RemoteControlIsEnabled) {
 				unsigned char answerString [] = "AT+VTS=\" \"";
@@ -2575,7 +2578,7 @@ void ProcessIncommingUartData() {
 				_CleanStringArray_interrupt(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
 				SendCommandToUSART(answerString, 1);
 				while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX));
-
+				
 				if (DTMF_Symbol == '4') {
 					CurrentSignals = 0;
 					flags.SignalsAreChanged = 1;

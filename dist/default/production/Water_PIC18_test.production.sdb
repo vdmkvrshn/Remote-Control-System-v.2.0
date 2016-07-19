@@ -8,7 +8,7 @@
 csTime 0
 csTemperature 1
 ]
-"3220
+"3223
 [e E2884 InputType `uc
 aa 0
 Aa 1
@@ -23,7 +23,7 @@ Numeric 2
 No 0
 Yes 1
 ]
-"4323
+"4326
 [e E2888 Devices `uc
 NON 0
 RTC 1
@@ -170,180 +170,180 @@ GSM 2
 "1751
 [v _lcd_on lcd_on `(v  1 e 1 0 ]
 [v i1_lcd_on lcd_on `(v  1 e 1 0 ]
-"1758
+"1759
 [v _lcd_init lcd_init `(v  1 e 1 0 ]
 [v i1_lcd_init lcd_init `(v  1 e 1 0 ]
-"1808
+"1809
 [v _ConvKeyNum ConvKeyNum `(uc  1 e 1 0 ]
-"1830
+"1831
 [v _FindCell FindCell `(ui  1 e 2 0 ]
-"1863
+"1864
 [v _RefreshSchedulerIndicator RefreshSchedulerIndicator `(ui  1 e 2 0 ]
-"1908
+"1909
 [v _ItemsToIndicator ItemsToIndicator `(v  1 e 1 0 ]
-"1930
+"1931
 [v _ConvertDayToBit ConvertDayToBit `(uc  1 e 1 0 ]
 [v i2_ConvertDayToBit ConvertDayToBit `(uc  1 e 1 0 ]
-"1943
+"1944
 [v _ReadDataOfCell ReadDataOfCell `(v  1 e 1 0 ]
-"1950
+"1951
 [v _ReadDataOfCell_interr ReadDataOfCell_interr `(v  1 e 1 0 ]
-"1957
+"1958
 [v _WriteDataOfCell WriteDataOfCell `(v  1 e 1 0 ]
-"1965
+"1966
 [v _CleanStringArray CleanStringArray `(v  1 e 1 0 ]
 [v i1_CleanStringArray CleanStringArray `(v  1 e 1 0 ]
-"1971
+"1972
 [v __CleanStringArray_interrupt _CleanStringArray_interrupt `(v  1 e 1 0 ]
-"1977
+"1978
 [v __CleanStringArray_interrupt2 _CleanStringArray_interrupt2 `(v  1 e 1 0 ]
-"1983
+"1984
 [v _DeleteDataOfCell DeleteDataOfCell `(v  1 e 1 0 ]
-"1989
+"1990
 [v _EditSchedule EditSchedule `(uc  1 e 1 0 ]
-"2221
+"2222
 [v _ShowSchedulerMenu ShowSchedulerMenu `(v  1 e 1 0 ]
-"2251
+"2252
 [v _Scheduler Scheduler `(v  1 e 1 0 ]
-"2281
+"2282
 [v _SchedulerNew SchedulerNew `(v  1 e 1 0 ]
-"2308
+"2309
 [v _ParseTime ParseTime `(v  1 e 1 0 ]
-"2314
+"2315
 [v _ParseDataRecord ParseDataRecord `(v  1 e 1 0 ]
-"2326
+"2327
 [v _FindNextTimeStart FindNextTimeStart `(ui  1 e 2 0 ]
-"2375
+"2376
 [v _Format_EEPROM_Memory Format_EEPROM_Memory `(v  1 e 1 0 ]
-"2389
+"2390
 [v _SignalsOnOff SignalsOnOff `(v  1 e 1 0 ]
-"2440
+"2441
 [v _FillMinutes FillMinutes `(v  1 e 1 0 ]
 [v i2_FillMinutes FillMinutes `(v  1 e 1 0 ]
 "208
 [s S259 . 33 `[17]uc 1 name 17 0 `[14]uc 1 phone 14 17 `[1]uc 1 blocked 1 31 `[1]uc 1 filled 1 32 ]
-"2444
+"2445
 [v _FindPhoneContactByNumber FindPhoneContactByNumber `(*.39S259  1 e 2 0 ]
-"2481
+"2482
 [v __getContainer_Clock_from_GSM _getContainer_Clock_from_GSM `(*.39uc  1 e 2 0 ]
-"2486
+"2487
 [v __getContainer_Incomming_Call_Data _getContainer_Incomming_Call_Data `(*.39uc  1 e 2 0 ]
-"2491
+"2492
 [v __getContainer_Incomming_DTMF_Data _getContainer_Incomming_DTMF_Data `(*.39uc  1 e 2 0 ]
-"2496
+"2497
 [v _GetDayOfWeekByDate GetDayOfWeekByDate `(uc  1 e 1 0 ]
 [v i1_GetDayOfWeekByDate GetDayOfWeekByDate `(uc  1 e 1 0 ]
-"2505
+"2506
 [v _GetNumericFromString GetNumericFromString `(uc  1 e 1 0 ]
-"2509
+"2510
 [v _ProcessIncommingUartData ProcessIncommingUartData `(v  1 e 1 0 ]
-"2643
+"2646
 [v _AddByteToUSARTbuff AddByteToUSARTbuff `(v  1 e 1 0 ]
-"2690
+"2693
 [v __load_TXREG _load_TXREG `(v  1 e 1 0 ]
-"2705
+"2708
 [v _F_h F_h `IIH(v  1 e 1 0 ]
-"2731
+"2734
 [v _getSystemTimePoint getSystemTimePoint `(ul  1 e 4 0 ]
 [v i1_getSystemTimePoint getSystemTimePoint `(ul  1 e 4 0 ]
-"2735
+"2738
 [v _testTimePoint testTimePoint `(uc  1 e 1 0 ]
 [v i1_testTimePoint testTimePoint `(uc  1 e 1 0 ]
-"2745
+"2748
 [v _system_BlinkReset system_BlinkReset `(v  1 e 1 0 ]
-"2751
+"2754
 [v _ProcessSystemMessageShowing ProcessSystemMessageShowing `(v  1 e 1 0 ]
-"2758
+"2761
 [v _F_l F_l `IIL(v  1 e 1 0 ]
-"2858
+"2861
 [v _Init_USART Init_USART `(v  1 e 1 0 ]
-"2892
+"2895
 [v _main main `(v  1 e 1 0 ]
-"2973
+"2976
 [v _getNumChar getNumChar `(uc  1 e 1 0 ]
-"2995
+"2998
 [v _OutputString OutputString `(v  1 e 1 0 ]
-"3015
+"3018
 [v _OutputSystemMessage OutputSystemMessage `(v  1 e 1 0 ]
 [v i1_OutputSystemMessage OutputSystemMessage `(v  1 e 1 0 ]
-"3068
+"3071
 [v _FindIncommingData FindIncommingData `(uc  1 e 1 0 ]
-"3109
+"3112
 [v _GetStringLength GetStringLength `(ui  1 e 2 0 ]
-"3118
+"3121
 [v __GetStringLength_interr _GetStringLength_interr `(ui  1 e 2 0 ]
-"3127
+"3130
 [v __FindIncommingData_interrupt _FindIncommingData_interrupt `(uc  1 e 1 0 ]
-"3169
+"3172
 [v __setInputTextProps _setInputTextProps `(v  1 e 1 0 ]
-"3219
+"3222
 [v _InputText InputText `(*.39uc  1 e 2 0 ]
-"3482
+"3485
 [v _SendCommandToUSART SendCommandToUSART `(v  1 e 1 0 ]
 [v i1_SendCommandToUSART SendCommandToUSART `(v  1 e 1 0 ]
-"3494
+"3497
 [v _WorkingWithGSM WorkingWithGSM `(v  1 e 1 0 ]
-"3562
+"3565
 [v _UserDelay UserDelay `(v  1 e 1 0 ]
-"3567
+"3570
 [v _Init_GSM Init_GSM `(uc  1 e 1 0 ]
-"3627
+"3630
 [v _PowerOnGSM PowerOnGSM `(uc  1 e 1 0 ]
-"3634
+"3637
 [v _TelephoneCall TelephoneCall `(v  1 e 1 0 ]
-"3650
+"3653
 [v _Select_OK_NO Select_OK_NO `(uc  1 e 1 0 ]
-"3670
+"3673
 [v _ShowMenu ShowMenu `(uc  1 e 1 0 ]
-"3740
+"3743
 [v _DialDTMF DialDTMF `(v  1 e 1 0 ]
-"3755
+"3758
 [v _PhonebookEdit PhonebookEdit `(v  1 e 1 0 ]
-"3925
+"3928
 [v _Read_USART_SpeedNumber Read_USART_SpeedNumber `(uc  1 e 1 0 ]
-"3933
+"3936
 [v _Save_USART_SpeedNumber Save_USART_SpeedNumber `(v  1 e 1 0 ]
-"3940
+"3943
 [v _USART_Speed_Choise USART_Speed_Choise `(uc  1 e 1 0 ]
-"3952
+"3955
 [v _Settings Settings `(v  1 e 1 0 ]
-"4037
+"4040
 [v _GetSystemInfo GetSystemInfo `(*.39uc  1 e 2 0 ]
-"4158
+"4161
 [v _main2 main2 `(v  1 e 1 0 ]
-"4310
+"4313
 [v _BCD_to_DEC BCD_to_DEC `(uc  1 e 1 0 ]
-"4314
+"4317
 [v _DEC_to_BCD DEC_to_BCD `(uc  1 e 1 0 ]
-"4321
+"4324
 [v _ReadTime ReadTime `(v  1 e 1 0 ]
-"4387
+"4390
 [v _WriteTime WriteTime `(v  1 e 1 0 ]
-"4448
+"4451
 [v _I2CInit I2CInit `(v  1 e 1 0 ]
 [v i1_I2CInit I2CInit `(v  1 e 1 0 ]
-"4456
+"4459
 [v _I2CStart I2CStart `(v  1 e 1 0 ]
 [v i1_I2CStart I2CStart `(v  1 e 1 0 ]
-"4462
+"4465
 [v _I2CStop I2CStop `(v  1 e 1 0 ]
 [v i1_I2CStop I2CStop `(v  1 e 1 0 ]
-"4468
+"4471
 [v _I2CRestart I2CRestart `(v  1 e 1 0 ]
-"4473
+"4476
 [v _I2CAck I2CAck `(v  1 e 1 0 ]
-"4479
+"4482
 [v _I2CNak I2CNak `(v  1 e 1 0 ]
-"4485
+"4488
 [v _I2CSend I2CSend `(v  1 e 1 0 ]
 [v i1_I2CSend I2CSend `(v  1 e 1 0 ]
-"4491
+"4494
 [v _I2CRead I2CRead `(uc  1 e 1 0 ]
-"4501
+"4504
 [v _EncodePhoneNumberToPDU EncodePhoneNumberToPDU `(*.39uc  1 e 2 0 ]
-"4522
+"4525
 [v _cp1251_to_unicode cp1251_to_unicode `(v  1 e 1 0 ]
-"4534
+"4537
 [v _SendSMS SendSMS `(v  1 e 1 0 ]
 "187 /opt/microchip/xc8/v1.37/include/pic18f2620.h
 [v _PORTB PORTB `VEuc  1 e 1 @3969 ]
@@ -967,43 +967,43 @@ GSM 2
 [v _temp_drob temp_drob `uc  1 e 1 0 ]
 "283
 [v _current_showing current_showing `uc  1 e 1 0 ]
-"2892
+"2895
 [v _main main `(v  1 e 1 0 ]
 {
-"2964
+"2967
 [v main@i_1982 i `uc  1 a 1 72 ]
-"2948
+"2951
 [v main@i i `uc  1 a 1 73 ]
-"2971
+"2974
 } 0
-"4158
+"4161
 [v _main2 main2 `(v  1 e 1 0 ]
 {
-"4227
+"4230
 [v main2@menu menu `[2]*.25uc  1 a 4 237 ]
-"4226
+"4229
 [v main2@item item `uc  1 a 1 250 ]
-"4191
+"4194
 [v main2@t2 t2 `ul  1 a 4 245 ]
-"4165
+"4168
 [v main2@i i `uc  1 a 1 249 ]
-"4183
+"4186
 [v main2@t1 t1 `ul  1 a 4 241 ]
-"4226
+"4229
 [v main2@F3817 F3817 `[2]*.25uc  1 s 4 F3817 ]
-"4308
+"4311
 } 0
 "1751
 [v _lcd_on lcd_on `(v  1 e 1 0 ]
 {
-"1756
+"1757
 } 0
-"1758
+"1759
 [v _lcd_init lcd_init `(v  1 e 1 0 ]
 {
-"1759
+"1760
 [v lcd_init@INTCON_BUF INTCON_BUF `uc  1 a 1 83 ]
-"1792
+"1793
 } 0
 "1744
 [v _lcd_off lcd_off `(v  1 e 1 0 ]
@@ -1031,22 +1031,22 @@ GSM 2
 [v lcd_send_initial_half_byte@data data `uc  1 a 1 66 ]
 "1735
 } 0
-"3494
+"3497
 [v _WorkingWithGSM WorkingWithGSM `(v  1 e 1 0 ]
 {
-"3522
+"3525
 [v WorkingWithGSM@command command `*.39uc  1 a 2 231 ]
-"3515
+"3518
 [v WorkingWithGSM@speed speed `uc  1 a 1 235 ]
-"3504
+"3507
 [v WorkingWithGSM@i i `uc  1 a 1 236 ]
-"3503
+"3506
 [v WorkingWithGSM@p p `*.39uc  1 a 2 233 ]
-"3497
+"3500
 [v WorkingWithGSM@myOutputString myOutputString `[33]uc  1 a 33 198 ]
-"3499
+"3502
 [v WorkingWithGSM@line line `uc  1 s 1 line ]
-"3540
+"3543
 } 0
 "1139
 [v _TimeToInd TimeToInd `(v  1 e 1 0 ]
@@ -1134,232 +1134,232 @@ GSM 2
 [v ___lbdiv@dividend dividend `uc  1 a 1 67 ]
 "26
 } 0
-"2251 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"2252 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _Scheduler Scheduler `(v  1 e 1 0 ]
 {
 [v Scheduler@StartFrom StartFrom `ui  1 p 2 141 ]
-"2253
+"2254
 [v Scheduler@NumberOfCells NumberOfCells `VEui  1 s 2 NumberOfCells ]
-"2279
+"2280
 } 0
-"2221
+"2222
 [v _ShowSchedulerMenu ShowSchedulerMenu `(v  1 e 1 0 ]
 {
-"2224
+"2225
 [v ShowSchedulerMenu@menu menu `[6]*.25uc  1 a 12 128 ]
-"2232
+"2233
 [v ShowSchedulerMenu@item item `uc  1 a 1 140 ]
-"2221
-[v ShowSchedulerMenu@NumberOfCells NumberOfCells `ui  1 p 2 126 ]
 "2222
+[v ShowSchedulerMenu@NumberOfCells NumberOfCells `ui  1 p 2 126 ]
+"2223
 [v ShowSchedulerMenu@F3424 F3424 `[6]*.25uc  1 s 12 F3424 ]
-"2249
+"2250
 } 0
-"2281
+"2282
 [v _SchedulerNew SchedulerNew `(v  1 e 1 0 ]
 {
 [v SchedulerNew@SourceOfRecord SourceOfRecord `ui  1 p 2 124 ]
-"2283
+"2284
 [v SchedulerNew@NumberOfCells NumberOfCells `VEui  1 s 2 NumberOfCells ]
-"2306
+"2307
 } 0
-"1863
+"1864
 [v _RefreshSchedulerIndicator RefreshSchedulerIndicator `(ui  1 e 2 0 ]
 {
-"1897
+"1898
 [v RefreshSchedulerIndicator@num_1624 num `[3]uc  1 a 3 16 ]
-"1887
+"1888
 [v RefreshSchedulerIndicator@num num `[3]uc  1 a 3 13 ]
-"1871
+"1872
 [v RefreshSchedulerIndicator@i i `uc  1 a 1 28 ]
-"1868
+"1869
 [v RefreshSchedulerIndicator@CellsData CellsData `[8]uc  1 a 8 5 ]
-"1867
+"1868
 [v RefreshSchedulerIndicator@Data Data `ul  1 a 4 21 ]
-"1865
+"1866
 [v RefreshSchedulerIndicator@cell cell `ui  1 a 2 26 ]
-"1870
+"1871
 [v RefreshSchedulerIndicator@CellIsEmpty CellIsEmpty `uc  1 a 1 25 ]
-"1863
+"1864
 [v RefreshSchedulerIndicator@adress adress `ui  1 p 2 0 ]
 [v RefreshSchedulerIndicator@New New `uc  1 p 1 2 ]
 [v RefreshSchedulerIndicator@CopyFrom CopyFrom `ui  1 p 2 3 ]
-"1886
+"1887
 [v RefreshSchedulerIndicator@F3342 F3342 `[3]uc  1 s 3 F3342 ]
-"1896
+"1897
 [v RefreshSchedulerIndicator@F3344 F3344 `[3]uc  1 s 3 F3344 ]
-"1906
+"1907
 } 0
-"1830
+"1831
 [v _FindCell FindCell `(ui  1 e 2 0 ]
 {
-"1849
+"1850
 [v FindCell@i i `uc  1 a 1 119 ]
-"1846
+"1847
 [v FindCell@CellsData CellsData `[8]uc  1 a 8 102 ]
-"1845
+"1846
 [v FindCell@Data Data `ul  1 a 4 114 ]
-"1848
+"1849
 [v FindCell@CellIsEmpty CellIsEmpty `uc  1 a 1 118 ]
-"1835
-[v FindCell@adress adress `ui  1 a 2 120 ]
 "1836
+[v FindCell@adress adress `ui  1 a 2 120 ]
+"1837
 [v FindCell@adressNew adressNew `ui  1 a 2 110 ]
-"1830
+"1831
 [v FindCell@adressStart adressStart `ui  1 p 2 96 ]
 [v FindCell@New New `uc  1 p 1 98 ]
 [v FindCell@previous previous `ui  1 p 2 99 ]
-"1861
+"1862
 } 0
-"1989
+"1990
 [v _EditSchedule EditSchedule `(uc  1 e 1 0 ]
 {
-"2134
+"2135
 [v EditSchedule@j_1716 j `uc  1 a 1 112 ]
-"2112
-[v EditSchedule@f f `uc  1 a 1 113 ]
-"2116
-[v EditSchedule@ML ML `uc  1 a 1 36 ]
-"2115
-[v EditSchedule@MH MH `uc  1 a 1 35 ]
-"2114
-[v EditSchedule@HL HL `uc  1 a 1 34 ]
 "2113
+[v EditSchedule@f f `uc  1 a 1 113 ]
+"2117
+[v EditSchedule@ML ML `uc  1 a 1 36 ]
+"2116
+[v EditSchedule@MH MH `uc  1 a 1 35 ]
+"2115
+[v EditSchedule@HL HL `uc  1 a 1 34 ]
+"2114
 [v EditSchedule@HH HH `uc  1 a 1 33 ]
-"2111
+"2112
 [v EditSchedule@j j `uc  1 a 1 57 ]
-"2109
-[v EditSchedule@T T `[2]ui  1 a 4 37 ]
 "2110
+[v EditSchedule@T T `[2]ui  1 a 4 37 ]
+"2111
 [v EditSchedule@OK OK `uc  1 a 1 62 ]
-"2097
+"2098
 [v EditSchedule@i_1707 i `uc  1 a 1 111 ]
-"2091
+"2092
 [v EditSchedule@blinking blinking `uc  1 a 1 119 ]
-"2083
+"2084
 [v EditSchedule@i_1699 i `uc  1 a 1 110 ]
-"2065
+"2066
 [v EditSchedule@temp temp `ui  1 a 2 122 ]
-"2021
+"2022
 [v EditSchedule@i i `uc  1 a 1 120 ]
 [s S231 . 1 `uc 1 blink 1 0 :1:0 
 `uc 1 const_symbol 1 0 :1:1 
 ]
-"2020
+"2021
 [s S234 . 4 `S231 1 props 1 0 `uc 1 number 1 1 `uc 1 symbol 1 2 `uc 1 index 1 3 ]
 [v EditSchedule@_times _times `[11]S234  1 a 44 63 ]
-"2019
+"2020
 [v EditSchedule@TimesOutput TimesOutput `[11]*.39S234  1 a 22 0 ]
-"2037
-[v EditSchedule@Times Times `[8]*.39S234  1 a 16 41 ]
-"1999
-[v EditSchedule@CellsData CellsData `[8]uc  1 a 8 22 ]
-"1998
-[v EditSchedule@Data Data `ul  1 a 4 114 ]
-"2009
-[v EditSchedule@TimeStop TimeStop `ui  1 a 2 60 ]
-"2008
-[v EditSchedule@TimeStart TimeStart `ui  1 a 2 58 ]
-"1991
-[v EditSchedule@TargetAdress TargetAdress `ui  1 a 2 30 ]
 "2038
-[v EditSchedule@i_1696 i `uc  1 a 1 121 ]
-"2017
-[v EditSchedule@key key `uc  1 a 1 118 ]
-"2016
-[v EditSchedule@mode mode `uc  1 a 1 109 ]
-"2011
-[v EditSchedule@Signals Signals `uc  1 a 1 108 ]
+[v EditSchedule@Times Times `[8]*.39S234  1 a 16 41 ]
+"2000
+[v EditSchedule@CellsData CellsData `[8]uc  1 a 8 22 ]
+"1999
+[v EditSchedule@Data Data `ul  1 a 4 114 ]
 "2010
+[v EditSchedule@TimeStop TimeStop `ui  1 a 2 60 ]
+"2009
+[v EditSchedule@TimeStart TimeStart `ui  1 a 2 58 ]
+"1992
+[v EditSchedule@TargetAdress TargetAdress `ui  1 a 2 30 ]
+"2039
+[v EditSchedule@i_1696 i `uc  1 a 1 121 ]
+"2018
+[v EditSchedule@key key `uc  1 a 1 118 ]
+"2017
+[v EditSchedule@mode mode `uc  1 a 1 109 ]
+"2012
+[v EditSchedule@Signals Signals `uc  1 a 1 108 ]
+"2011
 [v EditSchedule@Days Days `uc  1 a 1 107 ]
-"2002
+"2003
 [v EditSchedule@BeginEditTimes BeginEditTimes `uc  1 a 1 32 ]
-"1989
+"1990
 [v EditSchedule@adress adress `ui  1 p 2 96 ]
 [v EditSchedule@SourceOfRecord SourceOfRecord `ui  1 p 2 98 ]
-"2219
+"2220
 } 0
-"1957
+"1958
 [v _WriteDataOfCell WriteDataOfCell `(v  1 e 1 0 ]
 {
-"1958
+"1959
 [v WriteDataOfCell@i i `uc  1 a 1 86 ]
-"1957
+"1958
 [v WriteDataOfCell@CellsData CellsData `*.39uc  1 p 2 79 ]
 [v WriteDataOfCell@Data Data `*.39ul  1 p 2 81 ]
 [v WriteDataOfCell@TargetAdress TargetAdress `ui  1 p 2 83 ]
-"1963
+"1964
 } 0
-"1908
+"1909
 [v _ItemsToIndicator ItemsToIndicator `(v  1 e 1 0 ]
 {
 [v ItemsToIndicator@items items `uc  1 a 1 wreg ]
-"1909
+"1910
 [v ItemsToIndicator@i i `uc  1 a 1 79 ]
-"1908
+"1909
 [v ItemsToIndicator@items items `uc  1 a 1 wreg ]
 [v ItemsToIndicator@max_i max_i `uc  1 p 1 76 ]
 [v ItemsToIndicator@firstDigit firstDigit `uc  1 p 1 77 ]
 [v ItemsToIndicator@items items `uc  1 a 1 78 ]
-"1913
+"1914
 } 0
-"1930
+"1931
 [v _ConvertDayToBit ConvertDayToBit `(uc  1 e 1 0 ]
 {
 [v ConvertDayToBit@DayNumber DayNumber `uc  1 a 1 wreg ]
 [v ConvertDayToBit@DayNumber DayNumber `uc  1 a 1 wreg ]
 [v ConvertDayToBit@DayNumber DayNumber `uc  1 a 1 66 ]
-"1941
+"1942
 } 0
-"1983
+"1984
 [v _DeleteDataOfCell DeleteDataOfCell `(v  1 e 1 0 ]
 {
-"1984
+"1985
 [v DeleteDataOfCell@CellsData CellsData `[8]uc  1 a 8 81 ]
-"1983
+"1984
 [v DeleteDataOfCell@TargetAdress TargetAdress `ui  1 p 2 79 ]
-"1987
+"1988
 } 0
-"3952
+"3955
 [v _Settings Settings `(v  1 e 1 0 ]
 {
-"4017
+"4020
 [v Settings@i i `uc  1 a 1 67 ]
-"4013
-[v Settings@myOutputString myOutputString `[33]uc  1 a 33 0 ]
 "4016
+[v Settings@myOutputString myOutputString `[33]uc  1 a 33 0 ]
+"4019
 [v Settings@p p `*.39uc  1 a 2 61 ]
-"4007
-[v Settings@tt tt `ul  1 a 4 57 ]
 "4010
+[v Settings@tt tt `ul  1 a 4 57 ]
+"4013
 [v Settings@result result `uc  1 a 1 63 ]
-"3982
+"3985
 [v Settings@menu_GSM_on_off menu_GSM_on_off `[3]*.25uc  1 a 6 51 ]
-"3991
+"3994
 [v Settings@GSM_On_Off GSM_On_Off `uc  1 a 1 66 ]
-"3987
+"3990
 [v Settings@GSM_Condition GSM_Condition `uc  1 a 1 65 ]
-"3976
+"3979
 [v Settings@speed speed `uc  1 a 1 64 ]
-"3969
+"3972
 [v Settings@num num `uc  1 a 1 68 ]
-"3955
+"3958
 [v Settings@menu menu `[9]*.25uc  1 a 18 33 ]
-"3954
+"3957
 [v Settings@item item `uc  1 a 1 69 ]
 [v Settings@F3768 F3768 `[9]*.25uc  1 s 18 F3768 ]
-"3980
+"3983
 [v Settings@F3772 F3772 `[3]*.25uc  1 s 6 F3772 ]
-"4035
+"4038
 } 0
-"3940
+"3943
 [v _USART_Speed_Choise USART_Speed_Choise `(uc  1 e 1 0 ]
 {
-"3941
+"3944
 [v USART_Speed_Choise@menu menu `[4]*.25uc  1 a 8 94 ]
-"3940
+"3943
 [v USART_Speed_Choise@F3765 F3765 `[4]*.25uc  1 s 8 F3765 ]
-"3950
+"3953
 } 0
 "1433
 [v _TimeEdit TimeEdit `(v  1 e 1 0 ]
@@ -1421,29 +1421,29 @@ GSM 2
 [v entNum@borderDown borderDown `uc  1 a 1 67 ]
 "1085
 } 0
-"4387
+"4390
 [v _WriteTime WriteTime `(v  1 e 1 0 ]
 {
-"4426
+"4429
 [v WriteTime@comand comand `[31]uc  1 a 31 0 ]
-"4427
+"4430
 [v WriteTime@temp temp `l  1 a 4 35 ]
-"4399
+"4402
 [v WriteTime@minutes minutes `uc  1 a 1 33 ]
-"4398
+"4401
 [v WriteTime@hours hours `uc  1 a 1 32 ]
-"4397
+"4400
 [v WriteTime@week_day week_day `uc  1 a 1 31 ]
-"4392
+"4395
 [v WriteTime@INTCON_BUP INTCON_BUP `VEuc  1 a 1 34 ]
-"4387
+"4390
 [v WriteTime@lClock lClock `ul  1 p 4 89 ]
 [v WriteTime@days days `uc  1 p 1 93 ]
 [v WriteTime@months months `uc  1 p 1 94 ]
 [v WriteTime@years years `uc  1 p 1 95 ]
-"4425
+"4428
 [v WriteTime@F3836 F3836 `[31]uc  1 s 31 F3836 ]
-"4446
+"4449
 } 0
 "8 /opt/microchip/xc8/v1.37/sources/common/llmod.c
 [v ___llmod __llmod `(ul  1 e 4 0 ]
@@ -1467,36 +1467,36 @@ GSM 2
 [v ___lldiv@divisor divisor `ul  1 p 4 70 ]
 "31
 } 0
-"4462 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"4465 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _I2CStop I2CStop `(v  1 e 1 0 ]
 {
-"4466
+"4469
 } 0
-"4456
+"4459
 [v _I2CStart I2CStart `(v  1 e 1 0 ]
 {
-"4460
+"4463
 } 0
-"4485
+"4488
 [v _I2CSend I2CSend `(v  1 e 1 0 ]
 {
 [v I2CSend@dat dat `uc  1 a 1 wreg ]
 [v I2CSend@dat dat `uc  1 a 1 wreg ]
 [v I2CSend@dat dat `uc  1 a 1 67 ]
-"4489
+"4492
 } 0
-"4448
+"4451
 [v _I2CInit I2CInit `(v  1 e 1 0 ]
 {
-"4454
+"4457
 } 0
-"4314
+"4317
 [v _DEC_to_BCD DEC_to_BCD `(uc  1 e 1 0 ]
 {
 [v DEC_to_BCD@DEC DEC `uc  1 a 1 wreg ]
 [v DEC_to_BCD@DEC DEC `uc  1 a 1 wreg ]
 [v DEC_to_BCD@DEC DEC `uc  1 a 1 88 ]
-"4319
+"4322
 } 0
 "1411
 [v _TimeData_INIT TimeData_INIT `(v  1 e 1 0 ]
@@ -1557,18 +1557,18 @@ GSM 2
 [v ReIndTimeEdit@F3227 F3227 `[3]*.25uc  1 s 6 F3227 ]
 "1397
 } 0
-"2496
+"2497
 [v _GetDayOfWeekByDate GetDayOfWeekByDate `(uc  1 e 1 0 ]
 {
 [v GetDayOfWeekByDate@_year _year `uc  1 a 1 wreg ]
-"2497
+"2498
 [v GetDayOfWeekByDate@century_number century_number `Cuc  1 a 1 92 ]
-"2496
+"2497
 [v GetDayOfWeekByDate@_year _year `uc  1 a 1 wreg ]
 [v GetDayOfWeekByDate@_mounth _mounth `uc  1 p 1 86 ]
 [v GetDayOfWeekByDate@_day _day `uc  1 p 1 87 ]
 [v GetDayOfWeekByDate@_year _year `uc  1 a 1 93 ]
-"2503
+"2504
 } 0
 "15 /opt/microchip/xc8/v1.37/sources/common/Umul16.c
 [v ___wmul __wmul `(ui  1 e 2 0 ]
@@ -1591,109 +1591,109 @@ GSM 2
 [v ___awmod@divisor divisor `i  1 p 2 82 ]
 "35
 } 0
-"3933 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"3936 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _Save_USART_SpeedNumber Save_USART_SpeedNumber `(v  1 e 1 0 ]
 {
 [v Save_USART_SpeedNumber@speed speed `uc  1 a 1 wreg ]
 [v Save_USART_SpeedNumber@speed speed `uc  1 a 1 wreg ]
 [v Save_USART_SpeedNumber@speed speed `uc  1 a 1 70 ]
-"3938
+"3941
 } 0
-"3627
+"3630
 [v _PowerOnGSM PowerOnGSM `(uc  1 e 1 0 ]
 {
-"3632
+"3635
 } 0
-"3567
+"3570
 [v _Init_GSM Init_GSM `(uc  1 e 1 0 ]
 {
 [v Init_GSM@show show `uc  1 a 1 wreg ]
-"3594
+"3597
 [v Init_GSM@tt tt `ul  1 a 4 105 ]
-"3595
+"3598
 [v Init_GSM@result result `uc  1 a 1 109 ]
-"3567
-[v Init_GSM@show show `uc  1 a 1 wreg ]
 "3570
+[v Init_GSM@show show `uc  1 a 1 wreg ]
+"3573
 [v Init_GSM@show show `uc  1 a 1 110 ]
-"3625
+"3628
 } 0
-"3562
+"3565
 [v _UserDelay UserDelay `(v  1 e 1 0 ]
 {
-"3563
+"3566
 [v UserDelay@timestamp timestamp `ul  1 a 4 92 ]
-"3562
-[v UserDelay@value value `ui  1 p 2 90 ]
 "3565
+[v UserDelay@value value `ui  1 p 2 90 ]
+"3568
 } 0
-"3925
+"3928
 [v _Read_USART_SpeedNumber Read_USART_SpeedNumber `(uc  1 e 1 0 ]
 {
-"3926
+"3929
 [v Read_USART_SpeedNumber@v v `uc  1 a 1 70 ]
-"3931
+"3934
 } 0
-"2858
+"2861
 [v _Init_USART Init_USART `(v  1 e 1 0 ]
 {
 [v Init_USART@SpeedNumber SpeedNumber `uc  1 a 1 wreg ]
-"2860
+"2863
 [v Init_USART@_value _value `ui  1 a 2 66 ]
-"2858
+"2861
 [v Init_USART@SpeedNumber SpeedNumber `uc  1 a 1 wreg ]
-"2860
+"2863
 [v Init_USART@SpeedNumber SpeedNumber `uc  1 a 1 68 ]
-"2890
+"2893
 } 0
-"4534
+"4537
 [v _SendSMS SendSMS `(v  1 e 1 0 ]
 {
-"4571
+"4574
 [v SendSMS@command command `[12]uc  1 a 12 187 ]
-"4569
+"4572
 [v SendSMS@y y `[4]uc  1 a 4 199 ]
-"4575
+"4578
 [v SendSMS@tt tt `ul  1 a 4 209 ]
-"4562
+"4565
 [v SendSMS@e e `[3]uc  1 a 3 206 ]
-"4552
+"4555
 [v SendSMS@tempString tempString `[3]uc  1 a 3 203 ]
-"4544
+"4547
 [v SendSMS@sc_len sc_len `ui  1 a 2 223 ]
-"4546
+"4549
 [v SendSMS@pn pn `*.39uc  1 a 2 221 ]
-"4561
+"4564
 [v SendSMS@l l `ui  1 a 2 215 ]
-"4556
+"4559
 [v SendSMS@myNumber myNumber `*.39uc  1 a 2 213 ]
-"4534
+"4537
 [v SendSMS@PhoneNumber PhoneNumber `*.39uc  1 p 2 108 ]
 [v SendSMS@Text Text `*.39uc  1 p 2 110 ]
-"4551
+"4554
 [v SendSMS@F3860 F3860 `[3]uc  1 s 3 F3860 ]
-"4561
+"4564
 [v SendSMS@F3864 F3864 `[3]uc  1 s 3 F3864 ]
-"4568
+"4571
 [v SendSMS@F3866 F3866 `[4]uc  1 s 4 F3866 ]
-"4570
+"4573
 [v SendSMS@F3868 F3868 `[12]uc  1 s 12 F3868 ]
-"4584
+"4587
 } 0
-"4522
+"4525
 [v _cp1251_to_unicode cp1251_to_unicode `(v  1 e 1 0 ]
 {
-"4526
+"4529
 [v cp1251_to_unicode@t t `[5]uc  1 a 5 100 ]
-"4523
+"4526
 [v cp1251_to_unicode@a a `ui  1 a 2 105 ]
-"4522
+"4525
 [v cp1251_to_unicode@dest dest `*.39uc  1 p 2 94 ]
 [v cp1251_to_unicode@src src `*.39uc  1 p 2 96 ]
 [v cp1251_to_unicode@eof eof `*.39uc  1 p 2 98 ]
-"4525
+"4528
 [v cp1251_to_unicode@F3854 F3854 `[5]uc  1 s 5 F3854 ]
-"4532
+"4535
 } 0
 "1108
 [v _NumericToHEXString NumericToHEXString `(v  1 e 1 0 ]
@@ -1714,58 +1714,58 @@ GSM 2
 [v GetUnicodeSymbol@symb symb `uc  1 a 1 68 ]
 "752
 } 0
-"3068
+"3071
 [v _FindIncommingData FindIncommingData `(uc  1 e 1 0 ]
 {
-"3096
+"3099
 [v FindIncommingData@a a `ui  1 a 2 91 ]
-"3086
+"3089
 [v FindIncommingData@s0 s0 `ui  1 a 2 95 ]
-"3088
+"3091
 [v FindIncommingData@s1 s1 `ui  1 a 2 83 ]
-"3085
+"3088
 [v FindIncommingData@j j `ui  1 a 2 103 ]
-"3084
+"3087
 [v FindIncommingData@last_s last_s `ui  1 a 2 101 ]
 [v FindIncommingData@not_found not_found `ui  1 a 2 89 ]
-"3082
+"3085
 [v FindIncommingData@i i `ui  1 a 2 97 ]
-"3070
-[v FindIncommingData@pointer pointer `*.39uc  1 a 2 99 ]
-"3071
-[v FindIncommingData@end_of_regexp end_of_regexp `*.25uc  1 a 2 93 ]
 "3073
+[v FindIncommingData@pointer pointer `*.39uc  1 a 2 99 ]
+"3074
+[v FindIncommingData@end_of_regexp end_of_regexp `*.25uc  1 a 2 93 ]
+"3076
 [v FindIncommingData@finish_index finish_index `ui  1 a 2 87 ]
 [v FindIncommingData@start_index start_index `ui  1 a 2 85 ]
-"3068
+"3071
 [v FindIncommingData@regexp regexp `*.25uc  1 p 2 73 ]
 [v FindIncommingData@container container `*.2uc  1 p 2 75 ]
 [v FindIncommingData@history_index history_index `i  1 p 2 77 ]
-"3107
+"3110
 } 0
-"3109
+"3112
 [v _GetStringLength GetStringLength `(ui  1 e 2 0 ]
 {
-"3110
+"3113
 [v GetStringLength@i i `ui  1 a 2 68 ]
-"3109
+"3112
 [v GetStringLength@container container `*.25uc  1 p 2 66 ]
-"3116
+"3119
 } 0
-"4501
+"4504
 [v _EncodePhoneNumberToPDU EncodePhoneNumberToPDU `(*.39uc  1 e 2 0 ]
 {
-"4514
+"4517
 [v EncodePhoneNumberToPDU@i i `uc  1 a 1 96 ]
-"4507
+"4510
 [v EncodePhoneNumberToPDU@encoded encoded `[15]uc  1 a 15 79 ]
-"4513
+"4516
 [v EncodePhoneNumberToPDU@temp temp `uc  1 a 1 95 ]
-"4505
+"4508
 [v EncodePhoneNumberToPDU@number_legth number_legth `uc  1 a 1 94 ]
-"4501
+"4504
 [v EncodePhoneNumberToPDU@phone_number phone_number `*.39uc  1 p 2 75 ]
-"4520
+"4523
 } 0
 "4 /opt/microchip/xc8/v1.37/sources/common/strlen.c
 [v _strlen strlen `(ui  1 e 2 0 ]
@@ -1786,13 +1786,13 @@ GSM 2
 [v strcpy@from from `*.35Cuc  1 p 2 68 ]
 "24
 } 0
-"3755 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"3758 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _PhonebookEdit PhonebookEdit `(v  1 e 1 0 ]
 {
 [s S259 . 33 `[17]uc 1 name 17 0 `[14]uc 1 phone 14 17 `[1]uc 1 blocked 1 31 `[1]uc 1 filled 1 32 ]
-"3866
+"3869
 [v PhonebookEdit@aaa aaa `S259  1 a 33 0 ]
-"3828
+"3831
 [v PhonebookEdit@i i `uc  1 a 1 64 ]
 [s S895 . 2 `uc 1 Aa 1 0 :2:0 
 `uc 1 Language 1 0 :2:2 
@@ -1801,38 +1801,38 @@ GSM 2
 `uc 1 BlockCharSet 1 0 :1:6 
 `uc 1 PhoneKeyboard 1 0 :1:7 
 `uc 1 InputChar 1 1 ]
-"3856
+"3859
 [v PhonebookEdit@input_props_2326 input_props `S895  1 a 2 57 ]
-"3857
+"3860
 [v PhonebookEdit@number number `*.39uc  1 a 2 54 ]
-"3819
+"3822
 [v PhonebookEdit@input_props input_props `S895  1 a 2 62 ]
-"3818
+"3821
 [v PhonebookEdit@field field `*.39uc  1 a 2 59 ]
-"3793
+"3796
 [v PhonebookEdit@menu menu `[6]*.25uc  1 a 12 36 ]
-"3802
+"3805
 [v PhonebookEdit@o o `uc  1 a 1 67 ]
-"3812
+"3815
 [v PhonebookEdit@result result `uc  1 a 1 61 ]
-"3779
+"3782
 [v PhonebookEdit@num_cell num_cell `[3]uc  1 a 3 33 ]
 [s S259 . 33 `[17]uc 1 name 17 0 `[14]uc 1 phone 14 17 `[1]uc 1 blocked 1 31 `[1]uc 1 filled 1 32 ]
-"3758
+"3761
 [v PhonebookEdit@Contact Contact `S259  1 a 33 68 ]
-"3760
+"3763
 [v PhonebookEdit@cell cell `ui  1 a 2 65 ]
-"3762
+"3765
 [v PhonebookEdit@read read `uc  1 a 1 56 ]
-"3777
+"3780
 [v PhonebookEdit@F3744 F3744 `[3]uc  1 s 3 F3744 ]
-"3791
+"3794
 [v PhonebookEdit@F3746 F3746 `[6]*.2uc  1 s 12 F3746 ]
-"3819
+"3822
 [v PhonebookEdit@F3751 F3751 `S895  1 s 2 F3751 ]
-"3856
+"3859
 [v PhonebookEdit@F3754 F3754 `S895  1 s 2 F3754 ]
-"3923
+"3926
 } 0
 "1658
 [v _WritePhonebookCellToEEPROM WritePhonebookCellToEEPROM `(v  1 e 1 0 ]
@@ -1853,68 +1853,68 @@ GSM 2
 [v WriteArrayToEEPROM@quantity quantity `ui  1 p 2 74 ]
 "1656
 } 0
-"3634
+"3637
 [v _TelephoneCall TelephoneCall `(v  1 e 1 0 ]
 {
-"3639
+"3642
 [v TelephoneCall@command command `VE[18]uc  1 a 18 73 ]
-"3640
+"3643
 [v TelephoneCall@i i `uc  1 a 1 91 ]
-"3634
-[v TelephoneCall@phone_number phone_number `*.39uc  1 p 2 69 ]
 "3637
+[v TelephoneCall@phone_number phone_number `*.39uc  1 p 2 69 ]
+"3640
 [v TelephoneCall@F3726 F3726 `VE[18]uc  1 s 18 F3726 ]
-"3648
+"3651
 } 0
-"3670
+"3673
 [v _ShowMenu ShowMenu `(uc  1 e 1 0 ]
 {
-"3684
+"3687
 [v ShowMenu@item_max item_max `uc  1 a 1 93 ]
-"3682
+"3685
 [v ShowMenu@result result `uc  1 a 1 92 ]
-"3670
+"3673
 [v ShowMenu@menu menu `*.39*.25uc  1 p 2 85 ]
 [v ShowMenu@item item `uc  1 p 1 87 ]
-"3674
+"3677
 [v ShowMenu@line line `uc  1 s 1 line ]
-"3738
+"3741
 } 0
-"2375
+"2376
 [v _Format_EEPROM_Memory Format_EEPROM_Memory `(v  1 e 1 0 ]
 {
-"2380
+"2381
 [v Format_EEPROM_Memory@i i `ui  1 a 2 96 ]
-"2375
+"2376
 [v Format_EEPROM_Memory@first_cell first_cell `ui  1 p 2 87 ]
 [v Format_EEPROM_Memory@last_cell last_cell `ui  1 p 2 89 ]
 [v Format_EEPROM_Memory@interactive interactive `uc  1 p 1 91 ]
-"2387
+"2388
 } 0
-"3650
+"3653
 [v _Select_OK_NO Select_OK_NO `(uc  1 e 1 0 ]
 {
 [v Select_OK_NO@text text `*.25uc  1 p 2 85 ]
-"3668
+"3671
 } 0
-"3015
+"3018
 [v _OutputSystemMessage OutputSystemMessage `(v  1 e 1 0 ]
 {
-"3027
+"3030
 [v OutputSystemMessage@position position `uc  1 a 1 72 ]
-"3026
+"3029
 [v OutputSystemMessage@s s `uc  1 a 1 75 ]
-"3017
+"3020
 [v OutputSystemMessage@symb symb `uc  1 a 1 78 ]
-"3025
+"3028
 [v OutputSystemMessage@l l `uc  1 a 1 76 ]
-"3016
+"3019
 [v OutputSystemMessage@line line `uc  1 a 1 77 ]
-"3023
+"3026
 [v OutputSystemMessage@i i `ui  1 a 2 73 ]
-"3015
+"3018
 [v OutputSystemMessage@stringData stringData `*.35uc  1 p 2 66 ]
-"3036
+"3039
 } 0
 "1315
 [v _EEWR EEWR `(v  1 e 1 0 ]
@@ -1934,10 +1934,10 @@ GSM 2
 [v FillPhonebookCellFromEEPROM@adress_start adress_start `ui  1 p 2 81 ]
 "1637
 } 0
-"3740
+"3743
 [v _DialDTMF DialDTMF `(v  1 e 1 0 ]
 {
-"3747
+"3750
 [v DialDTMF@s s `[11]uc  1 a 11 198 ]
 [s S895 . 2 `uc 1 Aa 1 0 :2:0 
 `uc 1 Language 1 0 :2:2 
@@ -1946,103 +1946,103 @@ GSM 2
 `uc 1 BlockCharSet 1 0 :1:6 
 `uc 1 PhoneKeyboard 1 0 :1:7 
 `uc 1 InputChar 1 1 ]
-"3743
-[v DialDTMF@props props `S895  1 a 2 211 ]
-"3744
-[v DialDTMF@string string `*.39uc  1 a 2 209 ]
-"3743
-[v DialDTMF@F3736 F3736 `S895  1 s 2 F3736 ]
 "3746
+[v DialDTMF@props props `S895  1 a 2 211 ]
+"3747
+[v DialDTMF@string string `*.39uc  1 a 2 209 ]
+"3746
+[v DialDTMF@F3736 F3736 `S895  1 s 2 F3736 ]
+"3749
 [v DialDTMF@F3739 F3739 `[11]uc  1 s 11 F3739 ]
-"3753
+"3756
 } 0
-"3482
+"3485
 [v _SendCommandToUSART SendCommandToUSART `(v  1 e 1 0 ]
 {
 [v SendCommandToUSART@command command `*.35uc  1 p 2 66 ]
 [v SendCommandToUSART@wait wait `uc  1 p 1 68 ]
-"3492
+"3495
 } 0
-"3219
+"3222
 [v _InputText InputText `(*.39uc  1 e 2 0 ]
 {
-"3459
+"3462
 [v InputText@i_2205 i `uc  1 a 1 235 ]
-"3365
+"3368
 [v InputText@i_2184 i `uc  1 a 1 233 ]
 [s S231 . 1 `uc 1 blink 1 0 :1:0 
 `uc 1 const_symbol 1 0 :1:1 
 ]
-"3455
+"3458
 [s S234 . 4 `S231 1 props 1 0 `uc 1 number 1 1 `uc 1 symbol 1 2 `uc 1 index 1 3 ]
 [v InputText@temp_2198 temp `*.39S234  1 a 2 231 ]
-"3391
+"3394
 [v InputText@ret_string ret_string `[33]uc  1 a 33 48 ]
-"3392
+"3395
 [v InputText@i_2194 i `uc  1 a 1 236 ]
-"3430
+"3433
 [v InputText@ret_string_2196 ret_string `[33]uc  1 a 33 81 ]
-"3431
+"3434
 [v InputText@i_2197 i `uc  1 a 1 237 ]
 [s S231 . 1 `uc 1 blink 1 0 :1:0 
 `uc 1 const_symbol 1 0 :1:1 
 ]
-"3359
+"3362
 [s S234 . 4 `S231 1 props 1 0 `uc 1 number 1 1 `uc 1 symbol 1 2 `uc 1 index 1 3 ]
 [v InputText@temp temp `*.39S234  1 a 2 239 ]
-"3322
+"3325
 [v InputText@i_2175 i `uc  1 a 1 234 ]
-"3306
+"3309
 [v InputText@i i `uc  1 a 1 241 ]
 [s S231 . 1 `uc 1 blink 1 0 :1:0 
 `uc 1 const_symbol 1 0 :1:1 
 ]
-"3304
+"3307
 [s S234 . 4 `S231 1 props 1 0 `uc 1 number 1 1 `uc 1 symbol 1 2 `uc 1 index 1 3 ]
 [v InputText@_input_data _input_data `[33]S234  1 a 132 0 ]
-"3305
+"3308
 [v InputText@InputData InputData `[33]*.39S234  1 a 66 132 ]
-"3235
+"3238
 [v InputText@symbols symbols `[30]*.39uc  1 a 60 0 ]
-"3239
+"3242
 [v InputText@s_1 s_1 `[20]uc  1 a 20 100 ]
-"3274
-[v InputText@s_19 s_19 `[6]uc  1 a 6 168 ]
-"3272
-[v InputText@s_18 s_18 `[6]uc  1 a 6 162 ]
-"3270
-[v InputText@s_17 s_17 `[6]uc  1 a 6 156 ]
-"3268
-[v InputText@s_16 s_16 `[6]uc  1 a 6 150 ]
-"3266
-[v InputText@s_15 s_15 `[6]uc  1 a 6 144 ]
-"3264
-[v InputText@s_14 s_14 `[6]uc  1 a 6 138 ]
-"3262
-[v InputText@s_13 s_13 `[6]uc  1 a 6 132 ]
-"3260
-[v InputText@s_12 s_12 `[6]uc  1 a 6 126 ]
-"3255
-[v InputText@s_9 s_9 `[6]uc  1 a 6 120 ]
-"3251
-[v InputText@s_7 s_7 `[6]uc  1 a 6 114 ]
-"3253
-[v InputText@s_8 s_8 `[5]uc  1 a 5 199 ]
-"3249
-[v InputText@s_6 s_6 `[5]uc  1 a 5 194 ]
-"3247
-[v InputText@s_5 s_5 `[5]uc  1 a 5 189 ]
-"3245
-[v InputText@s_4 s_4 `[5]uc  1 a 5 184 ]
-"3243
-[v InputText@s_3 s_3 `[5]uc  1 a 5 179 ]
-"3241
-[v InputText@s_2 s_2 `[5]uc  1 a 5 174 ]
-"3318
-[v InputText@time_point time_point `ul  1 a 4 225 ]
-"3237
-[v InputText@s_0 s_0 `[3]uc  1 a 3 204 ]
 "3277
+[v InputText@s_19 s_19 `[6]uc  1 a 6 168 ]
+"3275
+[v InputText@s_18 s_18 `[6]uc  1 a 6 162 ]
+"3273
+[v InputText@s_17 s_17 `[6]uc  1 a 6 156 ]
+"3271
+[v InputText@s_16 s_16 `[6]uc  1 a 6 150 ]
+"3269
+[v InputText@s_15 s_15 `[6]uc  1 a 6 144 ]
+"3267
+[v InputText@s_14 s_14 `[6]uc  1 a 6 138 ]
+"3265
+[v InputText@s_13 s_13 `[6]uc  1 a 6 132 ]
+"3263
+[v InputText@s_12 s_12 `[6]uc  1 a 6 126 ]
+"3258
+[v InputText@s_9 s_9 `[6]uc  1 a 6 120 ]
+"3254
+[v InputText@s_7 s_7 `[6]uc  1 a 6 114 ]
+"3256
+[v InputText@s_8 s_8 `[5]uc  1 a 5 199 ]
+"3252
+[v InputText@s_6 s_6 `[5]uc  1 a 5 194 ]
+"3250
+[v InputText@s_5 s_5 `[5]uc  1 a 5 189 ]
+"3248
+[v InputText@s_4 s_4 `[5]uc  1 a 5 184 ]
+"3246
+[v InputText@s_3 s_3 `[5]uc  1 a 5 179 ]
+"3244
+[v InputText@s_2 s_2 `[5]uc  1 a 5 174 ]
+"3321
+[v InputText@time_point time_point `ul  1 a 4 225 ]
+"3240
+[v InputText@s_0 s_0 `[3]uc  1 a 3 204 ]
+"3280
 [v InputText@s_20 s_20 `[3]uc  1 a 3 120 ]
 [s S895 . 2 `uc 1 Aa 1 0 :2:0 
 `uc 1 Language 1 0 :2:2 
@@ -2051,133 +2051,133 @@ GSM 2
 `uc 1 BlockCharSet 1 0 :1:6 
 `uc 1 PhoneKeyboard 1 0 :1:7 
 `uc 1 InputChar 1 1 ]
-"3220
+"3223
 [v InputText@props props `S895  1 a 2 243 ]
-"3319
+"3322
 [v InputText@cur_char cur_char `*.39uc  1 a 2 229 ]
-"3295
+"3298
 [v InputText@s_29 s_29 `[2]uc  1 a 2 223 ]
-"3293
+"3296
 [v InputText@s_28 s_28 `[2]uc  1 a 2 221 ]
-"3291
+"3294
 [v InputText@s_27 s_27 `[2]uc  1 a 2 219 ]
-"3289
+"3292
 [v InputText@s_26 s_26 `[2]uc  1 a 2 217 ]
-"3287
+"3290
 [v InputText@s_25 s_25 `[2]uc  1 a 2 215 ]
-"3285
+"3288
 [v InputText@s_24 s_24 `[2]uc  1 a 2 213 ]
-"3283
+"3286
 [v InputText@s_23 s_23 `[2]uc  1 a 2 211 ]
-"3281
+"3284
 [v InputText@s_22 s_22 `[2]uc  1 a 2 209 ]
-"3279
+"3282
 [v InputText@s_21 s_21 `[2]uc  1 a 2 207 ]
-"3316
+"3319
 [v InputText@active_cell active_cell `uc  1 a 1 242 ]
-"3317
+"3320
 [v InputText@lastKeyCode lastKeyCode `uc  1 a 1 238 ]
-"3219
+"3222
 [v InputText@text text `*.39uc  1 p 2 90 ]
 [v InputText@_props _props `*.39S895  1 p 2 92 ]
 [v InputText@capacity capacity `uc  1 p 1 94 ]
-"3220
+"3223
 [v InputText@F3627 F3627 `S895  1 s 2 F3627 ]
-"3235
-[v InputText@F3630 F3630 `[3]uc  1 s 3 F3630 ]
 "3238
+[v InputText@F3630 F3630 `[3]uc  1 s 3 F3630 ]
+"3241
 [v InputText@F3632 F3632 `[20]uc  1 s 20 F3632 ]
-"3240
+"3243
 [v InputText@F3634 F3634 `[5]uc  1 s 5 F3634 ]
-"3242
+"3245
 [v InputText@F3636 F3636 `[5]uc  1 s 5 F3636 ]
-"3244
+"3247
 [v InputText@F3638 F3638 `[5]uc  1 s 5 F3638 ]
-"3246
+"3249
 [v InputText@F3640 F3640 `[5]uc  1 s 5 F3640 ]
-"3248
+"3251
 [v InputText@F3642 F3642 `[5]uc  1 s 5 F3642 ]
-"3250
+"3253
 [v InputText@F3644 F3644 `[6]uc  1 s 6 F3644 ]
-"3252
+"3255
 [v InputText@F3646 F3646 `[5]uc  1 s 5 F3646 ]
-"3254
+"3257
 [v InputText@F3648 F3648 `[6]uc  1 s 6 F3648 ]
-"3259
+"3262
 [v InputText@F3650 F3650 `[6]uc  1 s 6 F3650 ]
-"3261
+"3264
 [v InputText@F3652 F3652 `[6]uc  1 s 6 F3652 ]
-"3263
+"3266
 [v InputText@F3654 F3654 `[6]uc  1 s 6 F3654 ]
-"3265
+"3268
 [v InputText@F3656 F3656 `[6]uc  1 s 6 F3656 ]
-"3267
+"3270
 [v InputText@F3658 F3658 `[6]uc  1 s 6 F3658 ]
-"3269
+"3272
 [v InputText@F3660 F3660 `[6]uc  1 s 6 F3660 ]
-"3271
+"3274
 [v InputText@F3662 F3662 `[6]uc  1 s 6 F3662 ]
-"3273
+"3276
 [v InputText@F3664 F3664 `[6]uc  1 s 6 F3664 ]
-"3275
-[v InputText@F3666 F3666 `[3]uc  1 s 3 F3666 ]
 "3278
+[v InputText@F3666 F3666 `[3]uc  1 s 3 F3666 ]
+"3281
 [v InputText@F3668 F3668 `[2]uc  1 s 2 F3668 ]
-"3280
+"3283
 [v InputText@F3670 F3670 `[2]uc  1 s 2 F3670 ]
-"3282
+"3285
 [v InputText@F3672 F3672 `[2]uc  1 s 2 F3672 ]
-"3284
+"3287
 [v InputText@F3674 F3674 `[2]uc  1 s 2 F3674 ]
-"3286
+"3289
 [v InputText@F3676 F3676 `[2]uc  1 s 2 F3676 ]
-"3288
+"3291
 [v InputText@F3678 F3678 `[2]uc  1 s 2 F3678 ]
-"3290
+"3293
 [v InputText@F3680 F3680 `[2]uc  1 s 2 F3680 ]
-"3292
+"3295
 [v InputText@F3682 F3682 `[2]uc  1 s 2 F3682 ]
-"3294
+"3297
 [v InputText@F3684 F3684 `[2]uc  1 s 2 F3684 ]
-"3480
+"3483
 } 0
-"2735
+"2738
 [v _testTimePoint testTimePoint `(uc  1 e 1 0 ]
 {
-"2736
+"2739
 [v testTimePoint@_point _point `ul  1 a 4 86 ]
-"2735
+"2738
 [v testTimePoint@point point `ul  1 p 4 70 ]
 [v testTimePoint@value value `ul  1 p 4 74 ]
-"2743
+"2746
 } 0
-"2731
+"2734
 [v _getSystemTimePoint getSystemTimePoint `(ul  1 e 4 0 ]
 {
-"2733
+"2736
 } 0
-"2745
+"2748
 [v _system_BlinkReset system_BlinkReset `(v  1 e 1 0 ]
 {
 [v system_BlinkReset@val val `uc  1 a 1 wreg ]
 [v system_BlinkReset@val val `uc  1 a 1 wreg ]
 [v system_BlinkReset@val val `uc  1 a 1 66 ]
-"2749
+"2752
 } 0
-"3169
+"3172
 [v __setInputTextProps _setInputTextProps `(v  1 e 1 0 ]
 {
-"3186
+"3189
 [v __setInputTextProps@i_2077 i `uc  1 a 1 45 ]
-"3182
+"3185
 [v __setInputTextProps@i i `uc  1 a 1 44 ]
-"3177
+"3180
 [v __setInputTextProps@source_L source_L `C[22]uc  1 a 22 0 ]
-"3176
-[v __setInputTextProps@source_A source_A `C[10]uc  1 a 10 22 ]
 "3179
+[v __setInputTextProps@source_A source_A `C[10]uc  1 a 10 22 ]
+"3182
 [v __setInputTextProps@Lang Lang `[8]uc  1 a 8 32 ]
-"3177
+"3180
 [v __setInputTextProps@Aa Aa `[4]uc  1 a 4 40 ]
 [s S895 . 2 `uc 1 Aa 1 0 :2:0 
 `uc 1 Language 1 0 :2:2 
@@ -2186,19 +2186,19 @@ GSM 2
 `uc 1 BlockCharSet 1 0 :1:6 
 `uc 1 PhoneKeyboard 1 0 :1:7 
 `uc 1 InputChar 1 1 ]
-"3172
+"3175
 [v __setInputTextProps@props props `S895  1 a 2 46 ]
-"3169
+"3172
 [v __setInputTextProps@_props _props `*.39S895  1 p 2 85 ]
-"3174
-[v __setInputTextProps@F3614 F3614 `C[10]uc  1 s 10 F3614 ]
-"3176
-[v __setInputTextProps@F3616 F3616 `C[22]uc  1 s 22 F3616 ]
 "3177
+[v __setInputTextProps@F3614 F3614 `C[10]uc  1 s 10 F3614 ]
+"3179
+[v __setInputTextProps@F3616 F3616 `C[22]uc  1 s 22 F3616 ]
+"3180
 [v __setInputTextProps@F3618 F3618 `[4]uc  1 s 4 F3618 ]
-"3178
+"3181
 [v __setInputTextProps@F3620 F3620 `[8]uc  1 s 8 F3620 ]
-"3217
+"3220
 } 0
 "474
 [v _clrInd clrInd `(v  1 e 1 0 ]
@@ -2209,19 +2209,19 @@ GSM 2
 [v clrInd@line line `uc  1 a 1 68 ]
 "483
 } 0
-"2995
+"2998
 [v _OutputString OutputString `(v  1 e 1 0 ]
 {
-"2996
+"2999
 [v OutputString@i i `uc  1 a 1 84 ]
-"2997
+"3000
 [v OutputString@cont cont `uc  1 a 1 83 ]
-"2995
+"2998
 [v OutputString@stringData stringData `*.35uc  1 p 2 76 ]
 [v OutputString@line line `uc  1 p 1 78 ]
 [v OutputString@position position `uc  1 p 1 79 ]
 [v OutputString@transfer_line transfer_line `uc  1 p 1 80 ]
-"3013
+"3016
 } 0
 "1352
 [v _OutputInteractiveData OutputInteractiveData `(v  1 e 1 0 ]
@@ -2302,72 +2302,72 @@ GSM 2
 [v CheckoutRegisterOfSymbol@dig dig `uc  1 a 1 66 ]
 "1075
 } 0
-"4037
+"4040
 [v _GetSystemInfo GetSystemInfo `(*.39uc  1 e 2 0 ]
 {
-"4142
+"4145
 [v GetSystemInfo@i_2441 i `uc  1 a 1 185 ]
-"4097
-[v GetSystemInfo@DataArray DataArray `[19]uc  1 a 19 118 ]
-"4101
-[v GetSystemInfo@CellsData CellsData `[8]uc  1 a 8 110 ]
-"4140
-[v GetSystemInfo@sss sss `[5]uc  1 a 5 147 ]
 "4100
-[v GetSystemInfo@Data Data `ul  1 a 4 169 ]
-"4127
-[v GetSystemInfo@h_2 h_2 `[3]uc  1 a 3 161 ]
-"4122
-[v GetSystemInfo@m_2 m_2 `[3]uc  1 a 3 158 ]
-"4119
-[v GetSystemInfo@h_1 h_1 `[3]uc  1 a 3 155 ]
-"4114
-[v GetSystemInfo@m_1 m_1 `[3]uc  1 a 3 152 ]
-"4110
-[v GetSystemInfo@Time Time `ui  1 a 2 177 ]
-"4105
-[v GetSystemInfo@TimeStop TimeStop `ui  1 a 2 175 ]
+[v GetSystemInfo@DataArray DataArray `[19]uc  1 a 19 118 ]
 "4104
-[v GetSystemInfo@TimeStart TimeStart `ui  1 a 2 164 ]
-"4111
-[v GetSystemInfo@Day Day `uc  1 a 1 168 ]
-"4107
-[v GetSystemInfo@Signals Signals `uc  1 a 1 167 ]
-"4106
-[v GetSystemInfo@Days Days `uc  1 a 1 166 ]
-"4048
-[v GetSystemInfo@i i `uc  1 a 1 183 ]
-"4085
-[v GetSystemInfo@cTime cTime `l  1 a 4 179 ]
-"4086
-[v GetSystemInfo@NextCell NextCell `ui  1 a 2 173 ]
-"4062
-[v GetSystemInfo@i_2410 i `uc  1 a 1 184 ]
-"4046
-[v GetSystemInfo@s_auto s_auto `[5]uc  1 a 5 137 ]
-"4039
-[v GetSystemInfo@info info `[73]uc  1 a 73 37 ]
-"4060
-[v GetSystemInfo@s_hand s_hand `[5]uc  1 a 5 142 ]
-"4043
-[v GetSystemInfo@d d `uc  1 a 1 186 ]
-"4045
-[v GetSystemInfo@F3784 F3784 `[5]uc  1 s 5 F3784 ]
-"4059
-[v GetSystemInfo@F3787 F3787 `[5]uc  1 s 5 F3787 ]
-"4095
-[v GetSystemInfo@F3792 F3792 `[19]uc  1 s 19 F3792 ]
-"4112
-[v GetSystemInfo@F3802 F3802 `[3]uc  1 s 3 F3802 ]
-"4117
-[v GetSystemInfo@F3804 F3804 `[3]uc  1 s 3 F3804 ]
-"4120
-[v GetSystemInfo@F3806 F3806 `[3]uc  1 s 3 F3806 ]
+[v GetSystemInfo@CellsData CellsData `[8]uc  1 a 8 110 ]
+"4143
+[v GetSystemInfo@sss sss `[5]uc  1 a 5 147 ]
+"4103
+[v GetSystemInfo@Data Data `ul  1 a 4 169 ]
+"4130
+[v GetSystemInfo@h_2 h_2 `[3]uc  1 a 3 161 ]
 "4125
+[v GetSystemInfo@m_2 m_2 `[3]uc  1 a 3 158 ]
+"4122
+[v GetSystemInfo@h_1 h_1 `[3]uc  1 a 3 155 ]
+"4117
+[v GetSystemInfo@m_1 m_1 `[3]uc  1 a 3 152 ]
+"4113
+[v GetSystemInfo@Time Time `ui  1 a 2 177 ]
+"4108
+[v GetSystemInfo@TimeStop TimeStop `ui  1 a 2 175 ]
+"4107
+[v GetSystemInfo@TimeStart TimeStart `ui  1 a 2 164 ]
+"4114
+[v GetSystemInfo@Day Day `uc  1 a 1 168 ]
+"4110
+[v GetSystemInfo@Signals Signals `uc  1 a 1 167 ]
+"4109
+[v GetSystemInfo@Days Days `uc  1 a 1 166 ]
+"4051
+[v GetSystemInfo@i i `uc  1 a 1 183 ]
+"4088
+[v GetSystemInfo@cTime cTime `l  1 a 4 179 ]
+"4089
+[v GetSystemInfo@NextCell NextCell `ui  1 a 2 173 ]
+"4065
+[v GetSystemInfo@i_2410 i `uc  1 a 1 184 ]
+"4049
+[v GetSystemInfo@s_auto s_auto `[5]uc  1 a 5 137 ]
+"4042
+[v GetSystemInfo@info info `[73]uc  1 a 73 37 ]
+"4063
+[v GetSystemInfo@s_hand s_hand `[5]uc  1 a 5 142 ]
+"4046
+[v GetSystemInfo@d d `uc  1 a 1 186 ]
+"4048
+[v GetSystemInfo@F3784 F3784 `[5]uc  1 s 5 F3784 ]
+"4062
+[v GetSystemInfo@F3787 F3787 `[5]uc  1 s 5 F3787 ]
+"4098
+[v GetSystemInfo@F3792 F3792 `[19]uc  1 s 19 F3792 ]
+"4115
+[v GetSystemInfo@F3802 F3802 `[3]uc  1 s 3 F3802 ]
+"4120
+[v GetSystemInfo@F3804 F3804 `[3]uc  1 s 3 F3804 ]
+"4123
+[v GetSystemInfo@F3806 F3806 `[3]uc  1 s 3 F3806 ]
+"4128
 [v GetSystemInfo@F3808 F3808 `[3]uc  1 s 3 F3808 ]
-"4138
+"4141
 [v GetSystemInfo@F3810 F3810 `[5]uc  1 s 5 F3810 ]
-"4156
+"4159
 } 0
 "8 /opt/microchip/xc8/v1.37/sources/common/strcat.c
 [v _strcat strcat `(*.39uc  1 e 2 0 ]
@@ -2379,16 +2379,16 @@ GSM 2
 [v strcat@from from `*.35Cuc  1 p 2 71 ]
 "26
 } 0
-"2308 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"2309 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _ParseTime ParseTime `(v  1 e 1 0 ]
 {
-"2309
+"2310
 [v ParseTime@DayTime DayTime `ui  1 a 2 88 ]
-"2308
+"2309
 [v ParseTime@TimeValue TimeValue `l  1 p 4 80 ]
 [v ParseTime@Time Time `*.39ui  1 p 2 84 ]
 [v ParseTime@Day Day `*.39uc  1 p 2 86 ]
-"2312
+"2313
 } 0
 "8 /opt/microchip/xc8/v1.37/sources/common/lwmod.c
 [v ___lwmod __lwmod `(ui  1 e 2 0 ]
@@ -2425,13 +2425,13 @@ GSM 2
 [v NumericToString@size size `uc  1 p 1 86 ]
 "1106
 } 0
-"2973
+"2976
 [v _getNumChar getNumChar `(uc  1 e 1 0 ]
 {
 [v getNumChar@num num `uc  1 a 1 wreg ]
 [v getNumChar@num num `uc  1 a 1 wreg ]
 [v getNumChar@num num `uc  1 a 1 66 ]
-"2993
+"2996
 } 0
 "8 /opt/microchip/xc8/v1.37/sources/common/almod.c
 [v ___almod __almod `(l  1 e 4 0 ]
@@ -2465,38 +2465,38 @@ GSM 2
 [v GetDayOfWeek@day day `uc  1 a 1 68 ]
 "1137
 } 0
-"2326
+"2327
 [v _FindNextTimeStart FindNextTimeStart `(ui  1 e 2 0 ]
 {
-"2357
+"2358
 [v FindNextTimeStart@TimeOfSignals TimeOfSignals `ul  1 a 4 26 ]
-"2352
+"2353
 [v FindNextTimeStart@DayOn DayOn `uc  1 a 1 12 ]
-"2351
+"2352
 [v FindNextTimeStart@DayIndex DayIndex `uc  1 a 1 32 ]
-"2335
+"2336
 [v FindNextTimeStart@CellsData CellsData `[8]uc  1 a 8 0 ]
-"2334
+"2335
 [v FindNextTimeStart@Data Data `ul  1 a 4 33 ]
-"2342
-[v FindNextTimeStart@TimeStart TimeStart `ui  1 a 2 21 ]
 "2343
-[v FindNextTimeStart@TimeStop TimeStop `ui  1 a 2 15 ]
+[v FindNextTimeStart@TimeStart TimeStart `ui  1 a 2 21 ]
 "2344
-[v FindNextTimeStart@Days Days `uc  1 a 1 25 ]
+[v FindNextTimeStart@TimeStop TimeStop `ui  1 a 2 15 ]
 "2345
+[v FindNextTimeStart@Days Days `uc  1 a 1 25 ]
+"2346
 [v FindNextTimeStart@Signals Signals `uc  1 a 1 24 ]
-"2331
+"2332
 [v FindNextTimeStart@LastFoundTimeStart LastFoundTimeStart `ul  1 a 4 17 ]
-"2328
-[v FindNextTimeStart@adress adress `ui  1 a 2 30 ]
 "2329
-[v FindNextTimeStart@adressStart adressStart `ui  1 a 2 13 ]
+[v FindNextTimeStart@adress adress `ui  1 a 2 30 ]
 "2330
+[v FindNextTimeStart@adressStart adressStart `ui  1 a 2 13 ]
+"2331
 [v FindNextTimeStart@TimeIsFound TimeIsFound `uc  1 a 1 23 ]
-"2326
+"2327
 [v FindNextTimeStart@TimeFrom TimeFrom `*.39ul  1 p 2 96 ]
-"2373
+"2374
 } 0
 "15 /opt/microchip/xc8/v1.37/sources/common/Umul32.c
 [v ___lmul __lmul `(ul  1 e 4 0 ]
@@ -2508,16 +2508,16 @@ GSM 2
 [v ___lmul@multiplicand multiplicand `ul  1 p 4 70 ]
 "129
 } 0
-"1943 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"1944 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _ReadDataOfCell ReadDataOfCell `(v  1 e 1 0 ]
 {
-"1945
+"1946
 [v ReadDataOfCell@i i `i  1 a 2 94 ]
-"1943
+"1944
 [v ReadDataOfCell@CellsData CellsData `*.39uc  1 p 2 79 ]
 [v ReadDataOfCell@Data Data `*.39ul  1 p 2 81 ]
 [v ReadDataOfCell@TargetAdress TargetAdress `ui  1 p 2 83 ]
-"1948
+"1949
 } 0
 "1623
 [v _FillArrayFromEEPROM FillArrayFromEEPROM `(v  1 e 1 0 ]
@@ -2530,7 +2530,7 @@ GSM 2
 [v FillArrayFromEEPROM@quantity quantity `ui  1 p 2 74 ]
 "1627
 } 0
-"2314
+"2315
 [v _ParseDataRecord ParseDataRecord `(v  1 e 1 0 ]
 {
 [v ParseDataRecord@Data Data `ul  1 p 4 66 ]
@@ -2538,23 +2538,23 @@ GSM 2
 [v ParseDataRecord@TimeStop TimeStop `*.39ui  1 p 2 72 ]
 [v ParseDataRecord@Days Days `*.39uc  1 p 2 74 ]
 [v ParseDataRecord@Signals Signals `*.39uc  1 p 2 76 ]
-"2324
+"2325
 } 0
-"1965
+"1966
 [v _CleanStringArray CleanStringArray `(v  1 e 1 0 ]
 {
-"1966
+"1967
 [v CleanStringArray@i i `ui  1 a 2 71 ]
-"1965
+"1966
 [v CleanStringArray@myArray myArray `*.39uc  1 p 2 66 ]
 [v CleanStringArray@size size `ui  1 p 2 68 ]
 [v CleanStringArray@settingData settingData `uc  1 p 1 70 ]
-"1969
+"1970
 } 0
-"2440
+"2441
 [v _FillMinutes FillMinutes `(v  1 e 1 0 ]
 {
-"2442
+"2443
 } 0
 "754
 [v _GetTimeSource GetTimeSource `(uc  1 e 1 0 ]
@@ -2572,35 +2572,35 @@ GSM 2
 [v EERD@adress adress `ui  1 p 2 66 ]
 "1350
 } 0
-"2758
+"2761
 [v _F_l F_l `IIL(v  1 e 1 0 ]
 {
-"2786
+"2789
 [v F_l@digit digit `uc  1 a 1 112 ]
-"2784
+"2787
 [v F_l@symbol symbol `i  1 a 2 118 ]
-"2826
+"2829
 [v F_l@a a `i  1 a 2 114 ]
-"2824
+"2827
 [v F_l@data_temp data_temp `uc  1 a 1 113 ]
-"2825
+"2828
 [v F_l@_KeyIndex _KeyIndex `uc  1 a 1 109 ]
-"2783
+"2786
 [v F_l@line line `uc  1 a 1 120 ]
 [s S21 . 1 `uc 1 blink 1 0 :1:0 
 `uc 1 modifided 1 0 :1:1 
 ]
-"2772
+"2775
 [v F_l@digsAtrib digsAtrib `*.39S21  1 a 2 116 ]
-"2771
+"2774
 [v F_l@digs digs `*.39uc  1 a 2 110 ]
-"2809
-[v F_l@ButtonPressTimeOut ButtonPressTimeOut `uc  1 s 1 ButtonPressTimeOut ]
-"2811
-[v F_l@KeyIndex KeyIndex `uc  1 s 1 KeyIndex ]
 "2812
+[v F_l@ButtonPressTimeOut ButtonPressTimeOut `uc  1 s 1 ButtonPressTimeOut ]
+"2814
+[v F_l@KeyIndex KeyIndex `uc  1 s 1 KeyIndex ]
+"2815
 [v F_l@PressedKeyIndex PressedKeyIndex `uc  1 s 1 PressedKeyIndex ]
-"2856
+"2859
 } 0
 "764
 [v _getLcdCodeOfChar getLcdCodeOfChar `(uc  1 e 1 0 ]
@@ -2632,107 +2632,107 @@ GSM 2
 [v delay@del del `uc  1 a 1 2 ]
 "1677
 } 0
-"4321
+"4324
 [v _ReadTime ReadTime `(v  1 e 1 0 ]
 {
-"4349
+"4352
 [v ReadTime@I I `uc  1 a 1 53 ]
-"4339
+"4342
 [v ReadTime@Seconds Seconds `uc  1 a 1 52 ]
-"4327
+"4330
 [v ReadTime@lastTimeStamp lastTimeStamp `ul  1 s 4 lastTimeStamp ]
-"4385
+"4388
 } 0
-"2735
+"2738
 [v i1_testTimePoint testTimePoint `(uc  1 e 1 0 ]
 {
 [v i1testTimePoint@_point testTimePoint `ul  1 a 4 20 ]
 [v i1testTimePoint@point point `ul  1 p 4 4 ]
 [v i1testTimePoint@value value `ul  1 p 4 8 ]
-"2743
+"2746
 } 0
-"2731
+"2734
 [v i1_getSystemTimePoint getSystemTimePoint `(ul  1 e 4 0 ]
 {
-"2733
+"2736
 } 0
-"4462
+"4465
 [v i1_I2CStop I2CStop `(v  1 e 1 0 ]
 {
-"4466
+"4469
 } 0
-"4456
+"4459
 [v i1_I2CStart I2CStart `(v  1 e 1 0 ]
 {
-"4460
+"4463
 } 0
-"4485
+"4488
 [v i1_I2CSend I2CSend `(v  1 e 1 0 ]
 {
 [v i1I2CSend@dat dat `uc  1 a 1 wreg ]
 [v i1I2CSend@dat dat `uc  1 a 1 wreg ]
 [v i1I2CSend@dat dat `uc  1 a 1 1 ]
-"4489
+"4492
 } 0
-"4448
+"4451
 [v i1_I2CInit I2CInit `(v  1 e 1 0 ]
 {
-"4454
+"4457
 } 0
-"4468
+"4471
 [v _I2CRestart I2CRestart `(v  1 e 1 0 ]
 {
-"4471
+"4474
 } 0
-"4491
+"4494
 [v _I2CRead I2CRead `(uc  1 e 1 0 ]
 {
-"4492
+"4495
 [v I2CRead@temp temp `uc  1 a 1 1 ]
-"4499
+"4502
 } 0
-"4479
+"4482
 [v _I2CNak I2CNak `(v  1 e 1 0 ]
 {
-"4483
+"4486
 } 0
-"4473
+"4476
 [v _I2CAck I2CAck `(v  1 e 1 0 ]
 {
-"4477
+"4480
 } 0
-"4310
+"4313
 [v _BCD_to_DEC BCD_to_DEC `(uc  1 e 1 0 ]
 {
 [v BCD_to_DEC@BCD BCD `uc  1 a 1 wreg ]
 [v BCD_to_DEC@BCD BCD `uc  1 a 1 wreg ]
 [v BCD_to_DEC@BCD BCD `uc  1 a 1 1 ]
-"4312
+"4315
 } 0
-"2751
+"2754
 [v _ProcessSystemMessageShowing ProcessSystemMessageShowing `(v  1 e 1 0 ]
 {
-"2756
+"2759
 } 0
-"2509
+"2510
 [v _ProcessIncommingUartData ProcessIncommingUartData `(v  1 e 1 0 ]
 {
-"2573
+"2576
 [v ProcessIncommingUartData@answerString answerString `[11]uc  1 a 11 33 ]
-"2551
+"2552
 [v ProcessIncommingUartData@msg msg `[33]uc  1 a 33 0 ]
-"2543
+"2544
 [v ProcessIncommingUartData@i i `uc  1 a 1 65 ]
-"2540
+"2541
 [v ProcessIncommingUartData@number number `[11]uc  1 a 11 44 ]
 [s S259 . 33 `[17]uc 1 name 17 0 `[14]uc 1 phone 14 17 `[1]uc 1 blocked 1 31 `[1]uc 1 filled 1 32 ]
-"2546
+"2547
 [v ProcessIncommingUartData@contact contact `*.39S259  1 a 2 63 ]
-"2531
+"2532
 [v ProcessIncommingUartData@tClock tClock `l  1 a 4 59 ]
-"2572
+"2575
 [v ProcessIncommingUartData@F3507 F3507 `[11]uc  1 s 11 F3507 ]
-"2641
+"2644
 } 0
 "8 /opt/microchip/xc8/v1.37/sources/common/strcpy.c
 [v i1_strcpy strcpy `(*.39uc  1 e 2 0 ]
@@ -2753,13 +2753,13 @@ GSM 2
 "1751 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v i1_lcd_on lcd_on `(v  1 e 1 0 ]
 {
-"1756
+"1757
 } 0
-"1758
+"1759
 [v i1_lcd_init lcd_init `(v  1 e 1 0 ]
 {
 [v i1lcd_init@INTCON_BUF lcd_init `uc  1 a 1 17 ]
-"1792
+"1793
 } 0
 "1737
 [v i1_lcd_send_byte lcd_send_byte `(v  1 e 1 0 ]
@@ -2787,14 +2787,14 @@ GSM 2
 [v i1___lmul@multiplicand multiplicand `ul  1 p 4 32 ]
 "129
 } 0
-"3482 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"3485 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v i1_SendCommandToUSART SendCommandToUSART `(v  1 e 1 0 ]
 {
 [v i1SendCommandToUSART@command command `*.35uc  1 p 2 0 ]
 [v i1SendCommandToUSART@wait wait `uc  1 p 1 2 ]
-"3492
+"3495
 } 0
-"3015
+"3018
 [v i1_OutputSystemMessage OutputSystemMessage `(v  1 e 1 0 ]
 {
 [v i1OutputSystemMessage@i OutputSystemMessage `ui  1 a 2 7 ]
@@ -2804,9 +2804,9 @@ GSM 2
 [v i1OutputSystemMessage@s OutputSystemMessage `uc  1 a 1 9 ]
 [v i1OutputSystemMessage@position OutputSystemMessage `uc  1 a 1 6 ]
 [v i1OutputSystemMessage@stringData stringData `*.35uc  1 p 2 0 ]
-"3036
+"3039
 } 0
-"2496
+"2497
 [v i1_GetDayOfWeekByDate GetDayOfWeekByDate `(uc  1 e 1 0 ]
 {
 [v i1GetDayOfWeekByDate@_year _year `uc  1 a 1 wreg ]
@@ -2815,7 +2815,7 @@ GSM 2
 [v i1GetDayOfWeekByDate@_mounth _mounth `uc  1 p 1 20 ]
 [v i1GetDayOfWeekByDate@_day _day `uc  1 p 1 21 ]
 [v i1GetDayOfWeekByDate@_year _year `uc  1 a 1 27 ]
-"2503
+"2504
 } 0
 "15 /opt/microchip/xc8/v1.37/sources/common/Umul16.c
 [v i1___wmul __wmul `(ui  1 e 2 0 ]
@@ -2852,85 +2852,85 @@ GSM 2
 [v i1EEWR@data data `uc  1 p 1 2 ]
 "1334
 } 0
-"2491
+"2492
 [v __getContainer_Incomming_DTMF_Data _getContainer_Incomming_DTMF_Data `(*.39uc  1 e 2 0 ]
 {
-"2494
+"2495
 } 0
-"2486
+"2487
 [v __getContainer_Incomming_Call_Data _getContainer_Incomming_Call_Data `(*.39uc  1 e 2 0 ]
 {
-"2489
+"2490
 } 0
-"2481
+"2482
 [v __getContainer_Clock_from_GSM _getContainer_Clock_from_GSM `(*.39uc  1 e 2 0 ]
 {
-"2484
+"2485
 } 0
-"1965
+"1966
 [v i1_CleanStringArray CleanStringArray `(v  1 e 1 0 ]
 {
 [v i1CleanStringArray@i CleanStringArray `ui  1 a 2 5 ]
 [v i1CleanStringArray@myArray myArray `*.39uc  1 p 2 0 ]
 [v i1CleanStringArray@size size `ui  1 p 2 2 ]
 [v i1CleanStringArray@settingData settingData `uc  1 p 1 4 ]
-"1969
+"1970
 } 0
-"3127
+"3130
 [v __FindIncommingData_interrupt _FindIncommingData_interrupt `(uc  1 e 1 0 ]
 {
-"3156
+"3159
 [v __FindIncommingData_interrupt@a a `ui  1 a 2 27 ]
-"3146
+"3149
 [v __FindIncommingData_interrupt@s0 s0 `ui  1 a 2 31 ]
-"3148
+"3151
 [v __FindIncommingData_interrupt@s1 s1 `ui  1 a 2 19 ]
-"3145
+"3148
 [v __FindIncommingData_interrupt@j j `ui  1 a 2 39 ]
-"3144
+"3147
 [v __FindIncommingData_interrupt@last_s last_s `ui  1 a 2 37 ]
 [v __FindIncommingData_interrupt@not_found not_found `ui  1 a 2 25 ]
-"3142
+"3145
 [v __FindIncommingData_interrupt@i i `ui  1 a 2 33 ]
-"3129
+"3132
 [v __FindIncommingData_interrupt@pointer pointer `*.39uc  1 a 2 35 ]
-"3131
+"3134
 [v __FindIncommingData_interrupt@end_of_regexp end_of_regexp `*.25uc  1 a 2 29 ]
-"3133
+"3136
 [v __FindIncommingData_interrupt@finish_index finish_index `ui  1 a 2 23 ]
 [v __FindIncommingData_interrupt@start_index start_index `ui  1 a 2 21 ]
-"3127
+"3130
 [v __FindIncommingData_interrupt@regexp regexp `*.25uc  1 p 2 9 ]
 [v __FindIncommingData_interrupt@container container `*.39uc  1 p 2 11 ]
 [v __FindIncommingData_interrupt@history_index history_index `i  1 p 2 13 ]
-"3167
+"3170
 } 0
-"3118
+"3121
 [v __GetStringLength_interr _GetStringLength_interr `(ui  1 e 2 0 ]
 {
-"3119
+"3122
 [v __GetStringLength_interr@i i `ui  1 a 2 2 ]
-"3118
+"3121
 [v __GetStringLength_interr@container container `*.25uc  1 p 2 0 ]
-"3125
+"3128
 } 0
-"1971
+"1972
 [v __CleanStringArray_interrupt _CleanStringArray_interrupt `(v  1 e 1 0 ]
 {
-"1972
+"1973
 [v __CleanStringArray_interrupt@i i `ui  1 a 2 5 ]
-"1971
+"1972
 [v __CleanStringArray_interrupt@myArray myArray `*.39uc  1 p 2 0 ]
 [v __CleanStringArray_interrupt@size size `ui  1 p 2 2 ]
 [v __CleanStringArray_interrupt@settingData settingData `uc  1 p 1 4 ]
-"1975
+"1976
 } 0
-"2505
+"2506
 [v _GetNumericFromString GetNumericFromString `(uc  1 e 1 0 ]
 {
 [v GetNumericFromString@string string `*.39uc  1 p 2 1 ]
 [v GetNumericFromString@index index `uc  1 p 1 3 ]
-"2507
+"2508
 } 0
 "937
 [v _ConvertCharToNumeric ConvertCharToNumeric `(uc  1 e 1 0 ]
@@ -2942,22 +2942,22 @@ GSM 2
 } 0
 "208
 [s S259 . 33 `[17]uc 1 name 17 0 `[14]uc 1 phone 14 17 `[1]uc 1 blocked 1 31 `[1]uc 1 filled 1 32 ]
-"2444
+"2445
 [v _FindPhoneContactByNumber FindPhoneContactByNumber `(*.39S259  1 e 2 0 ]
 {
-"2460
+"2461
 [v FindPhoneContactByNumber@j j `uc  1 a 1 30 ]
-"2455
+"2456
 [v FindPhoneContactByNumber@end_of_phone end_of_phone `uc  1 a 1 29 ]
-"2449
+"2450
 [v FindPhoneContactByNumber@i i `uc  1 a 1 28 ]
-"2445
+"2446
 [v FindPhoneContactByNumber@container container `S259  1 a 33 31 ]
-"2447
+"2448
 [v FindPhoneContactByNumber@found found `uc  1 a 1 27 ]
-"2444
+"2445
 [v FindPhoneContactByNumber@number number `*.39uc  1 p 2 17 ]
-"2479
+"2480
 } 0
 "1629
 [v i1_FillPhonebookCellFromEEPROM FillPhonebookCellFromEEPROM `(v  1 e 1 0 ]
@@ -3000,57 +3000,57 @@ GSM 2
 [v i1___aldiv@divisor divisor `l  1 p 4 4 ]
 "42
 } 0
-"1808 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
+"1809 /home/vadim/MPLABXProjects/Water_PIC18_test/prog.c
 [v _ConvKeyNum ConvKeyNum `(uc  1 e 1 0 ]
 {
 [v ConvKeyNum@Num Num `uc  1 a 1 wreg ]
 [v ConvKeyNum@Num Num `uc  1 a 1 wreg ]
 [v ConvKeyNum@Num Num `uc  1 a 1 0 ]
-"1828
+"1829
 } 0
-"2705
+"2708
 [v _F_h F_h `IIH(v  1 e 1 0 ]
 {
-"2723
+"2726
 [v F_h@MinuteAgo MinuteAgo `uc  1 a 1 79 ]
-"2716
+"2719
 [v F_h@dddd dddd `uc  1 s 1 dddd ]
-"2729
+"2732
 } 0
-"2440
+"2441
 [v i2_FillMinutes FillMinutes `(v  1 e 1 0 ]
 {
-"2442
+"2443
 } 0
-"2690
+"2693
 [v __load_TXREG _load_TXREG `(v  1 e 1 0 ]
 {
-"2703
+"2706
 } 0
-"2389
+"2390
 [v _SignalsOnOff SignalsOnOff `(v  1 e 1 0 ]
 {
-"2411
+"2412
 [v SignalsOnOff@DayTime DayTime `ui  1 a 2 47 ]
-"2409
-[v SignalsOnOff@ThisTime ThisTime `ui  1 a 2 45 ]
 "2410
+[v SignalsOnOff@ThisTime ThisTime `ui  1 a 2 45 ]
+"2411
 [v SignalsOnOff@ThisDay ThisDay `uc  1 a 1 51 ]
-"2398
-[v SignalsOnOff@TimeStop TimeStop `ui  1 a 2 41 ]
-"2397
-[v SignalsOnOff@TimeStart TimeStart `ui  1 a 2 39 ]
-"2400
-[v SignalsOnOff@Signals Signals `uc  1 a 1 50 ]
 "2399
+[v SignalsOnOff@TimeStop TimeStop `ui  1 a 2 41 ]
+"2398
+[v SignalsOnOff@TimeStart TimeStart `ui  1 a 2 39 ]
+"2401
+[v SignalsOnOff@Signals Signals `uc  1 a 1 50 ]
+"2400
 [v SignalsOnOff@Days Days `uc  1 a 1 49 ]
-"2425
+"2426
 [v SignalsOnOff@Data_1789 Data `uc  1 a 1 52 ]
-"2393
+"2394
 [v SignalsOnOff@CellsData CellsData `[8]uc  1 a 8 31 ]
-"2392
+"2393
 [v SignalsOnOff@Data Data `ul  1 a 4 53 ]
-"2438
+"2439
 } 0
 "8 /opt/microchip/xc8/v1.37/sources/common/lwmod.c
 [v i2___lwmod __lwmod `(ui  1 e 2 0 ]
@@ -3087,24 +3087,24 @@ GSM 2
 [v i2EEWR@data data `uc  1 p 1 2 ]
 "1334
 } 0
-"1930
+"1931
 [v i2_ConvertDayToBit ConvertDayToBit `(uc  1 e 1 0 ]
 {
 [v i2ConvertDayToBit@DayNumber DayNumber `uc  1 a 1 wreg ]
 [v i2ConvertDayToBit@DayNumber DayNumber `uc  1 a 1 wreg ]
 [v i2ConvertDayToBit@DayNumber DayNumber `uc  1 a 1 0 ]
-"1941
+"1942
 } 0
-"1950
+"1951
 [v _ReadDataOfCell_interr ReadDataOfCell_interr `(v  1 e 1 0 ]
 {
-"1952
+"1953
 [v ReadDataOfCell_interr@i i `i  1 a 2 28 ]
-"1950
+"1951
 [v ReadDataOfCell_interr@CellsData CellsData `*.39uc  1 p 2 13 ]
 [v ReadDataOfCell_interr@Data Data `*.39ul  1 p 2 15 ]
 [v ReadDataOfCell_interr@TargetAdress TargetAdress `ui  1 p 2 17 ]
-"1955
+"1956
 } 0
 "1639
 [v _FillArrayFromEEPROM_interr FillArrayFromEEPROM_interr `(v  1 e 1 0 ]
@@ -3125,36 +3125,36 @@ GSM 2
 [v i2EERD@adress adress `ui  1 p 2 0 ]
 "1350
 } 0
-"2643
+"2646
 [v _AddByteToUSARTbuff AddByteToUSARTbuff `(v  1 e 1 0 ]
 {
 [v AddByteToUSARTbuff@byte byte `uc  1 a 1 wreg ]
-"2666
+"2669
 [v AddByteToUSARTbuff@i i `ui  1 a 2 12 ]
-"2680
+"2683
 [v AddByteToUSARTbuff@i_1858 i `uc  1 a 1 14 ]
-"2679
+"2682
 [v AddByteToUSARTbuff@buff buff `*.39uc  1 a 2 9 ]
-"2643
+"2646
 [v AddByteToUSARTbuff@byte byte `uc  1 a 1 wreg ]
 [s S1848 . 1 `uc 1 is_r 1 0 :1:0 
 `uc 1 is_n 1 0 :1:1 
 `uc 1 is_rn 1 0 :1:2 
 ]
-"2649
+"2652
 [v AddByteToUSARTbuff@lastdata lastdata `S1848  1 s 1 lastdata ]
-"2651
+"2654
 [v AddByteToUSARTbuff@byte byte `uc  1 a 1 11 ]
-"2688
+"2691
 } 0
-"1977
+"1978
 [v __CleanStringArray_interrupt2 _CleanStringArray_interrupt2 `(v  1 e 1 0 ]
 {
-"1978
+"1979
 [v __CleanStringArray_interrupt2@i i `ui  1 a 2 5 ]
-"1977
+"1978
 [v __CleanStringArray_interrupt2@myArray myArray `*.39uc  1 p 2 0 ]
 [v __CleanStringArray_interrupt2@size size `ui  1 p 2 2 ]
 [v __CleanStringArray_interrupt2@settingData settingData `uc  1 p 1 4 ]
-"1981
+"1982
 } 0
