@@ -8,13 +8,13 @@ Version 3.2 HI-TECH Software Intermediate Code
 "283
 [c E2899 0 1 .. ]
 [n E2899 CurrentShowing csTime csTemperature  ]
-"6771 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"6771 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _TRISA0 `Vb ~T0 @X0 0 e@31888 ]
 [v F2672 `(v ~T0 @X0 1 tf1`ul ]
-"157 /opt/microchip/xc8/v1.37/include/pic18.h
+"157 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18.h
 [v __delay `JF2672 ~T0 @X0 0 e ]
 [p i __delay ]
-"6255 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"6255 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _LA0 `Vb ~T0 @X0 0 e@31816 ]
 "300 prog.c
 [v _EERD `(uc ~T0 @X0 0 ef1`ui ]
@@ -28,7 +28,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _FindNextTimeStart `(ui ~T0 @X0 0 ef1`*ul ]
 "314
 [v _OutputString `(v ~T0 @X0 0 ef4`*uc`uc`uc`uc ]
-"35 /opt/microchip/xc8/v1.37/include/string.h
+"35 C:\Program Files (x86)\Microchip\xc8\v1.38\include\string.h
 [v _strcpy `(*uc ~T0 @X0 0 ef2`*uc`*Cuc ]
 "322 prog.c
 [v _ReadDataOfCell `(v ~T0 @X0 0 ef3`*uc`*ul`ui ]
@@ -36,7 +36,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _ParseDataRecord `(v ~T0 @X0 0 ef5`ul`*ui`*ui`*uc`*uc ]
 "293
 [v _ParseTime `(v ~T0 @X0 0 ef3`l`*ui`*uc ]
-"5587 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"5587 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _INTCON `Vuc ~T0 @X0 0 e@4082 ]
 "5593
 [s S289 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 ]
@@ -98,7 +98,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 "208
 [s S303 `uc -> 17 `i `uc -> 14 `i `uc -> -> 1 `i `ux `uc -> -> 1 `i `ux ]
 [n S303 . name phone blocked filled ]
-"4462 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"4462 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _TMR2 `Vuc ~T0 @X0 0 e@4044 ]
 "4353
 [v _PR2 `Vuc ~T0 @X0 0 e@4043 ]
@@ -114,7 +114,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _LC2 `Vb ~T0 @X0 0 e@31834 ]
 "289 prog.c
 [v _lcd_init `(v ~T0 @X0 0 ef ]
-"193 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"193 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [s S12 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 ]
 [n S12 . RB0 RB1 RB2 RB3 RB4 RB5 RB6 RB7 ]
 "203
@@ -141,15 +141,15 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _OutputSystemMessage `(v ~T0 @X0 0 ef1`*uc ]
 "340
 [v _Format_EEPROM_Memory `(v ~T0 @X0 0 ef3`ui`ui`uc ]
-"187 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"187 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _PORTB `Vuc ~T0 @X0 0 e@3969 ]
 "330 prog.c
 [v __FindIncommingData_interrupt `(uc ~T0 @X0 0 ef3`*uc`*uc`i ]
 "333
 [v _SendCommandToUSART `(v ~T0 @X0 0 ef2`*uc`uc ]
-"34 /opt/microchip/xc8/v1.37/include/string.h
+"34 C:\Program Files (x86)\Microchip\xc8\v1.38\include\string.h
 [v _strcat `(*uc ~T0 @X0 0 ef2`*uc`*Cuc ]
-"2454 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"2454 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [s S121 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 :1 `uc 1 ]
 [n S121 . TX9D TRMT BRGH SENDB SYNC TXEN TX9 CSRC ]
 "2464
@@ -213,7 +213,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _ReadTime `(v ~T0 @X0 0 ef ]
 [t ~ __deprecated__ ]
 [t T9 __deprecated__ ]
-"6481 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"6481 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _RB0 `Vb ~T9 @X0 0 e@31752 ]
 "740
 [v _LATB `Vuc ~T0 @X0 0 e@3978 ]
@@ -411,7 +411,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _Save_USART_SpeedNumber `(v ~T0 @X0 0 ef1`uc ]
 "337
 [v _Read_USART_SpeedNumber `(uc ~T0 @X0 0 ef ]
-"6345 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"6345 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _LC5 `Vb ~T0 @X0 0 e@31837 ]
 "6813
 [v _TRISC5 `Vb ~T0 @X0 0 e@31909 ]
@@ -436,7 +436,7 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _I2CNak `(v ~T0 @X0 0 ef ]
 "308
 [v _I2CStop `(v ~T0 @X0 0 ef ]
-"4040 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"4040 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [v _SSPSTAT `Vuc ~T0 @X0 0 e@4039 ]
 "4271
 [v _SSPADD `Vuc ~T0 @X0 0 e@4040 ]
@@ -507,13 +507,13 @@ Version 3.2 HI-TECH Software Intermediate Code
 [v _SSPSTATbits `VS210 ~T0 @X0 0 e@4039 ]
 "3910
 [v _SSPCON2 `Vuc ~T0 @X0 0 e@4037 ]
-"54 /opt/microchip/xc8/v1.37/include/string.h
+"54 C:\Program Files (x86)\Microchip\xc8\v1.38\include\string.h
 [v _strlen `(ui ~T0 @X0 0 ef1`*Cuc ]
 [; ;htc.h: 26: extern const char __xc8_OPTIM_SPEED;
 [; ;htc.h: 28: extern double __fpnormalize(double);
 [; ;xc8debug.h: 14: extern void __builtin_software_breakpoint(void);
 [; ;pic18f2620.h: 49: extern volatile unsigned char PORTA @ 0xF80;
-"51 /opt/microchip/xc8/v1.37/include/pic18f2620.h
+"51 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic18f2620.h
 [; ;pic18f2620.h: 51: asm("PORTA equ 0F80h");
 [; <" PORTA equ 0F80h ;# ">
 [; ;pic18f2620.h: 54: typedef union {
