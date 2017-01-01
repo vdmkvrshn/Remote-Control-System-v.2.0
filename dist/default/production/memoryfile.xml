@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <executable name="dist/default/production\Water_PIC18_test.production.hex">
+  <executable name="dist/default/production\Remote-Control-System-v.2.0.production.hex">
     <memory name="program">
       <units>bytes</units>
       <length>65536</length>
-      <used>38521</used>
-      <free>27015</free>
+      <used>39422</used>
+      <free>26114</free>
     </memory>
     <memory name="data">
       <units>bytes</units>
       <length>3968</length>
-      <used>3222</used>
-      <free>746</free>
+      <used>3247</used>
+      <free>721</free>
     </memory>
   </executable>
 </project>

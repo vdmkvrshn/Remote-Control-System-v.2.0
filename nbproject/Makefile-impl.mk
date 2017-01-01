@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=Water_PIC18_test
+PROJECTNAME=Remote-Control-System-v.2.0
 
 # Active Configuration
 DEFAULTCONF=default

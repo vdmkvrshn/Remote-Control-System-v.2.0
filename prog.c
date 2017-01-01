@@ -280,10 +280,33 @@ unsigned char active_phone [14];
 
 int temperature = 0; //температура
 unsigned char temp_drob = 0; //дробная часть температуры
+unsigned char temp_sign; //знак температуры
 unsigned char current_showing = csTime;
+unsigned char Broadcasting_1_Wire;
 
-#define STATE TRISA0
-#define PIN LA0
+struct {
+	unsigned Init : 1;
+	unsigned Send_Address : 1;
+	unsigned CountAddressBytes : 4;
+	unsigned SendConvertTemp : 1;
+	unsigned int PauseValue;
+	unsigned SendGetTemp : 1;
+	unsigned ReadData : 1;
+	unsigned CountDataBytes : 4;
+	unsigned DataIsRead : 1;
+	unsigned Error : 1;
+	unsigned ActiveProcess : 1;
+	unsigned Line : 8;
+} getTemp_flags;
+
+unsigned char DS_Address [] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+unsigned char DS_ReadData [] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+#define STATE_REG TRISA
+#define PIN_REG PORTA
+#define FIRST_LINE_1_WIRE 0b0000001
+
+unsigned int COUNT = 0;
 
 void main2(void);
 void lcd_init(void);
@@ -342,111 +365,215 @@ unsigned char GetDayOfWeekByDate(unsigned char _year, unsigned char _mounth, uns
 void SendSMS(unsigned char *, unsigned char *);
 
 /* Функции протокола 1-wire */
-unsigned char Init_1wire() {
-	unsigned char b = 0;
-	STATE = 1;
+unsigned char Init_1wire(unsigned char line) {
+	unsigned char One = line;
+	unsigned char Zero = One ^ 0b11111111;
+
+	unsigned char b;
+	b = 0;
+	STATE_REG |= One;
 	__delay_us(20);
-	STATE = 0;
+	STATE_REG &= Zero;
 	__delay_us(500);
-	STATE = 1;
+	STATE_REG |= One;
 	__delay_us(65);
-	b = PIN;
+	b = (PIN_REG & One) > 0;
 	__delay_us(450);
 
-	return !(b == 1);
+	return !b;
 }
 
-void TX_1wire(unsigned char cmd) {
+void TX_1wire(unsigned char cmd, unsigned char line) {
+	unsigned char One = line;
+	unsigned char Zero = One ^ 0b11111111;
+
 	unsigned char temp = 0;
 	unsigned char i = 0;
 	temp = cmd;
 	for (i = 0; i < 8; i++) {
 		if (temp & 0x01) {
-			STATE = 0;
+			STATE_REG &= Zero;
 			__delay_us(5);
-			STATE = 1;
+			STATE_REG |= One;
 			__delay_us(70);
 		} else {
-			STATE = 0;
+			STATE_REG &= Zero;
 			__delay_us(70);
-			STATE = 1;
+			STATE_REG |= One;
 			__delay_us(5);
 		}
 		temp >>= 1;
 	}
 }
 
-unsigned char RX_1wire() {
+unsigned char RX_1wire(unsigned char line) {
+	unsigned char One = line;
+	unsigned char Zero = One ^ 0b11111111;
+
 	unsigned char d = 0;
 	for (unsigned char i = 0; i < 8; i++) {
-		STATE = 0;
+		STATE_REG &= Zero;
 		__delay_us(6);
-		STATE = 1;
+		STATE_REG |= One;
 		__delay_us(4);
 		d >>= 1;
-		if (PIN == 1) d |= 0x80;
+		if ((PIN_REG & One) > 0) {
+			d |= 0x80;
+		}
 		__delay_us(60);
 	}
 	return d;
 }//
 
-/* Получаем значение температуры */
-unsigned char get_temp() {
-	unsigned char init;
-	unsigned char temp1 = 0;
-	unsigned char temp2 = 0;
-
-	flags.Is1wireOK = 0;
-	flags.IsTemperatureRead = 0;
-
-	init = Init_1wire();
-
-	if (init) {
-		flags.Is1wireOK = 1;
-
-		TX_1wire(0xCC);
-		TX_1wire(0x44);
-
-		long int tClock = Clock;
-		while (Clock - tClock < 100);
-
-	} else {
-		return 0;
-	}
-
-	init = Init_1wire();
-
-	if (init) {
-		TX_1wire(0xCC);
-		TX_1wire(0xBE);
-
-		temp1 = RX_1wire();
-		temp2 = RX_1wire();
-
-		flags.IsTemperatureRead = 1;
-	} else {
-		return 0;
-	}
-	temp_drob = temp1 & 0b00001111; //Записываем дробную часть в отдельную переменную
-	temp_drob = ((temp_drob * 6) + 2) / 10; //Переводим в нужное дробное число
-	temp1 >>= 4;
-	unsigned char sign = temp2 & 0x80;
-	temp2 <<= 4;
-	temp2 &= 0b01110000;
-	temp2 |= temp1;
-
-	if (sign) {
-		temperature = 127 - temp2;
-		temp_drob = 10 - temp_drob;
-		if (temp_drob == 10) {
-			temp_drob = 0;
-			temperature++;
+unsigned char calc_crc(unsigned char *mas, unsigned char len) {
+	unsigned char crc = 0;
+	while (len--) {
+		unsigned char dat = *mas++;
+		for (unsigned char i = 0; i < 8; i++) { // счетчик битов в байте
+			unsigned char fb = (crc ^ dat) & 1;
+			crc >>= 1;
+			dat >>= 1;
+			if (fb) crc ^= 0x8c; // полином
 		}
-		temperature *= -1;
-	} else {
-		temperature = temp2;
 	}
-	return 1;
+	return crc;
+}
+
+
+void Run_getTemp(unsigned char line) {
+
+	getTemp_flags.Init = 1;
+	getTemp_flags.Send_Address = 1;
+	getTemp_flags.CountAddressBytes = 0;
+	getTemp_flags.SendConvertTemp = 1;
+	getTemp_flags.PauseValue = 120;
+	getTemp_flags.SendGetTemp = 1;
+	getTemp_flags.ReadData = 1;
+	getTemp_flags.CountDataBytes = 0;
+	getTemp_flags.Error = 0;
+	getTemp_flags.DataIsRead = 0;
+	getTemp_flags.Line = line;
+
+	getTemp_flags.ActiveProcess = 1;
+
+}
+
+void Run_getInit(unsigned char line) {
+
+	getTemp_flags.Init = 1;
+	getTemp_flags.Send_Address = 0;
+	getTemp_flags.CountAddressBytes = 0;
+	getTemp_flags.SendConvertTemp = 0;
+	getTemp_flags.PauseValue = 0;
+	getTemp_flags.SendGetTemp = 0;
+	getTemp_flags.ReadData = 0;
+	getTemp_flags.CountDataBytes = 0;
+	getTemp_flags.Error = 0;
+	getTemp_flags.DataIsRead = 0;
+	getTemp_flags.Line = line;
+
+	getTemp_flags.ActiveProcess = 1;
+
+}
+
+void get_temp_Async() {
+
+	if (!getTemp_flags.ActiveProcess) {
+		return;
+	}
+
+	unsigned char line = getTemp_flags.Line;
+
+	// Step 1, 5
+	if (getTemp_flags.Init) {
+		if (Init_1wire(line)) {
+			getTemp_flags.Init = 0;
+
+			getTemp_flags.Send_Address = 1;
+			getTemp_flags.CountAddressBytes = 0;
+		} else {
+			getTemp_flags.ActiveProcess = 0;
+			getTemp_flags.Error = 1;
+		}
+	} else
+		// Step 2, 6
+		if (getTemp_flags.Send_Address) {
+		if (Broadcasting_1_Wire) { //|| getTemp_flags.SendConvertTemp
+			TX_1wire(0xCC, line);
+			getTemp_flags.CountAddressBytes = 1;
+			getTemp_flags.Send_Address = 0;
+		} else if (getTemp_flags.CountAddressBytes < sizeof (DS_Address)) {
+			if (getTemp_flags.CountAddressBytes == 0) {
+				TX_1wire(0x55, line);
+			}
+			TX_1wire(DS_Address[getTemp_flags.CountAddressBytes], line);
+			getTemp_flags.CountAddressBytes++;
+
+			if (getTemp_flags.CountAddressBytes == sizeof (DS_Address)) {
+				getTemp_flags.Send_Address = 0;
+			}
+		}
+	} else
+		// Step 3
+		if (getTemp_flags.SendConvertTemp) {
+		TX_1wire(0x44, line);
+		getTemp_flags.SendConvertTemp = 0;
+
+	} else
+		// Step 4
+		if (getTemp_flags.PauseValue > 0) {
+		getTemp_flags.PauseValue--;
+		if (getTemp_flags.PauseValue == 0) {
+			getTemp_flags.Init = 1;
+		}
+	} else
+		// Step 7
+		if (getTemp_flags.SendGetTemp) {
+		TX_1wire(0xBE, line);
+		getTemp_flags.SendGetTemp = 0;
+	} else
+		// Step 8
+		if (getTemp_flags.ReadData) {
+		if (getTemp_flags.CountDataBytes < sizeof (DS_ReadData)) {
+			for (unsigned char i = 0; i < 3 && getTemp_flags.CountDataBytes < sizeof (DS_ReadData); i++) {
+				DS_ReadData[getTemp_flags.CountDataBytes] = RX_1wire(line);
+				getTemp_flags.CountDataBytes++;
+			}
+			if (getTemp_flags.CountDataBytes == sizeof (DS_ReadData)) {
+				if (DS_ReadData[sizeof (DS_ReadData) - 1] != calc_crc(DS_ReadData, sizeof (DS_ReadData) - 1)) {
+					getTemp_flags.Error = 1;
+				} else {
+
+					unsigned char temp1 = DS_ReadData[0];
+					unsigned char temp2 = DS_ReadData[1];
+
+					temp_drob = temp1 & 0b00001111; //Записываем дробную часть в отдельную переменную
+					temp_drob = ((temp_drob * 6) + 2) / 10; //Переводим в нужное дробное число
+					temp1 >>= 4;
+					temp_sign = temp2 & 0x80;
+					temp2 <<= 4;
+					temp2 &= 0b01110000;
+					temp2 |= temp1;
+
+					if (temp_sign) {
+						temperature = 127 - temp2;
+						temp_drob = 10 - temp_drob;
+						if (temp_drob == 10) {
+							temp_drob = 0;
+							temperature++;
+						}
+					} else {
+						temperature = temp2;
+					}
+				}
+				getTemp_flags.ReadData = 0;
+				getTemp_flags.ActiveProcess = 0;
+				getTemp_flags.DataIsRead = 1;
+			}
+		}
+	} else {
+		getTemp_flags.ActiveProcess = 0;
+	}
 }
 
 unsigned char getDigit(char line, char symbol) {
@@ -2855,6 +2982,10 @@ void interrupt low_priority F_l() {
 		if(flags.ActiveCall == 0) {
 			flags.IncommingCall = 0;
 		}
+		
+		get_temp_Async();
+		
+		COUNT++;
 	}
 }
 
@@ -4228,9 +4359,8 @@ void main2() {
 			KeyCode = 0;
 			char item = 0;
 			unsigned char *menu[] = {
-			//	"Планировщик",
-			//	"Тел. книга",
 				"Настройки",
+			//	"Задержка 1-WIRE",
 				NULL
 			};
 			do {
@@ -4244,6 +4374,8 @@ void main2() {
 				} else*/
 				if (item == 1) { // Настройки
 					Settings();
+				} else if (item == 2) { // 
+				//	DS_Edit;
 				}
 			} while (item > 0);
 			clrInd();
