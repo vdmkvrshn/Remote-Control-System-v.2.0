@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/Water_PIC18_test.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=Water_PIC18_test.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=waterpic18test/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/Remote-Control-System-v.2.0.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=Remote-Control-System-v.2.0.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=remote-control-system-v.2.0/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/waterpic18test/bin
+makeDirectory ${TMPDIR}/remote-control-system-v.2.0/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/waterpic18test.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/remote-control-system-v.2.0.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/waterpic18test.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/remote-control-system-v.2.0.tar *
 checkReturnCode
 
 # Cleanup

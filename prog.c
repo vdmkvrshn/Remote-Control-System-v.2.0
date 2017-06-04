@@ -1219,8 +1219,8 @@ void TimeToInd() {
 			OutputString(tString, 0, (SignalsFinal == 7) ? 4 : 5, 0);
 		}
 		OutputString(GetDayOfWeek(day), 0, (SignalsFinal == 7) ? 1 : 2, 0);
-		
-		if(flags.GSM_Connected){
+
+		if (flags.GSM_Connected) {
 			char s [] = " ";
 			s[0] = ANTENNA_SYMBOL;
 			OutputString(s, 0, 0, 0);
@@ -1504,10 +1504,10 @@ void TimeEdit() {
 		(*symb_array[blinking]).props.blink = 1;
 
 		(*(TimeData.WeekDay[0])).number = GetDayOfWeekByDate(
-				(*(TimeData.Date[8])).number * 10 + (*(TimeData.Date[9])).number,
-				(*(TimeData.Date[3])).number * 10 + (*(TimeData.Date[4])).number,
-				(*(TimeData.Date[0])).number * 10 + (*(TimeData.Date[1])).number
-				);
+			(*(TimeData.Date[8])).number * 10 + (*(TimeData.Date[9])).number,
+			(*(TimeData.Date[3])).number * 10 + (*(TimeData.Date[4])).number,
+			(*(TimeData.Date[0])).number * 10 + (*(TimeData.Date[1])).number
+			);
 
 		ReIndTimeEdit(&TimeData);
 
@@ -1580,8 +1580,8 @@ void TimeEdit() {
 					t = 0;
 
 					Clock = ((long int) ((*(TimeData.WeekDay[0])).number - 1) * 86400
-							+ (long int) ((*symb_array[6]).number * 10 + (*symb_array[7]).number) * 3600
-							+ (long int) ((*symb_array[8]).number * 10 + (*symb_array[9]).number) * 60) * 100;
+						+ (long int) ((*symb_array[6]).number * 10 + (*symb_array[7]).number) * 3600
+						+ (long int) ((*symb_array[8]).number * 10 + (*symb_array[9]).number) * 60) * 100;
 
 					cDays = (*symb_array[0]).number * 10 + (*symb_array[1]).number;
 					cMonths = (*symb_array[2]).number * 10 + (*symb_array[3]).number;
@@ -1684,7 +1684,7 @@ void SendSymbolToLCD(unsigned char Symb) {
 			Smb++;
 		}
 		Symb /= 2;
-	//	CLRWDT();
+		//	CLRWDT();
 	}
 
 	RS = 1;
@@ -1727,7 +1727,7 @@ void lcd_send_initial_half_byte(unsigned char data) {
 			data_temp++;
 		}
 		data /= 2;
-	//	CLRWDT();
+		//	CLRWDT();
 	}
 	LATA = (0b00111100 & (data_temp * 4)) | (flags.LCD_Light_On == 1 ? 0b00000010 : 0b00000000);
 	E = 1;
@@ -2530,9 +2530,9 @@ void ProcessIncommingUartData() {
 			cMonths = GetNumericFromString(Clock_from_GSM, 11) * 10 + GetNumericFromString(Clock_from_GSM, 12);
 			cDays = GetNumericFromString(Clock_from_GSM, 14) * 10 + GetNumericFromString(Clock_from_GSM, 15);
 			long int tClock = ((long int) (GetDayOfWeekByDate(cYears, cMonths, cDays) - 1) * 86400
-					+ (long int) (GetNumericFromString(Clock_from_GSM, 17) * 10 + GetNumericFromString(Clock_from_GSM, 18)) * 3600
-					+ (long int) (GetNumericFromString(Clock_from_GSM, 20) * 10 + GetNumericFromString(Clock_from_GSM, 21)) * 60
-					+ (long int) (GetNumericFromString(Clock_from_GSM, 23) * 10 + GetNumericFromString(Clock_from_GSM, 24))) * 100;
+				+ (long int) (GetNumericFromString(Clock_from_GSM, 17) * 10 + GetNumericFromString(Clock_from_GSM, 18)) * 3600
+				+ (long int) (GetNumericFromString(Clock_from_GSM, 20) * 10 + GetNumericFromString(Clock_from_GSM, 21)) * 60
+				+ (long int) (GetNumericFromString(Clock_from_GSM, 23) * 10 + GetNumericFromString(Clock_from_GSM, 24))) * 100;
 
 			CalculateClockDelta(tClock);
 			Clock = tClock;
@@ -2545,10 +2545,10 @@ void ProcessIncommingUartData() {
 				number[i] = Incomming_Call_Data[i + 11];
 			}
 			Phone *contact = FindPhoneContactByNumber(number);
-			if (contact == NULL) {
+			if (contact == NULL || (*contact).blocked[0]) {
 				SendCommandToUSART("ATH0", 0);
 				flags.ActiveCall = 0;
-				
+
 				unsigned char msg [33];
 				_CleanStringArray_interrupt(msg, sizeof (msg), '\0');
 				strcat(msg, "Отклоненный        ");
@@ -2563,14 +2563,14 @@ void ProcessIncommingUartData() {
 				SendCommandToUSART("AT+DDET=1", 1);
 				flags.RemoteControlIsEnabled = 0;
 			}
-			
+
 			if (flags.LCD_Power_On == 0) {
 				lcd_on();
 				flags.LCD_Light_On = 1;
 				LCD_ON_TIMEOUT = LCD_ON_TIMEOUT_CONST / 10;
 			}
 		} else if (_FindIncommingData_interrupt(StandardAnswer_DTMF, _getContainer_Incomming_DTMF_Data(), LAST_INCOMMING_BUFF_INDEX)) {
-			
+
 			DTMF_Symbol = Incomming_DTMF_Data[sizeof (Incomming_DTMF_Data) - 2];
 			if (flags.RemoteControlIsEnabled) {
 				unsigned char answerString [] = "AT+VTS=\" \"";
@@ -2578,7 +2578,7 @@ void ProcessIncommingUartData() {
 				_CleanStringArray_interrupt(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
 				SendCommandToUSART(answerString, 1);
 				while (!_FindIncommingData_interrupt(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX));
-				
+
 				if (DTMF_Symbol == '4') {
 					CurrentSignals = 0;
 					flags.SignalsAreChanged = 1;
@@ -2706,7 +2706,7 @@ void _load_TXREG() {
 }
 
 void interrupt high_priority F_h() {
-	
+
 	if (PIR1bits.RCIF == 1) {
 		AddByteToUSARTbuff(RCREG);
 	} else if (PIR1bits.TXIF == 1) {
@@ -2852,7 +2852,7 @@ void interrupt low_priority F_l() {
 
 		ProcessIncommingUartData();
 
-		if(flags.ActiveCall == 0) {
+		if (flags.ActiveCall == 0) {
 			flags.IncommingCall = 0;
 		}
 	}
@@ -2938,8 +2938,8 @@ void main() {
 	TRISC = 0b00100000;
 
 	Clock = ((long int) cMinutes * 60
-			+ (long int) cHours * 3600
-			+ ((long int) cWeekDay - 1) * 86400) * 100;
+		+ (long int) cHours * 3600
+		+ ((long int) cWeekDay - 1) * 86400) * 100;
 
 	LATA = 0b00000000;
 	LATB = 0b00000000;
@@ -3470,7 +3470,7 @@ unsigned char *InputText(unsigned char *text, input_text_props *_props, unsigned
 			}
 		} else if (KeyCode == 45) { // properties
 			KeyCode = 0;
-			if(props.PhoneKeyboard){
+			if (props.PhoneKeyboard) {
 				if (!props.NotClearInd) {
 					clrInd();
 				}
@@ -3746,7 +3746,7 @@ void DialDTMF() {
 	input_text_props props = {AA, Numeric, Yes, Yes, Yes, Yes};
 	unsigned char *string = NULL;
 	while ((string = InputText(string, &props, 32)) != NULL) {
-		if(props.InputChar != NULL){
+		if (props.InputChar != NULL) {
 			unsigned char s [] = "AT+VTS=\" \"";
 			s[8] = props.InputChar;
 			SendCommandToUSART(s, 1);
@@ -3783,7 +3783,12 @@ void PhonebookEdit() {
 		NumericToString((cell - PHONEBOOK_START_ADRESS) / sizeof (Contact) + 1, num_cell, sizeof (num_cell));
 		OutputString(num_cell, 1, 14, 0);
 		if (Contact.filled[0] == 1) {
-			OutputString(Contact.name, 0, 0, 0);
+			unsigned char name [18] = "";
+			strcat(name, Contact.name);
+			if (!Contact.blocked[0]) {
+				strcat(name, "*");
+			}
+			OutputString(name, 0, 0, 0);
 			OutputString(Contact.phone, 1, 0, 0);
 		} else {
 			OutputString("     <пусто>    ", 0, 0, 0);
@@ -3799,34 +3804,44 @@ void PhonebookEdit() {
 				NULL,
 				NULL,
 				NULL,
+				NULL,
 				NULL
 			};
 
 			char o = 0;
-			if (flags.ActiveCall) {
+			char localActiveCall = flags.ActiveCall;
+			if (localActiveCall) {
 				menu[o++] = "Тоновый набор";
 			}
 			menu[o++] = "Изменить";
+			if (Contact.filled[0] == 1) {
+				menu[o++] = (Contact.blocked[0] ? "Разрешить упр." : "Запретить упр.");
+			}
 			menu[o++] = "Набрать номер";
-			menu[o++] = "Удалить";
+			if (Contact.filled[0] == 1) {
+				menu[o++] = "Удалить";
+			}
+
 			menu[o++] = "Удалить все";
 
 			o = 1;
 			char result = ShowMenu(menu, 0);
-			if ((flags.ActiveCall ? result == o++ : 0)) { // Тоновый набор
-				DialDTMF();
+			if ((localActiveCall ? result == o++ : 0)) { // Тоновый набор
+				if (flags.ActiveCall){
+					DialDTMF();
+				}
 			} else if (result == o++) { // Изменить
 				clrInd();
 
 				unsigned char *field;
 				input_text_props input_props = {Aa, Russian, No, No};
 				if ((field = InputText(
-						(Contact.filled[0] == 1)
-						?
-						Contact.name
-						:
-						NULL,
-						&input_props, sizeof (Contact.name) - 1)) != NULL) {
+					(Contact.filled[0] == 1)
+					?
+					Contact.name
+					:
+					NULL,
+					&input_props, sizeof (Contact.name) - 1)) != NULL) {
 
 					unsigned char i;
 					for (i = 0; (*(field + i) != '\0'); i++) {
@@ -3836,23 +3851,38 @@ void PhonebookEdit() {
 					input_props.Language = Numeric;
 
 					if ((field = InputText(
-							(Contact.filled[0] == 1)
-							?
-							Contact.phone
-							:
-							NULL,
-							&input_props, sizeof (Contact.phone) - 1)) != NULL) {
+						(Contact.filled[0] == 1)
+						?
+						Contact.phone
+						:
+						NULL,
+						&input_props, sizeof (Contact.phone) - 1)) != NULL) {
 
 						for (i = 0; (*(field + i) != '\0'); i++) {
 							Contact.phone[i] = *(field + i);
 						}
 						Contact.phone[i] = '\0';
 
-						Contact.filled[0] = 1;
+						if (Contact.filled[0] != 1) {
+							Contact.filled[0] = 1;
+							Contact.blocked[0] = 1;
+						}
 						WritePhonebookCellToEEPROM(&Contact, cell);
 					} else {
 						read = 0;
 					}
+				}
+			} else if ((Contact.filled[0] == 1 ? result == o++ : 0)) { // Разрешить / Запретить управление
+				unsigned char changed = 0;
+				if (Contact.blocked[0] && Select_OK_NO("Разрешить управлять удаленно?")) {
+					Contact.blocked[0] = 0;
+					changed = 1;
+				} else if (Contact.blocked[0] == 0 && Select_OK_NO("Запретить управлять удаленно?")) {
+					Contact.blocked[0] = 1;
+					changed = 1;
+				}
+				if (changed) {
+					WritePhonebookCellToEEPROM(&Contact, cell);
 				}
 			} else if (result == o++) { // Набрать номер
 
@@ -3863,7 +3893,7 @@ void PhonebookEdit() {
 					flags.ActiveCall = 1;
 				}
 
-			} else if (result == o++) { // Удалить
+			} else if ((Contact.filled[0] == 1 ? result == o++ : 0)) { // Удалить
 
 				if (Contact.filled[0] == 1 && Select_OK_NO("Удалить номер?")) {
 					Phone aaa;
@@ -4161,9 +4191,9 @@ unsigned char *GetSystemInfo() {
 void main2() {
 
 	flags.UsartExchangeEnabled = 1;
-	
+
 	flags.UseGSM = EERD(USE_GSM_MODULE_CELL);
-	
+
 	if (flags.UseGSM == 1) {
 		for (unsigned char i = 0; i < 5; i++) {
 			if (Init_GSM(1)) {
@@ -4184,23 +4214,23 @@ void main2() {
 	AdressOfNextStartCell = FindNextTimeStart(&NearTimeStart);
 
 	unsigned long int t1 = getSystemTimePoint();
-	
+
 	while (1) {
 
-		if(flags.UseGSM && testTimePoint(t1, 3000)){
+		if (flags.UseGSM && testTimePoint(t1, 3000)) {
 			t1 = getSystemTimePoint();
 			CleanStringArray(IncommingBuffer[LAST_INCOMMING_BUFF_INDEX], BUFFER_STRING_LENGTH, '\0');
 			SendCommandToUSART("AT", 1);
 			unsigned long int t2 = getSystemTimePoint();
 			while (!FindIncommingData(StandardAnswer_OK, NULL, LAST_INCOMMING_BUFF_INDEX) && !testTimePoint(t2, 50));
-			if(testTimePoint(t2, 50)){
+			if (testTimePoint(t2, 50)) {
 				flags.ActiveCall = 0;
 				flags.RemoteControlIsEnabled = 0;
 				flags.StatusIsRequested = 0;
 				CleanStringArray(active_phone, sizeof (active_phone), '\0');
 				PowerOnGSM();
 				Init_GSM(0);
-			}else{
+			} else {
 				flags.GSM_Connected = 1;
 			}
 		}
@@ -4223,13 +4253,13 @@ void main2() {
 		}
 
 		TimeToInd();
-		
+
 		if (KeyCode == 45 && !flags.DetailModeOfViewSheduler) {
 			KeyCode = 0;
 			char item = 0;
 			unsigned char *menu[] = {
-			//	"Планировщик",
-			//	"Тел. книга",
+				//	"Планировщик",
+				//	"Тел. книга",
 				"Настройки",
 				NULL
 			};
@@ -4237,11 +4267,11 @@ void main2() {
 
 				item = ShowMenu(menu, item);
 
-			/*	if (item == 1) { // 
-					Scheduler(END_OF_CELLS);
-				} else if (item == 2) { // 
-					PhonebookEdit();
-				} else*/
+				/*	if (item == 1) { // 
+						Scheduler(END_OF_CELLS);
+					} else if (item == 2) { // 
+						PhonebookEdit();
+					} else*/
 				if (item == 1) { // Настройки
 					Settings();
 				}
@@ -4379,9 +4409,9 @@ void ReadTime() {
 		I2CStop();
 
 		Clock = ((long int) Seconds
-				+ (long int) cMinutes * 60
-				+ (long int) cHours * 3600
-				+ ((long int) cWeekDay - 1) * 86400) * 100;
+			+ (long int) cMinutes * 60
+			+ (long int) cHours * 3600
+			+ ((long int) cWeekDay - 1) * 86400) * 100;
 	} else if (flags.TimeSource == GSM && flags.GSM_Connected && flags.UsartExchangeEnabled) {
 		SendCommandToUSART("AT+CCLK?", 0);
 	}
